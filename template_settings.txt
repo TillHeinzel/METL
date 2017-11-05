@@ -1,0 +1,16 @@
+########## SETTINGS ##########
+set(DO_TESTS true)
+set(CREATE_EXAMPLE_PROJECTS false)
+
+
+
+################## DEPENDENCIES ##################
+
+# you can set the PEGTL include dir if you want. Otherwise it is also a git submodule and is set as default path.
+#set(PEGTL_INCLUDE_DIR "")
+
+
+# only needed if DO_TESTS is true
+set(GTEST_INCLUDE_DIR "") 
+set(GTEST_LIB_DIR "") 
+ 
