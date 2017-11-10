@@ -5,9 +5,6 @@
 # cmake settings.
 settings*.txt
 
-# dependencies. We do not want to send this everywhere
-dependencies*/
-
 # build folders (sometimes multiple, if e.g. used from windows and ubuntu using ubuntu for windows on windows 10)
 build*/
 
