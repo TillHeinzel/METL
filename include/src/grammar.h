@@ -16,15 +16,14 @@ namespace metl
 
 	struct realLiteral
 		: seq< plus<digit>, one<'.'>, plus<digit>> {};
-
-	struct imagLiteral
-		: seq< disable<sor<realLiteral, intLiteral>>, one<'i'> > {};
-
+	
 	struct Variable; // constants and variables are equivalent wrt the grammar. 
 
-
+	template<class... Literals> 
 	struct Expr;
-	struct bracket : seq< one< '(' >, Expr, one< ')' > > {};
+
+	template<class... Literals>
+	struct bracket : seq< one< '(' >, Expr<Literals...>, one< ')' > > {};
 
 
 	/////////////// FUNCTIONS ///////////
@@ -33,23 +32,29 @@ namespace metl
 
 	struct FunctionStart: seq<FunctionName, at<one<'('>>>{};
 
-	struct Function: if_must<FunctionStart, one<'('>, opt<list<Expr, one<','>, space>>, one<')'>>{};
+	template<class... Literals>
+	struct Function: if_must<FunctionStart, one<'('>, opt<list<Expr<Literals...>, one<','>, space>>, one<')'>>{};
 
 	/////////////// RECURSIVE EXPRESSIONSTRUCTURE ///////////
 
 	struct UnaryOperator;
 
+	template<class... Literals>
 	struct Atomic:
-		seq<opt<UnaryOperator>, star<space>, sor<bracket, Function, Variable, imagLiteral, realLiteral, intLiteral>> {};
+		seq<opt<UnaryOperator>, star<space>, sor<bracket<Literals...>, Function<Literals...>, Variable, Literals...>> {};
 	
 	struct Operator;
+
+	template<class... Literals>
 	struct Expr
-		: list<Atomic, Operator, space> {};
+		: list<Atomic<Literals...>, Operator, space> {};
 	
 
 	////////////////// GRAMMAR //////////////////////
+
+	template<class... Literals>
 	struct grammar
-		: must<Expr, pegtl::eof> {};
+		: must<Expr<Literals...>, pegtl::eof> {};
 }
 
 namespace metl

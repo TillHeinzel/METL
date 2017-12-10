@@ -37,4 +37,14 @@ namespace metl
 
 
 	template<unsigned index, class... Ts> using Get_t = typename Get<index, Ts...>::type;
+
+}
+
+namespace metl
+{
+	template<class T>
+	struct Type
+	{
+		using type = T;
+	};
 }

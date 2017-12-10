@@ -14,8 +14,7 @@ namespace metl
 		template< typename Input, class Compiler >
 		static void apply(const Input& in, Compiler& compiler)
 		{
-			int i = std::stoi(in.string());
-			compiler.stack_.push(metl::makeConstExpression<typename Compiler::Expression>(static_cast<typename Compiler::IntType>(i)));
+			compiler.stack_.push(metl::makeConstExpression<typename Compiler::Expression>(compiler.literalConverters_.toInt(in.string())));
 		}
 	};
 
@@ -25,8 +24,7 @@ namespace metl
 		template< typename Input, class Compiler >
 		static void apply(const Input& in, Compiler& compiler)
 		{
-			double d = std::stod(in.string());
-			compiler.stack_.push(metl::makeConstExpression<typename Compiler::Expression>(static_cast<typename Compiler::FloatType>(d)));
+			compiler.stack_.push(metl::makeConstExpression<typename Compiler::Expression>(compiler.literalConverters_.toReal(in.string())));
 		}
 	};
 
@@ -81,8 +79,8 @@ namespace metl
 		}
 	};
 
-	template<>
-	struct action<Function>
+	template<class... Literals>
+	struct action<Function<Literals...>>
 	{
 		template< typename Input, class Compiler >
 		static void apply(const Input&, Compiler& compiler)

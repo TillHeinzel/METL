@@ -4,27 +4,19 @@
 
 #include "VarExpression.h"
 #include "Stack.fwd.h"
+#include "Compiler_Detail.fwd.h"
 
 namespace metl
 {
-	template<class... Ts>
+	template<class Grammar, class LiteralsConverters, class... Ts>
 	class Compiler
 	{
 	public:
 		using Expression = Expression2<Ts...>;
 
-		// the class assumes that Ts = {integer-type, float-type, other types...}. 
-		// This is literally only necessary to make literals work (excuse the pun)
-		static_assert(sizeof...(Ts) >= 2, "require at least two types (integer type and floating point type) for metl-compiler");
-		using IntType = Get_t<0, Ts...>; // get 0th type from parameter pack
-		using FloatType = Get_t<1, Ts...>;// get 1st type from parameter pack
-
-		static_assert(std::is_constructible_v<IntType, int>, "IntType must be constructible from int! (integer literals are turned into int and then into IntType via static_cast)");
-		static_assert(std::is_constructible_v<FloatType, double>, "FloatType must be constructible from double! (floating point literals are turned into double and then into FloatType via static_cast)");
-
 	public:
 
-		Compiler();
+		Compiler(const LiteralsConverters& literalConverters);
 
 		Expression build(const std::string& expression);
 
@@ -80,6 +72,8 @@ namespace metl
 
 	public:
 		Stack<Ts...> stack_;
+		LiteralsConverters literalConverters_;
+		detail::Compiler_impl impl_;
 
 	private:
 

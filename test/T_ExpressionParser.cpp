@@ -10,9 +10,10 @@ public:
 	const double acc = 1e-10;
 };
 
+
 TEST_F(ExpressionParser_Fixture, scalarLiterals)
 {
-	auto compiler = metl::makeCompiler(metl::FloatType<float>(), std::complex<double>());
+	auto compiler = metl::makeCompiler<int, double>();
 
 	compiler.setOperatorPrecedence("+", 1);
 
@@ -27,6 +28,10 @@ TEST_F(ExpressionParser_Fixture, scalarLiterals)
 
 	ASSERT_EQ(func2(), 2 + 3);
 
+	compiler.setFunction<int>("plusOne", [](int i) {return i + 1; });
+
+	auto func3 = compiler.build<int>("(1+plusOne(2+2))");
+	std::cout << func3() << std::endl;
 	/*
 
 	QExpressionBuilder compiler{};

@@ -16,6 +16,9 @@ set(SOURCES
 	Stack.fwd.h
 	Stack.impl.h
 	
+	Compiler_Detail.fwd.h
+	Compiler_Detail.impl.h
+	
 	Compiler.fwd.h
 	Compiler.impl.h
 	Compiler.h
