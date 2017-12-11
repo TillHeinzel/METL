@@ -39,6 +39,10 @@ namespace metl
 		template<class From, /*inferred*/ class F>
 		void setCast(const F& f);
 
+		// adds 'token' as a possible suffix for literals of type From, converting them to type To.
+		template<class From, class To, /*inferred*/class F>
+		void setSuffix(const std::string& token, const F& f);
+
 	public:
 		template<class T>
 		void setConstant(const std::string& token, T&& val);

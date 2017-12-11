@@ -94,9 +94,15 @@ namespace metl
 
 
 	template <class ... Ts>
-	Stack<Ts...>::Substack::Substack(const std::map<std::string, FunctionImpl<Expression>>& opMap, const std::map<std::string, FunctionImpl<Expression>>& functionMap, const std::map<std::string, CastImpl<Expression>>& castImplementations, const std::map<TYPE, std::vector<TYPE>>& castDeclarations)
+	Stack<Ts...>::Substack::Substack(
+		const std::map<std::string, FunctionImpl<Expression>>& opMap,
+		const std::map<std::string, FunctionImpl<Expression>>& functionMap,
+		const std::map<std::string, CastImpl<Expression>>& castImplementations,
+		const std::map<std::string, CastImpl<Expression>>& suffixImplementations,
+		const std::map<TYPE, std::vector<TYPE>>& castDeclarations)
 		:opMap_(opMap),
 		functionMap_(functionMap),
+		suffixMap_(suffixImplementations),
 		castImplementations_(castImplementations),
 		castDeclarations_(castDeclarations)
 	{
@@ -125,6 +131,64 @@ namespace metl
 	void Stack<Ts...>::Substack::pushFunction(std::string FunctionName)
 	{
 		function_ = std::make_unique<std::string>(FunctionName);
+	}
+
+	template <class ... Ts>
+	void Stack<Ts...>::Substack::push(const suffixCarrier& suffix)
+	{
+		assert(!expressions_.empty());
+		assert(expressions_.back().category() == CATEGORY::CONSTEXPR);
+
+		auto inType = expressions_.back().type();
+		auto it = suffixMap_.find(mangleSuffix(suffix.name, { inType }));
+
+		if (it == suffixMap_.end())
+		{
+			std::vector<TYPE> allowedCasts = castDeclarations_.at(inType);
+
+
+			std::vector<TYPE> validCasts;
+			std::vector<std::string> possibleFunctions;
+			for (auto c : allowedCasts)
+			{
+				auto it2 = suffixMap_.find(mangleSuffix(suffix.name, { c }));
+				if (it2 != suffixMap_.end())
+				{
+					possibleFunctions.push_back(it2->first);
+					validCasts.push_back(c);
+				}
+			}
+			// if we found multiple possible overloads that we can get through casts, this is an error
+			if (possibleFunctions.size() > 1)
+			{
+				throw std::runtime_error("To many possible overloads for unary operator " + suffix.name);
+			}
+
+			// if we found a single possible overload that can be achieved through casting, use it!
+			if (possibleFunctions.size() == 1)
+			{
+				castTo({ validCasts.back() });
+				push(suffix); // call recursively
+				return;
+			}
+			else
+			{
+				throw std::runtime_error("could not find a matching unary operator for " + suffix.name);
+			}
+		}
+
+		// get left and right expressions
+		const auto t = expressions_.back();
+		expressions_.pop_back();
+		
+		auto resultExpression = it->second({ t });
+
+		if (t.category() == CATEGORY::CONSTEXPR)
+		{
+			resultExpression = evaluateConstExpr(resultExpression);
+		}
+
+		expressions_.push_back(resultExpression);
 	}
 
 	template <class ... Ts>
@@ -286,21 +350,18 @@ namespace metl
 		// get operator
 		const auto opName = operators_.back().name;
 
-		auto inType = std::vector<TYPE>{ expressions_.rbegin()->type() };
-		auto it = opMap_.find(mangleName(opName, inType));
+		auto inType = expressions_.back().type();
+		auto it = opMap_.find(mangleName(opName, { inType }));
 		if (it == opMap_.end())
 		{
-			std::vector<std::vector<TYPE>> castCombis{ {} };
-			for (auto t : inType)
-			{
-				castCombis = tensorSum(castCombis, castDeclarations_.at(t));
-			}
+			std::vector<TYPE> allowedCasts = castDeclarations_.at(inType);
 
-			std::vector<std::vector<TYPE>> validCasts;
+
+			std::vector<TYPE> validCasts;
 			std::vector<std::string> possibleFunctions;
-			for (auto c : castCombis)
+			for (auto c : allowedCasts)
 			{
-				auto it2 = opMap_.find(mangleName(opName, c));
+				auto it2 = opMap_.find(mangleName(opName, { c }));
 				if (it2 != opMap_.end())
 				{
 					possibleFunctions.push_back(it2->first);
@@ -316,7 +377,7 @@ namespace metl
 			// if we found a single possible overload that can be achieved through casting, use it!
 			if (possibleFunctions.size() == 1)
 			{
-				castTo(validCasts.back());
+				castTo({ validCasts.back() });
 				reduce(); // call recursively
 				return;
 			}
@@ -362,7 +423,7 @@ namespace metl
 			auto& expr = expressions_.at(i);
 			auto fromType = expr.type();
 			auto toType = targetTypes.at(i_target);
-			if (fromType != toType) 
+			if (fromType != toType)
 			{
 				if (expr.category() == CATEGORY::CONSTEXPR)
 				{
@@ -381,10 +442,16 @@ namespace metl
 namespace metl
 {
 	template <class ... Ts>
-	Stack<Ts...>::Stack(const std::map<std::string, FunctionImpl<Expression>>& opMap, const std::map<std::string, FunctionImpl<Expression>>& funcMap, const std::map<std::string, CastImpl<Expression>>& castImplementations, const std::map<TYPE, std::vector<TYPE>>& castDeclarations)
+	Stack<Ts...>::Stack(
+		const std::map<std::string, FunctionImpl<Expression>>& opMap, 
+		const std::map<std::string, FunctionImpl<Expression>>& funcMap, 
+		const std::map<std::string, CastImpl<Expression>>& castImplementations, 
+		const std::map<std::string, CastImpl<Expression>>& suffixImplementations, 
+		const std::map<TYPE, std::vector<TYPE>>& castDeclarations)
 		:opMap_(opMap),
 		funcMap_(funcMap),
 		castImplementations_(castImplementations),
+		suffixImplementations_(suffixImplementations),
 		castDeclarations_(castDeclarations)
 	{
 		open();
@@ -410,9 +477,15 @@ namespace metl
 	}
 
 	template <class ... Ts>
+	void Stack<Ts...>::push(const suffixCarrier& suffix)
+	{
+		subStacks_.back().push(suffix);
+	}
+
+	template <class ... Ts>
 	void Stack<Ts...>::open()
 	{
-		subStacks_.emplace_back(opMap_, funcMap_, castImplementations_, castDeclarations_);
+		subStacks_.emplace_back(opMap_, funcMap_, castImplementations_, suffixImplementations_, castDeclarations_);
 	}
 
 	template <class ... Ts>

@@ -36,7 +36,7 @@ namespace metl
 		template <class LiteralConverters, class ... Ts>
 		Compiler_impl<LiteralConverters, Ts...>::Compiler_impl(const LiteralConverters& literalConverters) :
 			literalConverters_(literalConverters),
-			stack_(operators_, functions_, castImplementations_, castDeclarations_),
+			stack_(operators_, functions_, castImplementations_, suffixImplementations_ ,castDeclarations_),
 			castDeclarations_({ std::make_pair(type<Ts>(), std::vector<TYPE>{type<Ts>()})... })
 		{}
 
@@ -94,7 +94,7 @@ namespace metl
 		}
 
 		template <class LiteralConverters, class ... Ts>
-		void Compiler_impl<LiteralConverters, Ts...>::setCast(TYPE from, TYPE to, const CastImpl<Expression>& fs)
+		void Compiler_impl<LiteralConverters, Ts...>::setCast(const TYPE from, const TYPE to, const CastImpl<Expression>& fs)
 		{
 			auto it = castDeclarations_.find(from);
 			if (it == castDeclarations_.end())
@@ -107,6 +107,13 @@ namespace metl
 			}
 
 			insert_or_emplace(castImplementations_, mangleCast(from, to), fs);
+		}
+
+		template <class LiteralConverters, class ... Ts>
+		void Compiler_impl<LiteralConverters, Ts...>::setSuffix(const std::string& token, const TYPE from, const CastImpl<Expression>& conversion)
+		{
+			insert_or_emplace(suffixes_, token, suffixCarrier{ token });
+			insert_or_emplace(suffixImplementations_, mangleSuffix(token, from), conversion);
 		}
 
 		template <class LiteralConverters, class ... Ts>

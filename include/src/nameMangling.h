@@ -27,7 +27,7 @@ namespace metl
 {
 	constexpr char separator = '@';
 
-	inline std::string mangleCast(TYPE from, TYPE to)
+	inline std::string mangleCast(const TYPE from, const TYPE to)
 	{
 		return typeToString(from) + separator + typeToString(to);
 	}
@@ -51,5 +51,10 @@ namespace metl
 		}
 
 		return functionName;
+	}
+
+	inline std::string mangleSuffix(std::string suffix, TYPE from)
+	{
+		return typeToString(from)+separator+suffix;
 	}
 }

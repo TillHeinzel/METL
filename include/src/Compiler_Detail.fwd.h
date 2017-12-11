@@ -20,14 +20,15 @@ namespace metl
 			void setOperatorPrecedence(std::string op, unsigned int precedence, ASSOCIATIVITY associativity = ASSOCIATIVITY::LEFT);
 			void setUnaryOperatorPrecedence(std::string op, unsigned int precedence);
 
-		void setOperator(const std::string& token, const std::vector<TYPE>& paramTypes, const FunctionImpl<Expression>& op);
-		
-		void setUnaryOperator(const std::string& token, TYPE paramType, const FunctionImpl<Expression>& op);
-		
-		void setFunction(const std::string& token, const std::vector<TYPE>& paramTypes, const FunctionImpl<Expression>& function);
-		
-		void setCast(TYPE from, TYPE to, const CastImpl<Expression>& fs);
+			void setOperator(const std::string& token, const std::vector<TYPE>& paramTypes, const FunctionImpl<Expression>& op);
 
+			void setUnaryOperator(const std::string& token, TYPE paramType, const FunctionImpl<Expression>& op);
+
+			void setFunction(const std::string& token, const std::vector<TYPE>& paramTypes, const FunctionImpl<Expression>& function);
+
+			void setCast(TYPE from, TYPE to, const CastImpl<Expression>& fs);
+
+			void setSuffix(const std::string& token, TYPE from, const CastImpl<Expression>& conversion);
 
 			const auto& getOperators() { return operators_; }
 			const auto& getCandV() { return constantsAndVariables_; }
@@ -37,6 +38,8 @@ namespace metl
 			const auto& getFunctions() { return functions_; }
 			const auto& getcastImplementations() { return castImplementations_; }
 			const auto& getcastDeclarations() { return castDeclarations_; }
+			const auto& getSuffixes() { return suffixes_; }
+			const auto& getSuffixImplementations() { return suffixes_; }
 
 
 		public:
@@ -46,6 +49,8 @@ namespace metl
 		private:
 
 			std::map<std::string, CastImpl<Expression>> castImplementations_;
+			std::map<std::string, CastImpl<Expression>> suffixImplementations_;
+			std::map<std::string, suffixCarrier> suffixes_;
 			std::map<TYPE, std::vector<TYPE>> castDeclarations_;
 
 			std::map<std::string, opCarrier> opCarriers_; // maps unmangled operators to their precedence

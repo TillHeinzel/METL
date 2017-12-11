@@ -30,6 +30,11 @@ namespace metl
 		ASSOCIATIVITY associativity;
 		bool isUnary;
 	};
+
+	struct suffixCarrier
+	{
+		std::string name;
+	};
 }
 
 namespace metl
@@ -46,12 +51,14 @@ namespace metl
 			explicit Substack(const std::map<std::string, FunctionImpl<Expression>>& opMap, 
 				const std::map<std::string, FunctionImpl<Expression>>& functionMap,
 				const std::map<std::string, CastImpl<Expression>>& castImplementations,
+				const std::map<std::string, CastImpl<Expression>>& suffixImplementations,
 				const std::map<TYPE, std::vector<TYPE>>& castDeclarations);
 
 
 			void push(const Expression l);
 			void push(const opCarrier& b);
 			void pushFunction(std::string FunctionName);
+			void push(const suffixCarrier& suffix);
 
 			Expression finish();
 
@@ -72,6 +79,7 @@ namespace metl
 
 			const std::map<std::string, FunctionImpl<Expression>>& opMap_;
 			const std::map<std::string, FunctionImpl<Expression>>& functionMap_;
+			const std::map<std::string, CastImpl<Expression>>& suffixMap_;
 
 			const std::map<std::string, CastImpl<Expression>>& castImplementations_;
 			const std::map<TYPE, std::vector<TYPE>>& castDeclarations_;
@@ -87,6 +95,7 @@ namespace metl
 		Stack(const std::map<std::string, FunctionImpl<Expression>>& opMap, 
 			const std::map<std::string, FunctionImpl<Expression>>& funcMap,
 			const std::map<std::string, CastImpl<Expression>>& castImplementations,
+			const std::map<std::string, CastImpl<Expression>>& suffixImplementations,
 			const std::map<TYPE, std::vector<TYPE>>& castDeclarations);
 
 		void push(const Expression& t);
@@ -94,6 +103,8 @@ namespace metl
 		void pushFunction(std::string functionName);
 
 		void push(const opCarrier& op);
+
+		void push(const suffixCarrier& suffix);
 
 		void open();
 
@@ -109,6 +120,7 @@ namespace metl
 		const std::map<std::string, FunctionImpl<Expression>>& funcMap_;
 
 		const std::map<std::string, CastImpl<Expression>>& castImplementations_;
+		const std::map<std::string, CastImpl<Expression>>& suffixImplementations_;
 		const std::map<TYPE, std::vector<TYPE>>& castDeclarations_;
 	};
 }

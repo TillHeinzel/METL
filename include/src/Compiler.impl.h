@@ -76,8 +76,8 @@ namespace metl
 	void Compiler<Grammar, LiteralConverters, Ts...>::setCast(const F& f)
 	{
 		using To = std::result_of_t<F(From)>;
-		static_assert(isInList<From, Ts...>(), "Type casted from is not one of the types of this metl");
-		static_assert(isInList<To, Ts...>(), "Type casted to is not one of the types of this metl");
+		static_assert(isInList<From, Ts...>(), "Type casted from is not one of the types of this compiler");
+		static_assert(isInList<To, Ts...>(), "Type casted to is not one of the types of this compiler");
 
 		auto impl = [f](const Expression& from)
 		{
@@ -91,6 +91,27 @@ namespace metl
 		};
 
 		impl_.setCast(type<From>(), type<To>(), CastImpl<Expression>(impl));
+	}
+
+	template <class Grammar, class LiteralsConverters, class ... Ts>
+	template <class From, class To, class F>
+	void Compiler<Grammar, LiteralsConverters, Ts...>::setSuffix(const std::string& token, const F& f)
+	{
+		static_assert(isInList<From, Ts...>(), "Type the suffix converts from is not one of the types of this compiler!");
+		static_assert(isInList<To, Ts...>(), "Type the suffix converts to is not one of the types of this compiler!");
+
+		auto impl = [f](const Expression& from)
+		{
+			auto f_from = from.template get<From>();
+			return Expression(exprType<To>{
+				[f, f_from]()
+				{
+					return f(f_from());
+				}
+			});
+		};
+
+		impl_.setSuffix(token, type<From>(), CastImpl<Expression>(impl));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>

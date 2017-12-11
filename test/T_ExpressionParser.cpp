@@ -13,13 +13,22 @@ public:
 
 TEST_F(ExpressionParser_Fixture, scalarLiterals)
 {
-	auto compiler = metl::makeCompiler<int, double>();
+	auto compiler = metl::makeCompiler<int, double, std::complex<double>>();
 
-	compiler.setOperatorPrecedence("+", 1);
+	compiler.setOperatorPrecedence("+", 2);
+	compiler.setUnaryOperatorPrecedence("-", 1);
 
 	auto plusFunc = [](const auto left, const auto right) {return left + right; };
+	//compiler.setOperator<int, int>("+", plusFunc);
+	compiler.setCast<int>([](const int i) {return static_cast<double>(i); });
+	compiler.setOperator<double, double>("+", plusFunc);
 	compiler.setOperator<int, int>("+", plusFunc);
+	auto minFunc = [](const auto left) {return -left; };
+	compiler.setUnaryOperator<double>("-", minFunc);
 
+
+	compiler.setSuffix<double, std::complex<double>>("i", [](const double d) {return std::complex<double>(0, d); });
+	
 	auto func = compiler.build<int>("1+2");
 	ASSERT_EQ(func(), 1 + 2);
 
@@ -30,7 +39,7 @@ TEST_F(ExpressionParser_Fixture, scalarLiterals)
 
 	compiler.setFunction<int>("plusOne", [](int i) {return i + 1; });
 
-	auto func3 = compiler.build<int>("(1+plusOne(2+2))");
+	auto func3 = compiler.build<std::complex<double>>("2i");
 	std::cout << func3() << std::endl;
 	/*
 

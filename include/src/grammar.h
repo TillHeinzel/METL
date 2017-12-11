@@ -39,9 +39,11 @@ namespace metl
 
 	struct UnaryOperator;
 
+	struct Suffix;
+
 	template<class... Literals>
 	struct Atomic:
-		seq<opt<UnaryOperator>, star<space>, sor<bracket<Literals...>, Function<Literals...>, Variable, Literals...>> {};
+		seq<opt<UnaryOperator>, star<space>, sor<bracket<Literals...>, Function<Literals...>, Variable, seq<Literals, opt<Suffix>>...>> {};
 	
 	struct Operator;
 
@@ -154,6 +156,31 @@ namespace metl
 			auto it = match_any_recursive(in, operators, std::string{});
 
 			if (it == operators.end()) return false; // no operator was found
+
+			s.impl_.stack_.push(it->second);
+			in.bump(it->first.size()); // remove the operator from the input.
+			return true;
+		}
+	};
+
+	struct Suffix
+	{
+		using analyze_t = analysis::generic<analysis::rule_type::ANY>;
+
+		template< apply_mode A,
+			rewind_mode M,
+			template< typename... > class Action,
+			template< typename... > class Control,
+			typename Input, class Compiler>
+			static bool match(Input& in, Compiler& s)
+		{
+			// In here, we first check if we can match the input to an operator of the current precedence N.
+			// Then, we check if it exists for the desired left and right types. 
+
+			const auto& suffixes = s.impl_.getSuffixes(); // maps the name of each operator to its precedence.
+			auto it = match_any_recursive(in, suffixes, std::string{});
+
+			if (it == suffixes.end()) return false; // no operator was found
 
 			s.impl_.stack_.push(it->second);
 			in.bump(it->first.size()); // remove the operator from the input.
