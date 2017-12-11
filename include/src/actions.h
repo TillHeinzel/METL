@@ -14,7 +14,7 @@ namespace metl
 		template< typename Input, class Compiler >
 		static void apply(const Input& in, Compiler& compiler)
 		{
-			compiler.stack_.push(metl::makeConstExpression<typename Compiler::Expression>(compiler.literalConverters_.toInt(in.string())));
+			compiler.impl_.stack_.push(metl::makeConstExpression<typename Compiler::Expression>(compiler.impl_.literalConverters_.toInt(in.string())));
 		}
 	};
 
@@ -24,7 +24,7 @@ namespace metl
 		template< typename Input, class Compiler >
 		static void apply(const Input& in, Compiler& compiler)
 		{
-			compiler.stack_.push(metl::makeConstExpression<typename Compiler::Expression>(compiler.literalConverters_.toReal(in.string())));
+			compiler.impl_.stack_.push(metl::makeConstExpression<typename Compiler::Expression>(compiler.impl_.literalConverters_.toReal(in.string())));
 		}
 	};
 
@@ -45,7 +45,7 @@ namespace metl
 		template< typename Input, class Compiler >
 		static void apply(const Input& in, Compiler& compiler)
 		{
-			compiler.stack_.pushFunction(in.string());
+			compiler.impl_.stack_.pushFunction(in.string());
 		}
 	};	
 	
@@ -55,7 +55,7 @@ namespace metl
 		template< typename Input, class Compiler >
 		static void apply(const Input&, Compiler& compiler)
 		{
-			compiler.stack_.open();
+			compiler.impl_.stack_.open();
 		}
 	};	
 
@@ -65,7 +65,7 @@ namespace metl
 		template< typename Input, class Compiler >
 		static void apply(const Input&, Compiler& compiler)
 		{
-			compiler.stack_.close();
+			compiler.impl_.stack_.close();
 		}
 	};
 	template<>
@@ -74,8 +74,8 @@ namespace metl
 		template< typename Input, class Compiler >
 		static void apply(const Input&, Compiler& compiler)
 		{
-			compiler.stack_.close();
-			compiler.stack_.open();
+			compiler.impl_.stack_.close();
+			compiler.impl_.stack_.open();
 		}
 	};
 
@@ -85,7 +85,7 @@ namespace metl
 		template< typename Input, class Compiler >
 		static void apply(const Input&, Compiler& compiler)
 		{
-			compiler.stack_.close();
+			compiler.impl_.stack_.close();
 		}
 	};
 }

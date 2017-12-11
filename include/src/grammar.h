@@ -95,13 +95,13 @@ namespace metl
 			typename Input, class Compiler, class... Others>
 			static bool match(Input& in, Compiler& s, const Others&...)
 		{
-			const auto& map = s.getCandV();
+			const auto& map = s.impl_.getCandV();
 			auto i = match_any_recursive(in, map, std::string());
 			if (i != map.end())
 			{
 				if (A == pegtl::apply_mode::ACTION)
 				{
-					s.stack_.push(i->second);
+					s.impl_.stack_.push(i->second);
 				}
 				in.bump(i->first.size());
 				return true;
@@ -125,12 +125,12 @@ namespace metl
 			// In here, we first check if we can match the input to an operator of the current precedence N.
 			// Then, we check if it exists for the desired left and right types. 
 
-			const auto& operators = s.getCarriers(); // maps the name of each operator to its precedence.
+			const auto& operators = s.impl_.getCarriers(); // maps the name of each operator to its precedence.
 			auto it = match_any_recursive(in, operators, std::string{});
 
 			if (it == operators.end()) return false; // no operator was found
 
-			s.stack_.push(it->second);
+			s.impl_.stack_.push(it->second);
 			in.bump(it->first.size()); // remove the operator from the input.
 			return true;
 		}
@@ -150,12 +150,12 @@ namespace metl
 			// In here, we first check if we can match the input to an operator of the current precedence N.
 			// Then, we check if it exists for the desired left and right types. 
 
-			const auto& operators = s.getUnaryCarriers(); // maps the name of each operator to its precedence.
+			const auto& operators = s.impl_.getUnaryCarriers(); // maps the name of each operator to its precedence.
 			auto it = match_any_recursive(in, operators, std::string{});
 
 			if (it == operators.end()) return false; // no operator was found
 
-			s.stack_.push(it->second);
+			s.impl_.stack_.push(it->second);
 			in.bump(it->first.size()); // remove the operator from the input.
 			return true;
 		}
@@ -172,7 +172,7 @@ namespace metl
 			typename Input, class Compiler>
 			static bool match(Input& in, Compiler& s)
 		{
-			const auto& functionNames = s.getFunctionNames();
+			const auto& functionNames = s.impl_.getFunctionNames();
 			auto it = match_any_recursive(in, functionNames, std::string{});
 			if (it == functionNames.end()) return false;
 
