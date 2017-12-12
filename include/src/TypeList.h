@@ -2,8 +2,31 @@
 
 namespace metl
 {
+	namespace detail
+	{
+		template<class TrueBranch, class FalseBranch>
+		decltype(auto) constexpr constexpr_if_invoke(const std::true_type&, const TrueBranch& trueBranch, const FalseBranch&)
+		{
+			return trueBranch([](const auto& t) {return t; });
+		}
 
-	template<class...> struct TypeList {};
+		template<class TrueBranch, class FalseBranch>
+		decltype(auto) constexpr constexpr_if_invoke(const std::false_type&, const TrueBranch&, const FalseBranch& falseBranch)
+		{
+			return falseBranch([](const auto& t) {return t; });
+		}
+	}
+	template<class Condition, class TrueBranch, class FalseBranch>
+	decltype(auto) constexpr constexpr_if(const Condition& condition, const TrueBranch& trueBranch, const FalseBranch& falseBranch)
+	{
+		return detail::constexpr_if_invoke(std::integral_constant<bool, Condition::value>{}, trueBranch, falseBranch);
+	}
+}
+
+namespace metl
+{
+
+	template<class...> struct TypeList { constexpr TypeList() = default; };
 
 	template<size_t I, class ToFind>
 	constexpr size_t findFirstIndex()

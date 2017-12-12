@@ -139,7 +139,7 @@ namespace metl
 		assert(!expressions_.empty());
 		assert(expressions_.back().category() == CATEGORY::CONSTEXPR);
 
-		auto inType = expressions_.back().type();
+		const auto inType = expressions_.back().type();
 		auto it = suffixMap_.find(mangleSuffix(suffix.name, { inType }));
 
 		if (it == suffixMap_.end())
@@ -421,8 +421,8 @@ namespace metl
 		for (auto i = expressions_.size() - targetTypes.size(); i < expressions_.size(); ++i)
 		{
 			auto& expr = expressions_.at(i);
-			auto fromType = expr.type();
-			auto toType = targetTypes.at(i_target);
+			const auto fromType = expr.type();
+			const auto toType = targetTypes.at(i_target);
 			if (fromType != toType)
 			{
 				if (expr.category() == CATEGORY::CONSTEXPR)

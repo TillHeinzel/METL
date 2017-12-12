@@ -16,7 +16,7 @@ namespace metl
 	template<class T, class... Ts>
 	constexpr TYPE classToType2()
 	{
-		return TYPE(findFirstIndex<T>(TypeList<Ts...>{}));
+		return static_cast<TYPE>(findFirstIndex<T>(TypeList<Ts...>{}));
 	}
 
 	enum class CATEGORY

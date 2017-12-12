@@ -9,7 +9,7 @@ namespace metl
 
 	inline std::string typeToString(TYPE type)
 	{
-		return std::to_string(int(type));
+		return std::to_string(static_cast<int>(type));
 	}
 
 	inline std::vector<std::string> typeToString(const std::vector<TYPE>& types)

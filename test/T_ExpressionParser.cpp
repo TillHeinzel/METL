@@ -4,15 +4,28 @@
 
 #include "metl.h"
 
-class ExpressionParser_Fixture : public ::testing::Test
+class MetlFixture : public ::testing::Test
 {
 public:
-	const double acc = 1e-10;
+	const double tol = 1e-15;
 };
 
+class CreatonFixture: public MetlFixture{};
 
-TEST_F(ExpressionParser_Fixture, scalarLiterals)
+TEST_F(CreatonFixture, int_only)
 {
+	// test that an int-only compiler can be created.
+
+	auto compiler = metl::makeCompiler<int>();
+
+	ASSERT_EQ(compiler.build<int>("1")(), 1);
+	ASSERT_THROW(compiler.build<int>("1.2")(), metl::BadLiteralException);
+}
+
+/*
+TEST_F(CreatonFixture, scalarLiterals)
+{
+
 	auto compiler = metl::makeCompiler<int, double, std::complex<double>>();
 
 	compiler.setOperatorPrecedence("+", 2);
@@ -23,7 +36,7 @@ TEST_F(ExpressionParser_Fixture, scalarLiterals)
 	compiler.setCast<int>([](const int i) {return static_cast<double>(i); });
 	compiler.setOperator<double, double>("+", plusFunc);
 	compiler.setOperator<int, int>("+", plusFunc);
-	auto minFunc = [](const auto left) {return -left; };
+	const auto minFunc = [](const auto left) {return -left; };
 	compiler.setUnaryOperator<double>("-", minFunc);
 
 
@@ -71,8 +84,9 @@ TEST_F(ExpressionParser_Fixture, scalarLiterals)
 	expr = compiler.build(test);
 	ASSERT_TRUE(expr.type() == QExpressionBuilder::type<complex>());
 	EXPECT_NEAR(std::real(expr.get<complex>()()), std::real(-2.3*IMAGUNIT + 4.2*2.5 - 88 / std::pow(3.14,3)), acc);
-	EXPECT_NEAR(std::imag(expr.get<complex>()()), std::imag(-2.3*IMAGUNIT + 4.2*2.5 - 88 / std::pow(3.14,3)), acc);*/
+	EXPECT_NEAR(std::imag(expr.get<complex>()()), std::imag(-2.3*IMAGUNIT + 4.2*2.5 - 88 / std::pow(3.14,3)), acc);
 }
+*/
 
 //
 //TEST_F(ExpressionParser_Fixture, gauss)
