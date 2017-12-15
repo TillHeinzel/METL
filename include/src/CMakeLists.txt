@@ -4,11 +4,18 @@ project (metl)
 set(SOURCES
 	../metl.h
 
+	Compiler.fwd.h
+	Compiler.impl.h
+	Compiler.h
+	
+	addDefaults.h
+	
+	VarExpression.h
+	
 	nameMangling.h
 	grammar.h
 	actions.h
 	
-	VarExpression.h
 	TypeList.h
 	
 	CompilerHelpers.h
@@ -19,14 +26,6 @@ set(SOURCES
 	Compiler_Detail.fwd.h
 	Compiler_Detail.impl.h
 	
-	Compiler.fwd.h
-	Compiler.impl.h
-	Compiler.h
-	#Compiler.cpp
-	
-	#QCompiler.h
-	#QCompiler.cpp
-
 	DeepCopy.h
 )
 

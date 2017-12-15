@@ -1,3 +1,22 @@
+/*
+@file
+Compiler_Detail.fwd.h
+Declares template class Compiler_impl, which carries all the user-defined operators, functions, etc.
+
+Copyright 2017 Till Heinzel
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 #pragma once
 
 #include "VarExpression.h"
@@ -12,13 +31,13 @@ namespace metl
 		class Compiler_impl
 		{
 
-			using Expression = Expression2<Ts...>;
+			using Expression = VarExpression<Ts...>;
 		public:
 			Compiler_impl(const LiteralConverters& literalConverters);
 
 
-			void setOperatorPrecedence(std::string op, unsigned int precedence, ASSOCIATIVITY associativity = ASSOCIATIVITY::LEFT);
-			void setUnaryOperatorPrecedence(std::string op, unsigned int precedence);
+			void setOperatorPrecedence(const std::string& op, unsigned int precedence, ASSOCIATIVITY associativity = ASSOCIATIVITY::LEFT);
+			void setUnaryOperatorPrecedence(const std::string& op, unsigned int precedence);
 
 			void setOperator(const std::string& token, const std::vector<TYPE>& paramTypes, const FunctionImpl<Expression>& op);
 
@@ -60,7 +79,7 @@ namespace metl
 			std::map<std::string, std::string> functionNames_; // dummy, just so we have the sorting.
 			std::map<std::string, Expression> constantsAndVariables_; // maps identifiers for constants and variables to the expressions returning their values.
 
-			void addConstantOrVariable(std::string token, const Expression& val);
+			void addConstantOrVariable(const std::string& token, const Expression& val);
 
 			template<class T>
 			constexpr static TYPE type();

@@ -1,3 +1,23 @@
+/*
+ @file 
+actions.h
+defines actions to be taken when finding specific patterns in the parsed string. Used by PEGTL
+ 
+ Copyright 2017 Till Heinzel
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
 #pragma once
 #include "grammar.h"
 
@@ -27,17 +47,6 @@ namespace metl
 			compiler.impl_.stack_.push(metl::makeConstExpression<typename Compiler::Expression>(compiler.impl_.literalConverters_.toReal(in.string())));
 		}
 	};
-
-	//template<>
-	//struct action<imagLiteral>
-	//{
-	//	template< typename Input, class Compiler >
-	//	static void apply(const Input& in, Compiler& compiler)
-	//	{
-	//		double d = std::stod(in.string());
-	//		compiler.stack_.push(metl::makeConstExpression<typename Compiler::Expression>(d*IMAGUNIT));
-	//	}
-	//};
 
 	template<>
 	struct action<FunctionStart>

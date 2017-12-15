@@ -10,9 +10,9 @@ public:
 	const double tol = 1e-15;
 };
 
-class CreatonFixture: public MetlFixture{};
+class LiteralsFixture: public MetlFixture{};
 
-TEST_F(CreatonFixture, int_only)
+TEST_F(LiteralsFixture, int_only)
 {
 	// test that an int-only compiler can be created.
 
@@ -21,6 +21,45 @@ TEST_F(CreatonFixture, int_only)
 	ASSERT_EQ(compiler.build<int>("1")(), 1);
 	ASSERT_THROW(compiler.build<int>("1.2")(), metl::BadLiteralException);
 }
+
+class DefaultsFixture:public MetlFixture{};
+
+TEST_F(DefaultsFixture, intOperators)
+{
+	auto compiler = metl::makeCompiler<int>();
+
+	//ASSERT_EQ(compiler.build<int>("1")(), 1); //assert literals work
+
+	metl::addDefaultOperators(compiler, int());
+	ASSERT_EQ(compiler.build<int>("+1")(), 1);
+	ASSERT_EQ(compiler.build<int>("-1")(), -1);
+
+
+	ASSERT_EQ(compiler.build<int>("1+1")(), 2); 
+	ASSERT_EQ(compiler.build<int>("3-2")(), 1); 
+	ASSERT_EQ(compiler.build<int>("2*3")(), 6);
+	ASSERT_EQ(compiler.build<int>("4/2")(), 2); 
+	ASSERT_EQ(compiler.build<int>("5/2")(), 2); 
+}
+
+TEST_F(DefaultsFixture, doubleOperators)
+{
+	auto compiler = metl::makeCompiler<double>();
+
+	//ASSERT_EQ(compiler.build<int>("1")(), 1); //assert literals work
+
+	metl::addDefaultOperators(compiler, double());
+	ASSERT_EQ(compiler.build<double>("+1.0")(), 1);
+	ASSERT_EQ(compiler.build<double>("-1.0")(), -1);
+
+
+	ASSERT_EQ(compiler.build<double>("1.0+1.0")(), 2.0);
+	ASSERT_EQ(compiler.build<double>("3.0-2.0")(), 1.0);
+	ASSERT_EQ(compiler.build<double>("2.0*3.0")(), 6.0);
+	ASSERT_EQ(compiler.build<double>("4.0/2.0")(), 2.0);
+	ASSERT_EQ(compiler.build<double>("5.0/2.0")(), 2.5);
+}
+
 
 /*
 TEST_F(CreatonFixture, scalarLiterals)

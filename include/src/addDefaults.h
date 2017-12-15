@@ -1,4 +1,102 @@
+/*
+@file
+addDefaults.h
+Helper-functions to add default operators, functions, etc. to a compiler
 
+Copyright 2017 Till Heinzel
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+#pragma once
+#include "Compiler.h"
+
+namespace metl
+{
+	template<class... Ts>
+	void setDefaultOperatorPrecedences(Compiler<Ts...>& c)
+	{
+		c.setOperatorPrecedence("+", 3);
+		c.setOperatorPrecedence("-", 3);
+		c.setOperatorPrecedence("*", 2);
+		c.setOperatorPrecedence("/", 2);
+		c.setUnaryOperatorPrecedence("-", 1);
+		c.setUnaryOperatorPrecedence("+", 1);
+		c.setOperatorPrecedence("^", 0);
+	}
+
+	// sets default unary operator {+,-} and binary operator {+,-,*,/} with the corresponding call in C++ 
+	template<class T, class... Ts>
+	void addDefaultOperators(Compiler<Ts...>& c, const T&)
+	{
+		setDefaultOperatorPrecedences(c);
+
+		auto unaryPlus = [](auto a) { return a; };
+		auto unaryMinus = [](auto a) { return -a; };
+
+		auto symbol = " "; // todo: for some reason the string "+" below is replaced with " " if I do not write this here. I don't know how strings work, but it looks like some really weird buffer issue or I'm an idyit
+
+		c.template setUnaryOperator<T>("+", unaryPlus);
+		c.template setUnaryOperator<T>("-", unaryMinus);
+
+		auto plus = [](auto left, auto right) { return left + right; };
+		auto minus = [](auto left, auto right) { return left - right; };
+		auto mul = [](auto left, auto right) { return left * right; };
+		auto div = [](auto left, auto right) { return left / right; };
+
+		c.template setOperator<T, T>("+", plus);
+		c.template setOperator<T, T>("-", minus);
+		c.template setOperator<T, T>("*", mul);
+		c.template setOperator<T, T>("/", div);
+	}
+	
+	template<class T, class... Ts>
+	void addBasicFunctions(Compiler<Ts...>& c, const T&)
+	{
+		c.template setFunction<T>("exp", [](auto a) {return exp(a); });
+		c.template setFunction<T>("abs", [](auto a) {return abs(a); });
+		c.template setFunction<T>("sqrt", [](auto a) {return sqrt(a); });
+		c.template setFunction<T>("exp2", [](auto a) {return exp2(a); });
+		c.template setFunction<T>("log", [](auto a) {return log(a); });
+		c.template setFunction<T>("log2", [](auto a) {return log2(a); });
+		c.template setFunction<T>("log10", [](auto a) {return log10(a); });
+	}
+
+	template<class T, class... Ts>
+	void addTrigFunctions(Compiler<Ts...>& c, const T&)
+	{
+		c.template setFunction<T>("sin", [](auto a) {return sin(a); });
+		c.template setFunction<T>("cos", [](auto a) {return cos(a); });
+		c.template setFunction<T>("tan", [](auto a) {return tan(a); });
+		c.template setFunction<T>("asin", [](auto a) {return asin(a); });
+		c.template setFunction<T>("acos", [](auto a) {return acos(a); });
+		c.template setFunction<T>("atan", [](auto a) {return atan(a); });
+		c.template setFunction<T>("sinh", [](auto a) {return sinh(a); });
+		c.template setFunction<T>("cosh", [](auto a) {return cosh(a); });
+		c.template setFunction<T>("tanh", [](auto a) {return tanh(a); });
+		c.template setFunction<T>("asinh", [](auto a) {return asinh(a); });
+		c.template setFunction<T>("acosh", [](auto a) {return acosh(a); });
+		c.template setFunction<T>("atanh", [](auto a) {return atanh(a); });
+	}
+
+	template<class... Ts>
+	void addDefaultOperators(Compiler<Ts...>& c)
+	{
+		
+	}
+}
+
+
+/*
 #include "QExpressionBuilder.h"
 
 namespace expressionbuilder
@@ -99,7 +197,7 @@ namespace expressionbuilder
 		auto fpowScalar = [](const auto& a, const auto& b) { return pow(a, b); };
 		auto fpowVector = [](auto v, const auto& a)
 		{
-			for(auto i = 0u;i<v.size();++i)
+			for (auto i = 0u; i<v.size(); ++i)
 			{
 				v.at(i) = std::pow(v.at(i), a);
 			}
@@ -120,19 +218,19 @@ namespace expressionbuilder
 		builder.setFunction<CVec, real>("pow", fpowVector);
 
 		auto gauss = [](const RVec& x, real front, real width, real center)
-			{
-				return front * exp(-1 / (2 * width * width) * pow(x - center, 2));
-			};
+		{
+			return front * exp(-1 / (2 * width * width) * pow(x - center, 2));
+		};
 		builder.setFunction<RVec, real, real, real>("gauss", gauss);
 
 		// single-valued functions for all types easily
 		auto addSingleFunc = [&builder](const std::string& name, auto F)
-			{
-				builder.setFunction<real>(name, F);
-				builder.setFunction<complex>(name, F);
-				builder.setFunction<RVec>(name, F);
-				builder.setFunction<CVec>(name, F);
-			};
+		{
+			builder.setFunction<real>(name, F);
+			builder.setFunction<complex>(name, F);
+			builder.setFunction<RVec>(name, F);
+			builder.setFunction<CVec>(name, F);
+		};
 
 		// misc
 		addSingleFunc("exp", [](const auto& a) { return exp(a); });
@@ -175,3 +273,4 @@ namespace expressionbuilder
 		addSingleFunc("atanh", [](const auto& a) { return atanh(a); });
 	}
 }
+*/

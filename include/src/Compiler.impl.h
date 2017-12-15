@@ -1,3 +1,23 @@
+/*
+@file
+Compiler.impl.h
+Defines functions of template class Compiler
+
+Copyright 2017 Till Heinzel
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 #pragma once
 #include "Compiler.fwd.h"
 
@@ -52,14 +72,14 @@ namespace metl
 
 	template <class Grammar, class LiteralConverters, class... Ts>
 	template <class Left, class Right, class F>
-	void Compiler<Grammar, LiteralConverters, Ts...>::setOperator(const std::string token, const F& f)
+	void Compiler<Grammar, LiteralConverters, Ts...>::setOperator(const std::string& token, const F& f)
 	{
 		impl_.setOperator(token, { type<Left>(), type<Right>() }, metl::makeFunction<Expression, Left, Right>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
 	template <class T, class F>
-	void Compiler<Grammar, LiteralConverters, Ts...>::setUnaryOperator(const std::string token, const F& f)
+	void Compiler<Grammar, LiteralConverters, Ts...>::setUnaryOperator(const std::string& token, const F& f)
 	{
 		impl_.setUnaryOperator(token, type<T>(), metl::makeFunction<Expression, T>(f));
 	}
