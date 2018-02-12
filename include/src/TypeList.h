@@ -24,22 +24,41 @@ namespace metl
 {
 	namespace detail
 	{
-		template<class TrueBranch, class FalseBranch>
-		decltype(auto) constexpr constexpr_if_invoke(const std::true_type&, const TrueBranch& trueBranch, const FalseBranch&)
+		struct ForwardSame
 		{
-			return trueBranch([](const auto& t) {return t; });
+			template<class T>
+			constexpr decltype(auto) operator() (T&& t)
+			{
+				return std::forward<T>(t);
+			}
+		};
+
+
+		template<class TrueBranch, class FalseBranch>
+		decltype(auto) constexpr constexpr_ternary_invoke(const std::true_type&, const TrueBranch& trueBranch, const FalseBranch&)
+		{
+			return trueBranch(ForwardSame());
 		}
 
 		template<class TrueBranch, class FalseBranch>
-		decltype(auto) constexpr constexpr_if_invoke(const std::false_type&, const TrueBranch&, const FalseBranch& falseBranch)
+		decltype(auto) constexpr constexpr_ternary_invoke(const std::false_type&, const TrueBranch&, const FalseBranch& falseBranch)
 		{
-			return falseBranch([](const auto& t) {return t; });
+			return falseBranch(ForwardSame());
 		}
 	}
 	template<class Condition, class TrueBranch, class FalseBranch>
-	decltype(auto) constexpr constexpr_if(const Condition& condition, const TrueBranch& trueBranch, const FalseBranch& falseBranch)
+	decltype(auto) constexpr constexpr_ternary(const Condition&, const TrueBranch& trueBranch, const FalseBranch& falseBranch)
 	{
-		return detail::constexpr_if_invoke(std::integral_constant<bool, Condition::value>{}, trueBranch, falseBranch);
+		return detail::constexpr_ternary_invoke(std::integral_constant<bool, Condition::value>{}, trueBranch, falseBranch);
+	}
+}
+
+namespace metl
+{
+	template<class Condition, class TrueBranch>
+	decltype(auto) constexpr constexpr_if(const Condition&, const TrueBranch& trueBranch)
+	{
+		return constexpr_ternary(Condition(), trueBranch, [](auto _) {return _(0); });
 	}
 }
 
@@ -71,6 +90,9 @@ namespace metl
 	{
 		return findFirstIndex<ToFind>(TypeList<Ts...>{}) < sizeof...(Ts);
 	}
+
+	template<class ToFind, class... Ts>
+	using IsInList = std::integral_constant<bool, isInList<ToFind, Ts...>()>;
 
 	template<unsigned index, class... Ts>
 	struct Get

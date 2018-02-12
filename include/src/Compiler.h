@@ -49,15 +49,11 @@ namespace metl
 		template<class T> struct DefaultConverterMaker{};
 		template<> struct DefaultConverterMaker<int> { constexpr static auto make() { return [](const std::string& s) {return std::stoi(s); }; } };
 		template<> struct DefaultConverterMaker<double> { constexpr static auto make() { return [](const std::string& s) {return std::stod(s); }; } };
-
-		template<class T> constexpr char defaultConverterName[] = "bla";
-		template<> constexpr char defaultConverterName<int> [3]  = "int";
-		template<> constexpr char defaultConverterName<double> [4]  = "real";
-
+		
 		template<class T, class... Ts>
 		auto getConverter()
 		{
-			return constexpr_if(std::integral_constant<bool, isInList<T, Ts...>()>(), [](auto _)
+			return constexpr_ternary(std::integral_constant<bool, isInList<T, Ts...>()>(), [](auto _)
 			{
 				//return _([](const std::string& s) {return std::stoi(s); });
 				return _(DefaultConverterMaker<T>::make());
@@ -66,7 +62,7 @@ namespace metl
 			{
 				return _( [](const auto& s) -> Get_t<0, Ts...>
 				{
-					throw BadLiteralException(std::string("Literals of type ") + defaultConverterName<T> +" are not allowed!");
+					throw BadLiteralException("");
 				});
 			});
 		}

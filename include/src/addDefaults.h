@@ -43,9 +43,7 @@ namespace metl
 		auto unaryPlus = [](auto a) { return a; };
 		auto unaryMinus = [](auto a) { return -a; };
 
-		auto symbol = " "; // todo: for some reason the string "+" below is replaced with " " if I do not write this here. I don't know how strings work, but it looks like some really weird buffer issue or I'm an idyit
-
-		c.template setUnaryOperator<T>("+", unaryPlus);
+		c.template setUnaryOperator<T>(std::string("+"), unaryPlus);
 		c.template setUnaryOperator<T>("-", unaryMinus);
 
 		auto plus = [](auto left, auto right) { return left + right; };
@@ -53,12 +51,29 @@ namespace metl
 		auto mul = [](auto left, auto right) { return left * right; };
 		auto div = [](auto left, auto right) { return left / right; };
 
-		c.template setOperator<T, T>("+", plus);
+		c.template setOperator<T, T>(std::string("+"), plus);
 		c.template setOperator<T, T>("-", minus);
 		c.template setOperator<T, T>("*", mul);
 		c.template setOperator<T, T>("/", div);
 	}
-	
+
+	// sets default binary operators {+,-,*,/} with the corresponding call in C++ 
+	template<class T1, class T2, class... Ts>
+	void addDefaultOperators(Compiler<Ts...>& c, const T1&, const T2&)
+	{
+		setDefaultOperatorPrecedences(c);
+
+		auto plus = [](auto left, auto right) { return left + right; };
+		auto minus = [](auto left, auto right) { return left - right; };
+		auto mul = [](auto left, auto right) { return left * right; };
+		auto div = [](auto left, auto right) { return left / right; };
+
+		c.template setOperator<T1, T2>(std::string("+"), plus);
+		c.template setOperator<T1, T2>("-", minus);
+		c.template setOperator<T1, T2>("*", mul);
+		c.template setOperator<T1, T2>("/", div);
+	}
+
 	template<class T, class... Ts>
 	void addBasicFunctions(Compiler<Ts...>& c, const T&)
 	{
@@ -69,6 +84,7 @@ namespace metl
 		c.template setFunction<T>("log", [](auto a) {return log(a); });
 		c.template setFunction<T>("log2", [](auto a) {return log2(a); });
 		c.template setFunction<T>("log10", [](auto a) {return log10(a); });
+
 	}
 
 	template<class T, class... Ts>
@@ -88,11 +104,55 @@ namespace metl
 		c.template setFunction<T>("atanh", [](auto a) {return atanh(a); });
 	}
 
-	template<class... Ts>
-	void addDefaultOperators(Compiler<Ts...>& c)
+	// sets defaults for basic types (currently int, 
+	template<class Grammar, class Converter, class... Ts>
+	void setDefaults(Compiler<Grammar, Converter, Ts...>& c)
 	{
-		
+		using intType = decltype(c.impl_.literalConverters_.toInt(std::declval<std::string>()));
+		using realType = decltype(c.impl_.literalConverters_.toReal(std::declval<std::string>()));
+
+		constexpr_if(IsInList<intType, Ts...>(), [&c](auto _) // need check for cases without an intType
+		{
+			addDefaultOperators(c, _(intType()));
+		});
+		constexpr_if(IsInList<realType, Ts...>(), [&c](auto _) // need check for cases without an intType
+		{
+			addDefaultOperators(c, _(realType()));
+			//addBasicFunctions(c, _(realType()));
+			//addTrigFunctions(c, (realType()));
+		});		
+		static_assert(!IsInList<realType, Ts...>::value, "");
+		constexpr_if(IsInList<realType, Ts...>(), [&c](auto _) // need check for cases without an intType
+		{
+			//addDefaultOperators(c, _(realType()));
+			//return addBasicFunctions(c, _(realType()));
+			//addTrigFunctions(c, (realType()));
+		});
+
+		//constexpr_if(std::integral_constant<bool, isInList<intType, Ts...>() && isInList<realType, Ts...>()>{},
+		//	[&c](auto _)
+		//{
+		//	c.template setCast<intType>(c, _([](const intType& in)
+		//	{
+		//		return static_cast<realType>(in);
+		//	}));
+		//}
+		//);
+
+		//// 
+		//auto re = [](auto a) {return a.real(); };
+		//constexpr_if(isInList<std::complex<intType>, Ts...>()(),
+		//	[&c, re](auto _)
+		//{
+		//	c.template setFunction<std::complex<intType>>("real", _(re));
+		//});
+		//constexpr_if(isInList<std::complex<realType>, Ts...>()(),
+		//	[&c, re](auto _)
+		//{
+		//	c.template setFunction<std::complex<realType>>("real", _(re));
+		//});
 	}
+
 }
 
 

@@ -125,6 +125,13 @@ namespace metl
 				{
 					s.impl_.stack_.push(i->second);
 				}
+
+				constexpr_if(std::integral_constant<bool,A==pegtl::apply_mode::ACTION>(),
+					[&](auto _)
+				{
+					s.impl_.stack_.push(i->second);
+				});
+
 				in.bump(i->first.size());
 				return true;
 			}

@@ -31,8 +31,10 @@ namespace metl
 		class Compiler_impl
 		{
 
-			using Expression = VarExpression<Ts...>;
 		public:
+			using Expression = VarExpression<Ts...>;
+
+
 			Compiler_impl(const LiteralConverters& literalConverters);
 
 

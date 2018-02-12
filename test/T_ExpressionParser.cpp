@@ -12,7 +12,7 @@ public:
 
 class LiteralsFixture: public MetlFixture{};
 
-TEST_F(LiteralsFixture, int_only)
+TEST_F(LiteralsFixture, intOnly)
 {
 	// test that an int-only compiler can be created.
 
@@ -22,9 +22,19 @@ TEST_F(LiteralsFixture, int_only)
 	ASSERT_THROW(compiler.build<int>("1.2")(), metl::BadLiteralException);
 }
 
+TEST_F(LiteralsFixture, realOnly)
+{
+	// test that an int-only compiler can be created.
+
+	auto compiler = metl::makeCompiler<double>();
+
+	ASSERT_EQ(compiler.build<double>("1.0")(), 1.0);
+	ASSERT_THROW(compiler.build<double>("1")(), metl::BadLiteralException);
+}
+
 class DefaultsFixture:public MetlFixture{};
 
-TEST_F(DefaultsFixture, intOperators)
+TEST_F(DefaultsFixture, defaultIntOperators)
 {
 	auto compiler = metl::makeCompiler<int>();
 
@@ -42,7 +52,7 @@ TEST_F(DefaultsFixture, intOperators)
 	ASSERT_EQ(compiler.build<int>("5/2")(), 2); 
 }
 
-TEST_F(DefaultsFixture, doubleOperators)
+TEST_F(DefaultsFixture, defaultDoubleOperators)
 {
 	auto compiler = metl::makeCompiler<double>();
 
@@ -52,7 +62,6 @@ TEST_F(DefaultsFixture, doubleOperators)
 	ASSERT_EQ(compiler.build<double>("+1.0")(), 1);
 	ASSERT_EQ(compiler.build<double>("-1.0")(), -1);
 
-
 	ASSERT_EQ(compiler.build<double>("1.0+1.0")(), 2.0);
 	ASSERT_EQ(compiler.build<double>("3.0-2.0")(), 1.0);
 	ASSERT_EQ(compiler.build<double>("2.0*3.0")(), 6.0);
@@ -60,6 +69,68 @@ TEST_F(DefaultsFixture, doubleOperators)
 	ASSERT_EQ(compiler.build<double>("5.0/2.0")(), 2.5);
 }
 
+TEST_F(DefaultsFixture, basicDoubleFunctions)
+{
+	auto compiler = metl::makeCompiler<double>();
+
+	metl::addDefaultOperators(compiler, double());
+	metl::addBasicFunctions(compiler, double());
+
+	ASSERT_EQ(compiler.build<double>("exp(2.0)")(), std::exp(2));
+	ASSERT_EQ(compiler.build<double>("abs(-2.0)")(), std::abs(-2));
+	ASSERT_EQ(compiler.build<double>("sqrt(2.0)")(), std::sqrt(2));
+	ASSERT_EQ(compiler.build<double>("exp2(2.0)")(), std::exp2(2));
+	ASSERT_EQ(compiler.build<double>("log(2.0)")(), std::log(2));
+	ASSERT_EQ(compiler.build<double>("log2(2.0)")(), std::log2(2));
+	ASSERT_EQ(compiler.build<double>("log10(2.0)")(), std::log10(2));
+}
+
+TEST_F(DefaultsFixture, setDefaultsInt)
+{
+	auto compiler = metl::makeCompiler<int>();
+
+	metl::setDefaults(compiler);
+
+}
+
+class operationsFixture: public MetlFixture{};
+
+TEST_F(operationsFixture, unaryOperators)
+{
+	auto compiler = metl::makeCompiler<int, double, std::complex<double>>();
+
+	compiler.setUnaryOperatorPrecedence("-", 1);
+	auto minus = [](auto a) {return -a; };
+
+	compiler.setUnaryOperator<int>("-", minus);
+	compiler.setUnaryOperator<double>("-", minus);
+	compiler.setUnaryOperator<std::complex<double>>("-", minus);
+
+	compiler.setSuffix<double, std::complex<double>>("i", [](double d) {return std::complex<double>(0, d); });
+
+	ASSERT_EQ(compiler.build<int>("-1")(), -1);
+	ASSERT_EQ(compiler.build<double>("-1.0")(), -1);
+	ASSERT_EQ(compiler.build<std::complex<double>>("-1.0i")(), std::complex<double>(0, -1));
+
+}
+
+TEST_F(operationsFixture, binaryOperatorsAndSuffix)
+{
+	auto compiler = metl::makeCompiler<int, double, std::complex<double>>();
+
+	compiler.setOperatorPrecedence("+", 1);
+	auto plus = [](auto left, auto right) {return left + right; };
+
+	compiler.setOperator<int, int>("+", plus);
+	compiler.setOperator<int, double>("+", plus);
+	compiler.setOperator<double, std::complex<double>>("+", plus);
+
+	compiler.setSuffix<double, std::complex<double>>("i", [](double d) {return std::complex<double>(0, d); });
+
+	ASSERT_EQ(compiler.build<int>("1+1")(), 2);
+	ASSERT_EQ(compiler.build<double>("1+1.0")(), 2);
+	ASSERT_EQ(compiler.build<std::complex<double>>("1.0+(1.0+1.0i)")(), std::complex<double>(2,1));
+}
 
 /*
 TEST_F(CreatonFixture, scalarLiterals)
