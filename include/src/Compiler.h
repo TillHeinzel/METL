@@ -84,7 +84,7 @@ namespace metl
 		template<class... Ts, class NotLookingForThisConverter, class... Converters>
 		auto getConverter(NotLookingForThisConverter, Converters... converters)
 		{
-			return getConverter<Ts...>(converters);
+			return getConverter<Ts...>(converters...);
 		}
 
 		template<class... Ts, class... Converters>

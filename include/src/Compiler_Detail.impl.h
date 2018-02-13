@@ -55,8 +55,8 @@ namespace metl
 	{
 		template <class LiteralConverters, class ... Ts>
 		Compiler_impl<LiteralConverters, Ts...>::Compiler_impl(const LiteralConverters& literalConverters) :
-			literalConverters_(literalConverters),
 			stack_(operators_, functions_, castImplementations_, suffixImplementations_ ,castDeclarations_),
+			literalConverters_(literalConverters),
 			castDeclarations_({ std::make_pair(type<Ts>(), std::vector<TYPE>{type<Ts>()})... })
 		{}
 

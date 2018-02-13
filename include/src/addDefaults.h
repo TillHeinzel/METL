@@ -36,7 +36,7 @@ namespace metl
 
 	// sets default unary operator {+,-} and binary operator {+,-,*,/} with the corresponding call in C++ 
 	template<class T, class... Ts>
-	void addDefaultOperators(Compiler<Ts...>& c, const T&)
+	void addDefaultOperators(Compiler<Ts...>& c)
 	{
 		setDefaultOperatorPrecedences(c);
 
@@ -59,7 +59,7 @@ namespace metl
 
 	// sets default binary operators {+,-,*,/} with the corresponding call in C++ 
 	template<class T1, class T2, class... Ts>
-	void addDefaultOperators(Compiler<Ts...>& c, const T1&, const T2&)
+	void addDefaultOperators(Compiler<Ts...>& c)
 	{
 		setDefaultOperatorPrecedences(c);
 
@@ -75,10 +75,9 @@ namespace metl
 	}
 
 	template<class T, class... Ts>
-	void addBasicFunctions(Compiler<Ts...>& c, const T&)
+	void addBasicFunctions(Compiler<Ts...>& c)
 	{
 		c.template setFunction<T>("exp", [](auto a) {return exp(a); });
-		c.template setFunction<T>("abs", [](auto a) {return abs(a); });
 		c.template setFunction<T>("sqrt", [](auto a) {return sqrt(a); });
 		c.template setFunction<T>("exp2", [](auto a) {return exp2(a); });
 		c.template setFunction<T>("log", [](auto a) {return log(a); });
@@ -88,7 +87,7 @@ namespace metl
 	}
 
 	template<class T, class... Ts>
-	void addTrigFunctions(Compiler<Ts...>& c, const T&)
+	void addTrigFunctions(Compiler<Ts...>& c)
 	{
 		c.template setFunction<T>("sin", [](auto a) {return sin(a); });
 		c.template setFunction<T>("cos", [](auto a) {return cos(a); });
@@ -114,15 +113,15 @@ namespace metl
 		// defaults with intType
 		constexpr_if(IsInList<intType, Ts...>(), [&c](auto _) 
 		{
-			addDefaultOperators(c, _(intType()));
+			addDefaultOperators<intType>(c);
 		});
 
 		// defaults with realType
 		constexpr_if(IsInList<realType, Ts...>(), [&c](auto _) 
 		{
-			addDefaultOperators(c, _(realType()));
-			addBasicFunctions(c, _(realType()));
-			addTrigFunctions(c, _(realType()));
+			addDefaultOperators<realType>(c);
+			addBasicFunctions<realType>(c);
+			addTrigFunctions<realType>(c);
 		});		
 
 		// if both integer and real-types exist, add cast from int to real

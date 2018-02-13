@@ -40,7 +40,7 @@ TEST_F(DefaultsFixture, defaultIntOperators)
 
 	//ASSERT_EQ(compiler.build<int>("1")(), 1); //assert literals work
 
-	metl::addDefaultOperators(compiler, int());
+	metl::addDefaultOperators<int>(compiler);
 	ASSERT_EQ(compiler.build<int>("+1")(), 1);
 	ASSERT_EQ(compiler.build<int>("-1")(), -1);
 
@@ -58,7 +58,7 @@ TEST_F(DefaultsFixture, defaultDoubleOperators)
 
 	//ASSERT_EQ(compiler.build<int>("1")(), 1); //assert literals work
 
-	metl::addDefaultOperators(compiler, double());
+	metl::addDefaultOperators<double>(compiler);
 	ASSERT_EQ(compiler.build<double>("+1.0")(), 1);
 	ASSERT_EQ(compiler.build<double>("-1.0")(), -1);
 
@@ -73,11 +73,10 @@ TEST_F(DefaultsFixture, basicDoubleFunctions)
 {
 	auto compiler = metl::makeCompiler<double>();
 
-	metl::addDefaultOperators(compiler, double());
-	metl::addBasicFunctions(compiler, double());
+	metl::addDefaultOperators<double>(compiler);
+	metl::addBasicFunctions<double>(compiler);
 
 	ASSERT_EQ(compiler.build<double>("exp(2.0)")(), std::exp(2));
-	ASSERT_EQ(compiler.build<double>("abs(-2.0)")(), std::abs(-2));
 	ASSERT_EQ(compiler.build<double>("sqrt(2.0)")(), std::sqrt(2));
 	ASSERT_EQ(compiler.build<double>("exp2(2.0)")(), std::exp2(2));
 	ASSERT_EQ(compiler.build<double>("log(2.0)")(), std::log(2));
