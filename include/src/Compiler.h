@@ -97,14 +97,15 @@ namespace metl
 		}
 	}
 
-	template<class T, class F>
-	detail::Converter<int, T, F> intConverter(F f) { return detail::Converter<int, T, F>{f}; }
-	template<class T, class F>
+	template<class F, class T = decltype(std::declval<F>(std::declval<std::string>())) >
+	detail::Converter<int, T, F> intConverter(F f) {return detail::Converter<int, T, F>{f};	} 
+
+	template<class F, class T = decltype(std::declval<F>(std::declval<std::string>()))>
 	detail::Converter<double, T, F> realConverter(F f) { return detail::Converter<double, T, F>{f}; }
 
 
 	template<class... Ts, class... Converters>
-	auto makeCompiler(Converters... converters)
+	auto makeCompiler(Converters... converters) -> Compiler<grammar<realLiteral, intLiteral>, decltype(detail::constructFullLiteralsConverter<Ts...>(converters...)), Ts...>
 	{
 		auto literalsConverter = detail::constructFullLiteralsConverter<Ts...>(converters...);
 		return Compiler<grammar<realLiteral, intLiteral>, decltype(literalsConverter), Ts...>(literalsConverter);

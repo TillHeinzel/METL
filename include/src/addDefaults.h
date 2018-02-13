@@ -129,7 +129,7 @@ namespace metl
 		constexpr_if(std::integral_constant<bool, isInList<intType, Ts...>() && isInList<realType, Ts...>()>{},
 			[&c](auto _)
 		{
-			c.template setCast<intType>(c, _([](const intType& in)
+			c.template setCast<intType>(_([](const intType& in)
 			{
 				return static_cast<realType>(in);
 			}));

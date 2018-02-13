@@ -1,6 +1,6 @@
 ########## SETTINGS ##########
 set(DO_TESTS true)
-set(CREATE_EXAMPLE_PROJECTS false)
+set(CREATE_EXAMPLE_PROJECTS true)
 
 
 
