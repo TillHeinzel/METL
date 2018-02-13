@@ -33,7 +33,7 @@ namespace metl
 
 		public:
 			using Expression = VarExpression<Ts...>;
-
+			constexpr static auto getTypeList() { return TypeList<Ts...>(); }
 
 			Compiler_impl(const LiteralConverters& literalConverters);
 
@@ -66,6 +66,7 @@ namespace metl
 		public:
 			Stack<Ts...> stack_;
 			LiteralConverters literalConverters_;
+
 
 		private:
 

@@ -92,6 +92,12 @@ namespace metl
 	}
 
 	template<class ToFind, class... Ts>
+	constexpr bool isInList(TypeList<Ts...> l)
+	{
+		return findFirstIndex<ToFind>(TypeList<Ts...>{}) < sizeof...(Ts);
+	}
+
+	template<class ToFind, class... Ts>
 	using IsInList = std::integral_constant<bool, isInList<ToFind, Ts...>()>;
 
 	template<unsigned index, class... Ts>

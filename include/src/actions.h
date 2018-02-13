@@ -20,13 +20,38 @@ defines actions to be taken when finding specific patterns in the parsed string.
 
 #pragma once
 #include "grammar.h"
+#include "VarExpression.h"
 
 namespace metl
 {
+	struct BadLiteralException;
+
 	template< typename Rule >
 	struct action
 		: nothing<Rule>
 	{};
+
+	template<class TargetType, class... Ts, class Compiler, class Converter>
+	void convertLiteral(Compiler& compiler, const std::string& input, const Converter& converter,TypeList<Ts...>)
+	{
+		constexpr_ternary(std::bool_constant<isInList<TargetType, Ts...>()>(),
+			[&](auto _)
+		{
+			compiler.impl_.stack_.push(metl::makeConstExpression<typename Compiler::Expression>(converter(input)));
+		},
+			[&](auto _)
+		{
+			try
+			{
+				converter(input);
+			}
+			catch (const BadLiteralException& e)
+			{
+				throw e;
+			}
+		}
+		);
+	}
 
 	template<>
 	struct action<intLiteral>
@@ -34,7 +59,9 @@ namespace metl
 		template< typename Input, class Compiler >
 		static void apply(const Input& in, Compiler& compiler)
 		{
-			compiler.impl_.stack_.push(metl::makeConstExpression<typename Compiler::Expression>(compiler.impl_.literalConverters_.toInt(in.string())));
+			const auto& converter = compiler.impl_.literalConverters_.toInt;
+			using intType = decltype(converter(in.string()));
+			convertLiteral<intType>(compiler, in.string(), converter, compiler.impl_.getTypeList());
 		}
 	};
 
@@ -44,7 +71,9 @@ namespace metl
 		template< typename Input, class Compiler >
 		static void apply(const Input& in, Compiler& compiler)
 		{
-			compiler.impl_.stack_.push(metl::makeConstExpression<typename Compiler::Expression>(compiler.impl_.literalConverters_.toReal(in.string())));
+			const auto& converter = compiler.impl_.literalConverters_.toReal;
+			using realType = decltype(converter(in.string()));
+			convertLiteral<realType>(compiler, in.string(), converter, compiler.impl_.getTypeList());
 		}
 	};
 

@@ -91,6 +91,10 @@ TEST_F(DefaultsFixture, setDefaultsInt)
 
 	metl::setDefaults(compiler);
 
+	ASSERT_EQ(compiler.build<int>("1")(), 1);
+	ASSERT_THROW(compiler.build<int>("1.0")(), metl::BadLiteralException);
+
+
 }
 
 class operationsFixture: public MetlFixture{};

@@ -28,6 +28,9 @@ namespace metl
 
 	namespace detail
 	{
+		// Type to carry functors f that convert strings representing literals. 
+		// From_t is basically the index for the metl-compiler, so when From_t =int this converter will be invoked to deal with literals "1" or "42", 
+		// while From_t = doube is invoked for "1.0" and "8.008"
 		template<class From_t, class To_t, class F>
 		struct Converter
 		{
@@ -50,6 +53,8 @@ namespace metl
 		template<> struct DefaultConverterMaker<int> { constexpr static auto make() { return [](const std::string& s) {return std::stoi(s); }; } };
 		template<> struct DefaultConverterMaker<double> { constexpr static auto make() { return [](const std::string& s) {return std::stod(s); }; } };
 		
+		// recursion-end for when no converter for type T has been passed in, so we define a default.
+		// The default will convert to the default type (currently int and double), it these are part of the compiler, otherwise it will throw a BadLiteralException
 		template<class T, class... Ts>
 		auto getConverter()
 		{
@@ -60,32 +65,33 @@ namespace metl
 			},
 				[](auto _)
 			{
-				return _( [](const auto& s) -> Get_t<0, Ts...>
+				return _( [](const auto& s) -> T
 				{
 					throw BadLiteralException("");
 				});
 			});
 		}
 		
-		template<class... Ts, class TT, class... Converters>
-		auto getConverter(TT, Converters... converters)
-		{
-			return getConverter<Ts...>(converters);
-		}
-
+		// recursion-end for when a converter for type T has actually been passed in.
 		template<class T, class... Ts, class TT, class F, class... Converters>
 		auto getConverter(Converter<T, TT, F> converter1, Converters...)
 		{
-			static_assert(isInList<TT>(), "type converted to must be part of compiler!");
+			static_assert(isInList<TT, Ts...>(), "type converted to must be part of compiler!");
 			return converter1;
+		}
+
+		// recursion-step
+		template<class... Ts, class NotLookingForThisConverter, class... Converters>
+		auto getConverter(NotLookingForThisConverter, Converters... converters)
+		{
+			return getConverter<Ts...>(converters);
 		}
 
 		template<class... Ts, class... Converters>
 		auto constructFullLiteralsConverter(Converters... converters)
 		{
-			const auto toInt = getConverter<int, Ts...>(converters...);
-			//const auto toInt = [](const std::string& s) {return std::stoi(s); };
-			const auto toReal = getConverter<double, Ts...>(converters...);
+			const auto toInt = getConverter<int, Ts...>(converters...); // picks out the converter from the list that is labelled to interpret int-literals
+			const auto toReal = getConverter<double, Ts...>(converters...); // picks out the converter from the list that is labelled to interpret real-literals
 
 			return detail::makeLiteralConverters(toInt, toReal);
 		}

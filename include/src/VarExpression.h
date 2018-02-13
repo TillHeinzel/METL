@@ -104,4 +104,7 @@ namespace metl
 
 		std::tuple<std::unique_ptr<exprType<Ts>>...> vals_;
 	};
+
+	template<class... Ts>
+	constexpr TypeList<Ts...> getTypeList(VarExpression<Ts...>) { return TypeList<Ts...>{}; }
 }

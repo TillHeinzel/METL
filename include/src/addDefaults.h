@@ -110,49 +110,32 @@ namespace metl
 	{
 		using intType = decltype(c.impl_.literalConverters_.toInt(std::declval<std::string>()));
 		using realType = decltype(c.impl_.literalConverters_.toReal(std::declval<std::string>()));
-
-		constexpr_if(IsInList<intType, Ts...>(), [&c](auto _) // need check for cases without an intType
+		
+		// defaults with intType
+		constexpr_if(IsInList<intType, Ts...>(), [&c](auto _) 
 		{
 			addDefaultOperators(c, _(intType()));
 		});
-		constexpr_if(IsInList<realType, Ts...>(), [&c](auto _) // need check for cases without an intType
+
+		// defaults with realType
+		constexpr_if(IsInList<realType, Ts...>(), [&c](auto _) 
 		{
 			addDefaultOperators(c, _(realType()));
-			//addBasicFunctions(c, _(realType()));
-			//addTrigFunctions(c, (realType()));
+			addBasicFunctions(c, _(realType()));
+			addTrigFunctions(c, _(realType()));
 		});		
-		static_assert(!IsInList<realType, Ts...>::value, "");
-		constexpr_if(IsInList<realType, Ts...>(), [&c](auto _) // need check for cases without an intType
+
+		// if both integer and real-types exist, add cast from int to real
+		constexpr_if(std::integral_constant<bool, isInList<intType, Ts...>() && isInList<realType, Ts...>()>{},
+			[&c](auto _)
 		{
-			//addDefaultOperators(c, _(realType()));
-			//return addBasicFunctions(c, _(realType()));
-			//addTrigFunctions(c, (realType()));
-		});
-
-		//constexpr_if(std::integral_constant<bool, isInList<intType, Ts...>() && isInList<realType, Ts...>()>{},
-		//	[&c](auto _)
-		//{
-		//	c.template setCast<intType>(c, _([](const intType& in)
-		//	{
-		//		return static_cast<realType>(in);
-		//	}));
-		//}
-		//);
-
-		//// 
-		//auto re = [](auto a) {return a.real(); };
-		//constexpr_if(isInList<std::complex<intType>, Ts...>()(),
-		//	[&c, re](auto _)
-		//{
-		//	c.template setFunction<std::complex<intType>>("real", _(re));
-		//});
-		//constexpr_if(isInList<std::complex<realType>, Ts...>()(),
-		//	[&c, re](auto _)
-		//{
-		//	c.template setFunction<std::complex<realType>>("real", _(re));
-		//});
+			c.template setCast<intType>(c, _([](const intType& in)
+			{
+				return static_cast<realType>(in);
+			}));
+		}
+		);
 	}
-
 }
 
 
