@@ -175,5 +175,5 @@ compiler.setConstant("PI", 3.1415);
 auto f = compiler.build<double>("sin(a) + cos(2*PI)");
 ```
 
-The part "cos(2*PI)" will be calculated at build-time, so calling f will be equivalend to calling
+The part "cos(2*PI)" will be calculated at build-time, so calling f will be equivalent to calling
 "sin(a) + b", where b has been precalculated as cos(2*3.1415).
