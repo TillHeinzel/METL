@@ -76,6 +76,33 @@ note: Defaults are added for each individual type, so if you use int and float, 
 
 note: Currently, the only literals are actually int and real
 
+### build
+The member-function "build" is used to parse a string and build a math-expression. It comes in two varieties:
+```c++
+compiler.build("a+2");
+compiler.build<int>("a+2")
+```
+The first version returns a VarExpression (basically a variant with different kinds of std::function). This VarExpression can be used in a switch like so:
+```c++
+auto expression = compiler.build("a+2");
+
+switch(expression.type())
+{
+    case compiler.type<int>():
+        std::cout << expression.get<int>() << std::endl; break;
+        
+        
+    case compiler.type<double>():
+        std::cout << expression.get<double>() << std::endl; break;
+        
+    default: breakl
+}
+
+```
+This is useful in the case where you do not actually know the type, which should be the common case for when the strings are supplied at runtime.
+
+The second version of the build-function just automatically calls the get<Type>() function to return the std::function directly. 
+
 ### binary operators
 
 Operators can be any string-sequence, although I would advise against doing weird stuff.
@@ -158,6 +185,11 @@ Special care should be taken to avoid dangling pointers.
 ### parentheses
 parenthesis work as in normal math and are built-in. So e.g. "(1+2)*3" gives 9.0.
 
+## reserved keywords
+In its current state, the metl-compiler can take any labels for operators and functions. At some point, there may be more stringent rules for this, but for now I advice against using:
+* parenthesis (any kinds really: () [] {} )
+* @ (similar to MSVC, I use this as separator for name-mangling)
+
 ## Expression-tree building and constexpr-optimization
 
 The metl-compiler constructs the expression-tree when the build-function is called. The results in a std::function that returns the result of the expression.
@@ -177,3 +209,12 @@ auto f = compiler.build<double>("sin(a) + cos(2*PI)");
 
 The part "cos(2*PI)" will be calculated at build-time, so calling f will be equivalent to calling
 "sin(a) + b", where b has been precalculated as cos(2*3.1415).
+
+## Missing stuff
+A few things I would like to add at some point, in no particular order:
+
+* While vectors and matrices and such can easily be used as variables and constants, there is no way to create them inline. 
+* Errors are currently just passed through from PEGTL (mostly).
+* Some limitations on what names can be used, to avoid possible inconsistencies
+* some debugging help maybe?
+* Whatever issues spring up from people actually using the library
