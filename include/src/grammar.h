@@ -76,7 +76,7 @@ namespace metl
 
 	template<class... Literals>
 	struct grammar
-		: must<Expr<Literals...>, pegtl::eof> {};
+		: must<Expr<Literals...>, pegtl::opt<pegtl::space>, pegtl::eof> {};
 }
 
 namespace metl
@@ -121,11 +121,6 @@ namespace metl
 			auto i = match_any_recursive(in, map, std::string());
 			if (i != map.end())
 			{
-				if (A == pegtl::apply_mode::ACTION)
-				{
-					s.impl_.stack_.push(i->second);
-				}
-
 				constexpr_if(std::integral_constant<bool,A==pegtl::apply_mode::ACTION>(),
 					[&](auto _)
 				{

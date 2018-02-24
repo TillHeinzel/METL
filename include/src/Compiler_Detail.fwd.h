@@ -51,6 +51,11 @@ namespace metl
 
 			void setSuffix(const std::string& token, TYPE from, const CastImpl<Expression>& conversion);
 
+			void addConstantOrVariable(const std::string& token, const Expression& val);
+
+			template<class T>
+			constexpr static TYPE type();
+
 			const auto& getOperators() { return operators_; }
 			const auto& getCandV() { return constantsAndVariables_; }
 			const auto& getCarriers() { return opCarriers_; }
@@ -82,10 +87,6 @@ namespace metl
 			std::map<std::string, std::string> functionNames_; // dummy, just so we have the sorting.
 			std::map<std::string, Expression> constantsAndVariables_; // maps identifiers for constants and variables to the expressions returning their values.
 
-			void addConstantOrVariable(const std::string& token, const Expression& val);
-
-			template<class T>
-			constexpr static TYPE type();
 		};
 	}
 }

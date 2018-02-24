@@ -39,6 +39,13 @@ namespace metl
 			F f;
 		};
 
+		template<class From_t, class F>
+		auto makeConverter(F f)
+		{
+			using To_t = decltype(f(std::string()));
+			return Converter<From_t, To_t, F>{f};
+		}
+
 		template<class IntConverter, class RealConverter>
 		struct LiteralConverters
 		{
@@ -50,8 +57,8 @@ namespace metl
 		auto makeLiteralConverters(Ts&&...ts) { return LiteralConverters<Ts...>{ts...}; }
 	
 		template<class T> struct DefaultConverterMaker{};
-		template<> struct DefaultConverterMaker<int> { constexpr static auto make() { return [](const std::string& s) {return std::stoi(s); }; } };
-		template<> struct DefaultConverterMaker<double> { constexpr static auto make() { return [](const std::string& s) {return std::stod(s); }; } };
+		template<> struct DefaultConverterMaker<int> { static auto make() { return makeConverter<int>([](const std::string& s) {return std::stoi(s); }); } };
+		template<> struct DefaultConverterMaker<double> { static auto make() { return makeConverter<double>([](const std::string& s) {return std::stod(s); }); } };
 		
 		// recursion-end for when no converter for type T has been passed in, so we define a default.
 		// The default will convert to the default type (currently int and double), it these are part of the compiler, otherwise it will throw a BadLiteralException
@@ -65,10 +72,10 @@ namespace metl
 			},
 				[](auto _)
 			{
-				return _( [](const auto& s) -> T
+				return _( makeConverter<T>([](const auto& s) -> T
 				{
 					throw BadLiteralException("");
-				});
+				}));
 			});
 		}
 		
@@ -97,10 +104,10 @@ namespace metl
 		}
 	}
 
-	template<class F, class T = decltype(std::declval<F>(std::declval<std::string>())) >
+	template<class F, class T = decltype(std::declval<F>()(std::declval<std::string>())) >
 	detail::Converter<int, T, F> intConverter(F f) {return detail::Converter<int, T, F>{f};	} 
 
-	template<class F, class T = decltype(std::declval<F>(std::declval<std::string>()))>
+	template<class F, class T = decltype(std::declval<F>()(std::declval<std::string>()))>
 	detail::Converter<double, T, F> realConverter(F f) { return detail::Converter<double, T, F>{f}; }
 
 

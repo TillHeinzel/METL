@@ -37,13 +37,13 @@ namespace metl
 		constexpr_ternary(nostd::bool_constant<isInList<TargetType, Ts...>()>(),
 			[&](auto _)
 		{
-			compiler.impl_.stack_.push(metl::makeConstExpression<typename Compiler::Expression>(converter(input)));
+			compiler.impl_.stack_.push(metl::makeConstExpression<typename Compiler::Expression>(converter.f(input)));
 		},
 			[&](auto _)
 		{
 			try
 			{
-				converter(input);
+				converter.f(input);
 			}
 			catch (const BadLiteralException& e)
 			{
@@ -60,7 +60,7 @@ namespace metl
 		static void apply(const Input& in, Compiler& compiler)
 		{
 			const auto& converter = compiler.impl_.literalConverters_.toInt;
-			using intType = decltype(converter(in.string()));
+			using intType = decltype(converter.f(in.string()));
 			convertLiteral<intType>(compiler, in.string(), converter, compiler.impl_.getTypeList());
 		}
 	};
@@ -72,7 +72,7 @@ namespace metl
 		static void apply(const Input& in, Compiler& compiler)
 		{
 			const auto& converter = compiler.impl_.literalConverters_.toReal;
-			using realType = decltype(converter(in.string()));
+			using realType = decltype(converter.f(in.string()));
 			convertLiteral<realType>(compiler, in.string(), converter, compiler.impl_.getTypeList());
 		}
 	};

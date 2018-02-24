@@ -33,7 +33,6 @@ include(settings.txt)
 
 if(NOT PEGTL_INCLUDE_DIR)
     set(PEGTL_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/PEGTL/include")
-	MESSAGE(STATUS ${PEGTL_INCLUDE_DIR})
 endif()
 
 ###################################################

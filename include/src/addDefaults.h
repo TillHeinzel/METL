@@ -25,13 +25,22 @@ namespace metl
 	template<class... Ts>
 	void setDefaultOperatorPrecedences(Compiler<Ts...>& c)
 	{
-		c.setOperatorPrecedence("+", 3);
-		c.setOperatorPrecedence("-", 3);
-		c.setOperatorPrecedence("*", 2);
-		c.setOperatorPrecedence("/", 2);
-		c.setUnaryOperatorPrecedence("-", 1);
-		c.setUnaryOperatorPrecedence("+", 1);
-		c.setOperatorPrecedence("^", 0);
+
+		c.setOperatorPrecedence("!=", 10);
+		c.setOperatorPrecedence("==", 10);
+
+		c.setOperatorPrecedence("<", 9);
+		c.setOperatorPrecedence(">", 9);
+		c.setOperatorPrecedence("<=", 9);
+		c.setOperatorPrecedence(">=", 9);
+
+		c.setOperatorPrecedence("+", 6);
+		c.setOperatorPrecedence("-", 6);
+		c.setOperatorPrecedence("*", 5);
+		c.setOperatorPrecedence("/", 5);
+		c.setUnaryOperatorPrecedence("-", 3);
+		c.setUnaryOperatorPrecedence("+", 3);
+		c.setOperatorPrecedence("^", 2);
 	}
 
 	// sets default unary operator {+,-} and binary operator {+,-,*,/} with the corresponding call in C++ 
@@ -107,8 +116,8 @@ namespace metl
 	template<class Grammar, class Converter, class... Ts>
 	void setDefaults(Compiler<Grammar, Converter, Ts...>& c)
 	{
-		using intType = decltype(c.impl_.literalConverters_.toInt(std::declval<std::string>()));
-		using realType = decltype(c.impl_.literalConverters_.toReal(std::declval<std::string>()));
+		using intType = decltype(c.impl_.literalConverters_.toInt.f(std::declval<std::string>()));
+		using realType = decltype(c.impl_.literalConverters_.toReal.f(std::declval<std::string>()));
 		
 		// defaults with intType
 		constexpr_if(IsInList<intType, Ts...>(), [&c](auto _) 

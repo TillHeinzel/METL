@@ -12,6 +12,8 @@ public:
 
 class LiteralsFixture: public MetlFixture{};
 
+
+
 TEST_F(LiteralsFixture, intOnly)
 {
 	// test that an int-only compiler can be created.
@@ -20,6 +22,16 @@ TEST_F(LiteralsFixture, intOnly)
 
 	ASSERT_EQ(compiler.build<int>("1")(), 1);
 	ASSERT_THROW(compiler.build<int>("1.2")(), metl::BadLiteralException);
+}
+
+TEST_F(LiteralsFixture, withSpaces)
+{
+	// test that an int-only compiler can be created.
+
+	auto compiler = metl::makeCompiler<int, double>();
+	metl::setDefaults(compiler);
+
+	ASSERT_EQ(compiler.build<int>(" 1 ")(), 1);
 }
 
 TEST_F(LiteralsFixture, realOnly)
@@ -31,6 +43,24 @@ TEST_F(LiteralsFixture, realOnly)
 	ASSERT_EQ(compiler.build<double>("1.0")(), 1.0);
 	ASSERT_THROW(compiler.build<double>("1")(), metl::BadLiteralException);
 }
+
+TEST_F(LiteralsFixture, user_defined_converter)
+{
+	// test that an int-only compiler can be created.
+
+	auto ff = [](const std::string& s) ->double {return std::stod(s); };
+	//decltype(std::declval<decltype(ff)>() (std::declval<std::string>())) d;
+
+	//auto conv = metl::realConverter(ff);
+
+	//auto compiler = metl::makeCompiler<double>();
+	auto compiler = metl::makeCompiler<double>(metl::intConverter(ff));
+
+	ASSERT_EQ(compiler.build<double>("1")(), 1.0);
+	ASSERT_EQ(compiler.build<double>("1.0")(), 1.0);
+}
+
+
 
 class DefaultsFixture:public MetlFixture{};
 
