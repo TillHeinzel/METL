@@ -10,9 +10,32 @@ public:
 	const double tol = 1e-15;
 };
 
-class ConstExprFixture : public MetlFixture {};
+TEST_F(MetlFixture, VarExpressionSet)
+{
+	auto c = metl::makeCompiler<int, double>();
 
-TEST_F(ConstExprFixture, int)
+	auto expr = c.build("1");
+
+	ASSERT_ANY_THROW(expr.get<double>());
+
+	expr.set<double>([]() {return 1.0; });
+
+	ASSERT_EQ(1.0, expr.get<double>()());
+}
+
+TEST_F(MetlFixture, buildCast)
+{
+	auto c = metl::makeCompiler<int, double>();
+	metl::setDefaults(c);
+
+	auto expr = c.build("1");
+
+	ASSERT_EQ(1, expr.get<int>()());
+	ASSERT_EQ(1.0, expr.get<double>()());
+}
+
+
+TEST_F(MetlFixture, constexprEval)
 {
 	auto c = metl::makeCompiler<int, double>();
 	metl::setDefaults(c);

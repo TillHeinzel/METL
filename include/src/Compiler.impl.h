@@ -41,6 +41,25 @@ namespace metl
 
 	}
 
+	namespace detail 
+	{
+		template<class Expr>
+		void castToAll(Expr&, const std::map<std::string, CastImpl<Expr>>&)
+		{
+		}
+
+		template<class T, class... Ts, class Expr>
+		void castToAll(Expr& expr, const std::map<std::string, CastImpl<Expr>>& castImpls)
+		{
+			auto it = castImpls.find(mangleCast(expr.type(), expr.template toType<T>()));
+			if(it != castImpls.end())
+			{
+				expr.template set<T>(it->second(expr).template get<T>());
+			}
+			castToAll<Ts...>(expr, castImpls);
+		}
+	}
+
 	template <class Grammar, class LiteralConverters, class... Ts>
 	typename Compiler<Grammar, LiteralConverters, Ts...>::Expression Compiler<Grammar, LiteralConverters, Ts...>::build(const std::string& expression)
 	{
@@ -48,7 +67,11 @@ namespace metl
 		tao::pegtl::memory_input<> input(expression, std::string{});
 		tao::pegtl::parse<Grammar, action>(input, *this);
 
-		return impl_.stack_.finish();
+		auto expr =  impl_.stack_.finish();
+
+		detail::castToAll<Ts...>(expr, impl_.getcastImplementations());
+
+		return expr;
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>

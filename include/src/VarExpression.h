@@ -93,6 +93,14 @@ namespace metl
 			throw std::runtime_error("this is not the correct type");
 		}
 
+		template<class T> void set(exprType<T> expr)
+		{
+			constexpr auto index = findFirstIndex<T>(TypeList<Ts...>{});
+			static_assert(index < sizeof...(Ts), "Error: Requested Type is not a valid type!");
+
+			std::get<index>(vals_) = std::make_unique<exprType<T>>(expr);
+		}
+
 		TYPE type() const { return type_; }
 		CATEGORY category() const { return category_; }
 
