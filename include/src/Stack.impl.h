@@ -49,6 +49,35 @@ namespace metl
 		}
 	}
 
+	template <class ExprT>
+	ExprT FunctionImpl<ExprT>::operator()(const std::vector<ExprT>& v) const
+	{
+		auto resultExpression = f_(v);
+
+		bool shouldBeConst = true;
+		for (const auto& expr : v)
+		{
+			if (expr.category() == CATEGORY::DYNEXPR)
+			{
+				shouldBeConst = false;
+				break;
+			}
+		}
+		if (shouldBeConst) return evaluateConstExpr(resultExpression);
+
+		return resultExpression;
+	}
+
+	template <class ExprT>
+	ExprT CastImpl<ExprT>::operator()(ExprT v) const
+	{
+		auto resultExpression = f_(v);
+
+		if (v.category() == CATEGORY::CONSTEXPR) return evaluateConstExpr(resultExpression);
+
+		return resultExpression;
+	}
+
 	namespace
 	{
 		template<class Expression>
@@ -201,13 +230,8 @@ namespace metl
 		// get left and right expressions
 		const auto t = expressions_.back();
 		expressions_.pop_back();
-		
-		auto resultExpression = it->second({ t });
 
-		if (t.category() == CATEGORY::CONSTEXPR)
-		{
-			resultExpression = evaluateConstExpr(resultExpression);
-		}
+		auto resultExpression = it->second({ t });
 
 		expressions_.push_back(resultExpression);
 	}
@@ -280,10 +304,6 @@ namespace metl
 		}
 
 		auto resultExpression = it->second(expressions_);
-		if (are_all_const(expressions_))
-		{
-			resultExpression = evaluateConstExpr(resultExpression);
-		}
 
 		expressions_.clear();
 		expressions_.push_back(resultExpression);
@@ -355,10 +375,6 @@ namespace metl
 
 		auto resultExpression = it->second({ l, r });
 
-		if (l.category() == CATEGORY::CONSTEXPR && r.category() == CATEGORY::CONSTEXPR)
-		{
-			resultExpression = evaluateConstExpr(resultExpression);
-		}
 
 		expressions_.push_back(resultExpression);
 	}
@@ -416,11 +432,6 @@ namespace metl
 
 		auto resultExpression = it->second({ t });
 
-		if (t.category() == CATEGORY::CONSTEXPR)
-		{
-			resultExpression = evaluateConstExpr(resultExpression);
-		}
-
 		expressions_.push_back(resultExpression);
 	}
 
@@ -446,14 +457,7 @@ namespace metl
 			const auto toType = targetTypes.at(i_target);
 			if (fromType != toType)
 			{
-				if (expr.category() == CATEGORY::CONSTEXPR)
-				{
-					expr = evaluateConstExpr(castImplementations_.at(mangleCast(expr.type(), targetTypes.at(i_target)))(expr));
-				}
-				else
-				{
-					expr = castImplementations_.at(mangleCast(expr.type(), targetTypes.at(i)))(expr);
-				}
+				expr = castImplementations_.at(mangleCast(expr.type(), targetTypes.at(i)))(expr);
 			}
 			++i_target;
 		}
@@ -464,10 +468,10 @@ namespace metl
 {
 	template <class ... Ts>
 	Stack<Ts...>::Stack(
-		const std::map<std::string, FunctionImpl<Expression>>& opMap, 
-		const std::map<std::string, FunctionImpl<Expression>>& funcMap, 
-		const std::map<std::string, CastImpl<Expression>>& castImplementations, 
-		const std::map<std::string, CastImpl<Expression>>& suffixImplementations, 
+		const std::map<std::string, FunctionImpl<Expression>>& opMap,
+		const std::map<std::string, FunctionImpl<Expression>>& funcMap,
+		const std::map<std::string, CastImpl<Expression>>& castImplementations,
+		const std::map<std::string, CastImpl<Expression>>& suffixImplementations,
 		const std::map<TYPE, std::vector<TYPE>>& castDeclarations)
 		:opMap_(opMap),
 		funcMap_(funcMap),

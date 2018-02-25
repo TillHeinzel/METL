@@ -27,9 +27,6 @@ limitations under the License.
 
 namespace metl
 {
-	template<class ExprT> using CastImpl = std::function<ExprT(ExprT)>;
-	template<class ExprT> using FunctionImpl = std::function<ExprT(const std::vector<ExprT>&)>;
-
 	template<class Expression, class T>
 	Expression makeConstExpression(const T& v)
 	{
@@ -40,6 +37,48 @@ namespace metl
 
 		return Expression(exprType<T>(f), CATEGORY::CONSTEXPR);
 	}
+
+	template<class ExprT>
+	class FunctionImpl
+	{
+		using FunctionType = std::function<ExprT(const std::vector<ExprT>&)>;
+	public:
+		FunctionImpl(FunctionType f):f_(f){}
+
+		ExprT operator()(const std::vector<ExprT>& v) const;
+
+		template<class T>
+		FunctionImpl& operator=(T&& t)
+		{
+			f_ = t;
+			return *this;
+		}
+
+	private:
+
+		 FunctionType f_;
+	};
+	template<class ExprT>
+	class CastImpl
+	{
+		using FunctionType = std::function<ExprT(ExprT)>;
+	public:
+		CastImpl(FunctionType f):f_(f){}
+
+		ExprT operator()(ExprT v) const;
+
+		template<class T>
+		CastImpl& operator=(T&& t)
+		{
+			f_ = t;
+			return *this;
+		}
+
+	private:
+
+		 FunctionType f_;
+	};
+
 
 	enum class ASSOCIATIVITY{LEFT,RIGHT};
 
