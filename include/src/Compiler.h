@@ -97,8 +97,8 @@ namespace metl
 		template<class... Ts, class... Converters>
 		auto constructFullLiteralsConverter(Converters... converters)
 		{
-			const auto toInt = getConverter<int, Ts...>(converters...); // picks out the converter from the list that is labelled to interpret int-literals
-			const auto toReal = getConverter<double, Ts...>(converters...); // picks out the converter from the list that is labelled to interpret real-literals
+			auto toInt = getConverter<int, Ts...>(converters...); // picks out the converter from the list that is labelled to interpret int-literals
+			auto toReal = getConverter<double, Ts...>(converters...); // picks out the converter from the list that is labelled to interpret real-literals
 
 			return detail::makeLiteralConverters(toInt, toReal);
 		}

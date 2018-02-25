@@ -10,9 +10,27 @@ public:
 	const double tol = 1e-15;
 };
 
+class ConstExprFixture : public MetlFixture {};
+
+TEST_F(ConstExprFixture, int)
+{
+	auto c = metl::makeCompiler<int, double>();
+	metl::setDefaults(c);
+
+
+	bool intPlusCalled = false;
+	auto intplus = [&](int left, int right) {intPlusCalled = !intPlusCalled; return left + right; };
+
+	c.setOperator<int, int>("+", intplus);
+
+	auto f=c.build<int>("1+1");
+	EXPECT_TRUE(intPlusCalled);
+
+	EXPECT_EQ(2, f());
+	EXPECT_TRUE(intPlusCalled);
+}
+
 class LiteralsFixture: public MetlFixture{};
-
-
 
 TEST_F(LiteralsFixture, intOnly)
 {
@@ -164,6 +182,7 @@ TEST_F(operationsFixture, binaryOperatorsAndSuffix)
 	ASSERT_EQ(compiler.build<double>("1+1.0")(), 2);
 	ASSERT_EQ(compiler.build<std::complex<double>>("1.0+(1.0+1.0i)")(), std::complex<double>(2,1));
 }
+
 
 /*
 TEST_F(CreatonFixture, scalarLiterals)
@@ -439,4 +458,3 @@ TEST_F(CreatonFixture, scalarLiterals)
 //	auto ret = expr.get<complex>()();
 //	std::cout << ret << std::endl;
 //}
-

@@ -32,7 +32,7 @@ namespace metl
 	{};
 
 	template<class TargetType, class... Ts, class Compiler, class Converter>
-	void convertLiteral(Compiler& compiler, const std::string& input, const Converter& converter,TypeList<Ts...>)
+	void convertLiteral(Compiler& compiler, const std::string& input, Converter& converter,TypeList<Ts...>)
 	{
 		constexpr_ternary(nostd::bool_constant<isInList<TargetType, Ts...>()>(),
 			[&](auto _)
@@ -59,7 +59,7 @@ namespace metl
 		template< typename Input, class Compiler >
 		static void apply(const Input& in, Compiler& compiler)
 		{
-			const auto& converter = compiler.impl_.literalConverters_.toInt;
+			auto& converter = compiler.impl_.literalConverters_.toInt;
 			using intType = decltype(converter.f(in.string()));
 			convertLiteral<intType>(compiler, in.string(), converter, compiler.impl_.getTypeList());
 		}
@@ -71,7 +71,7 @@ namespace metl
 		template< typename Input, class Compiler >
 		static void apply(const Input& in, Compiler& compiler)
 		{
-			const auto& converter = compiler.impl_.literalConverters_.toReal;
+			auto& converter = compiler.impl_.literalConverters_.toReal;
 			using realType = decltype(converter.f(in.string()));
 			convertLiteral<realType>(compiler, in.string(), converter, compiler.impl_.getTypeList());
 		}

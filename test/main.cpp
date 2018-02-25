@@ -5,6 +5,7 @@
 #include "WriteTime.h"
 
 int main(int argc, char **argv) {
+
 	::testing::InitGoogleTest(&argc, argv);
 
 	const auto start = std::chrono::steady_clock::now();
