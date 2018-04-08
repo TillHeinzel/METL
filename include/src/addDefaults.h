@@ -40,30 +40,7 @@ namespace metl
 		c.setOperatorPrecedence("/", 5);
 		c.setUnaryOperatorPrecedence("-", 3);
 		c.setUnaryOperatorPrecedence("+", 3);
-		c.setOperatorPrecedence("^", 2);
-	}
-
-	// sets default unary operator {+,-} and binary operator {+,-,*,/} with the corresponding call in C++ 
-	template<class T, class... Ts>
-	void addDefaultOperators(Compiler<Ts...>& c)
-	{
-		setDefaultOperatorPrecedences(c);
-
-		auto unaryPlus = [](auto a) { return a; };
-		auto unaryMinus = [](auto a) { return -a; };
-
-		c.template setUnaryOperator<T>(std::string("+"), unaryPlus);
-		c.template setUnaryOperator<T>("-", unaryMinus);
-
-		auto plus = [](auto left, auto right) { return left + right; };
-		auto minus = [](auto left, auto right) { return left - right; };
-		auto mul = [](auto left, auto right) { return left * right; };
-		auto div = [](auto left, auto right) { return left / right; };
-
-		c.template setOperator<T, T>(std::string("+"), plus);
-		c.template setOperator<T, T>("-", minus);
-		c.template setOperator<T, T>("*", mul);
-		c.template setOperator<T, T>("/", div);
+		c.setOperatorPrecedence("^", 2, ASSOCIATIVITY::RIGHT);
 	}
 
 	// sets default binary operators {+,-,*,/} with the corresponding call in C++ 
@@ -82,6 +59,22 @@ namespace metl
 		c.template setOperator<T1, T2>("*", mul);
 		c.template setOperator<T1, T2>("/", div);
 	}
+
+	// sets default unary operator {+,-} and binary operator {+,-,*,/} with the corresponding call in C++ 
+	template<class T, class... Ts>
+	void addDefaultOperators(Compiler<Ts...>& c)
+	{
+		setDefaultOperatorPrecedences(c);
+
+		auto unaryPlus = [](auto a) { return a; };
+		auto unaryMinus = [](auto a) { return -a; };
+
+		c.template setUnaryOperator<T>(std::string("+"), unaryPlus);
+		c.template setUnaryOperator<T>("-", unaryMinus);
+
+		addDefaultOperators<T, T>(c);
+	}
+
 
 	template<class T, class... Ts>
 	void addBasicFunctions(Compiler<Ts...>& c)
@@ -135,20 +128,33 @@ namespace metl
 	{
 		using intType = decltype(c.impl_.literalConverters_.toInt.f(std::declval<std::string>()));
 		using realType = decltype(c.impl_.literalConverters_.toReal.f(std::declval<std::string>()));
-		
+
 		// defaults with intType
-		constexpr_if(IsInList<intType, Ts...>(), [&c](auto _) 
+		constexpr_if(IsInList<intType, Ts...>(), [&c](auto _)
 		{
 			addDefaultOperators<intType>(c);
+			constexpr_if(std::is_integral<intType>{}, [&c](auto _)
+			{
+				c.template setFunction<intType>("abs", [](const auto& a) {return std::abs(a); });
+			});
 		});
 
 		// defaults with realType
-		constexpr_if(IsInList<realType, Ts...>(), [&c](auto _) 
+		constexpr_if(IsInList<realType, Ts...>(), [&c](auto _)
 		{
 			addDefaultOperators<realType>(c);
 			addBasicFunctions<realType>(c);
 			addTrigFunctions<realType>(c);
-		});		
+			constexpr_if(std::is_floating_point<realType>{}, [&c](auto _)
+			{
+				c.template setFunction<realType>("abs", [](const auto& a) {return std::abs(a); });
+
+				c.template setOperator<realType, realType>("^", [](const auto& left, const auto& right)
+				{
+					return std::pow(left, right);
+				});
+			});
+		});
 
 		// if both integer and real-types exist, add cast from int to real
 		constexpr_if(std::integral_constant<bool, isInList<intType, Ts...>() && isInList<realType, Ts...>()>{},
@@ -158,6 +164,8 @@ namespace metl
 			{
 				return static_cast<realType>(in);
 			}));
+			addDefaultOperators<intType, realType>(c);
+			addDefaultOperators<realType, intType>(c);
 		}
 		);
 	}
