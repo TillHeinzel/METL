@@ -112,6 +112,23 @@ namespace metl
 		c.template setFunction<T>("atanh", [](auto a) {return atanh(a); });
 	}
 
+	namespace detail
+	{
+		template<class T>
+		constexpr T recursive_pow(const T t, const int exponent)
+		{
+			if (exponent == 0) return T(1);
+			if (exponent == 1) return t;
+
+			const auto intermediate = recursive_pow(t, exponent / 2);
+
+			if (exponent % 2) return intermediate * intermediate*t; // odd
+			return intermediate * intermediate; // even
+
+
+		}
+	}
+
 	// sets defaults for basic types (currently int, 
 	template<class Grammar, class Converter, class... Ts>
 	void setDefaults(Compiler<Grammar, Converter, Ts...>& c)
