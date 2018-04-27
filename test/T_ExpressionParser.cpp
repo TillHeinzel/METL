@@ -205,3 +205,17 @@ TEST_F(operationsFixture, binaryOperatorsAndSuffix)
 	ASSERT_EQ(compiler.build<double>("1+1.0")(), 2);
 	ASSERT_EQ(compiler.build<std::complex<double>>("1.0+(1.0+1.0i)")(), std::complex<double>(2,1));
 }
+
+class UserDefinedLiteralsFixture : public MetlFixture {};
+
+TEST_F(UserDefinedLiteralsFixture, binaryOperatorsAndSuffix)
+{
+	auto compiler = metl::makeCompiler<int, double, std::complex<double>>(metl::intConverter([](std::string str) {return std::complex<double>{0, std::stod(str)}; }));
+
+	auto ff = compiler.build("2");
+	
+	auto checkAgainst = std::complex<double>{ 0, 2 };
+	auto result = ff.get<std::complex<double>>()();
+
+	ASSERT_EQ(checkAgainst, result);
+}
