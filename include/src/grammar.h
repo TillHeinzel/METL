@@ -32,6 +32,8 @@ namespace metl
 		namespace pegtl = tao::pegtl;
 		using namespace pegtl;
 
+		struct padding: star<space>{};
+
 		///////////////// ATOMICS ////////////////
 		struct intLiteral
 			: seq< plus<digit>> {};
@@ -61,7 +63,7 @@ namespace metl
 		struct Suffix;
 
 		struct Atomic :
-			seq<opt<UnaryOperator>, star<space>, sor<bracket, Function, Variable, seq<realLiteral, opt<Suffix>>, seq<intLiteral, opt<Suffix>>>> {};
+			seq<opt<UnaryOperator>, star<space>, sor<bracket, Function, Variable, seq<sor<realLiteral, intLiteral>, opt<Suffix>>>> {};
 
 		struct Operator;
 
@@ -76,12 +78,14 @@ namespace metl
 			seq<alpha, star<alnum>>
 		{};
 
-		//struct AssignmentExpression = 
+		struct AssignmentExpr :
+			seq<padding, ValidVariableID, padding, one<'='>, padding, Expr>
+		{};
 
 		////////////////// GRAMMAR //////////////////////
 
 		struct grammar
-			: must<Expr, pegtl::opt<pegtl::space>, pegtl::eof> {};
+			: must<sor<Expr, AssignmentExpr>, padding, pegtl::eof> {};
 	}
 }
 

@@ -110,6 +110,7 @@ namespace metl
 				compiler.impl_.stack_.close();
 			}
 		};
+
 		template<>
 		struct action<one<','>>
 		{
@@ -128,6 +129,16 @@ namespace metl
 			static void apply(const Input&, Compiler& compiler)
 			{
 				compiler.impl_.stack_.close();
+			}
+		};
+
+		template<>
+		struct action<ValidVariableID>
+		{
+			template< typename Input, class Compiler >
+			static void apply(const Input& in, Compiler& compiler)
+			{
+				//compiler.impl_.stack_.startAssignment(in.string());
 			}
 		};
 	}
