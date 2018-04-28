@@ -22,7 +22,7 @@ limitations under the License.
 #include <memory>
 #include <vector>
 
-namespace qengine
+namespace metl
 {
 	namespace internal
 	{
@@ -52,5 +52,12 @@ namespace qengine
 			}
 			return v;
 		}
+
+		template<class... Ts, std::size_t... I>
+		std::tuple<std::unique_ptr<Ts>...> deep_copy(const std::tuple<std::unique_ptr<Ts>...>& tuple, std::index_sequence<I...>)
+		{
+			return std::make_tuple<std::unique_ptr<Ts>...>(deep_copy(std::get<I>(tuple))...);
+		}
+
 	}
 }

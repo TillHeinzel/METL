@@ -19,7 +19,7 @@ limitations under the License.
 */
 
 #pragma once
-#include "Compiler_Detail.fwd.h"
+#include "Compiler_Detail.h"
 
 #include <tao/pegtl.hpp>
 
@@ -33,7 +33,7 @@ limitations under the License.
 
 namespace metl
 {
-	namespace detail
+	namespace internal
 	{
 		template<class T>
 		void insert_or_emplace(std::map<std::string, T>& map, const std::string& key, const T& val)
@@ -51,11 +51,11 @@ namespace metl
 
 namespace metl
 {
-	namespace detail
+	namespace internal
 	{
 		template <class LiteralConverters, class ... Ts>
 		Compiler_impl<LiteralConverters, Ts...>::Compiler_impl(const LiteralConverters& literalConverters) :
-			stack_(operators_, functions_, castImplementations_, suffixImplementations_ ,castDeclarations_),
+			stack_(operators_, functions_, castImplementations_, suffixImplementations_, castDeclarations_),
 			literalConverters_(literalConverters),
 			castDeclarations_({ std::make_pair(type<Ts>(), std::vector<TYPE>{type<Ts>()})... })
 		{}
@@ -65,15 +65,15 @@ namespace metl
 			ASSOCIATIVITY associativity)
 		{
 
-		// if operator already exists, replace precedence. Else, insert new operator with new precedence
+			// if operator already exists, replace precedence. Else, insert new operator with new precedence
 
-		insert_or_emplace(opCarriers_, op, opCarrier{ op, precedence, associativity, false });
+			internal::insert_or_emplace(opCarriers_, op, opCarrier{ op, precedence, associativity, false });
 		}
 
 		template <class LiteralConverters, class ... Ts>
 		void Compiler_impl<LiteralConverters, Ts...>::setUnaryOperatorPrecedence(const std::string& op, unsigned precedence)
 		{
-			insert_or_emplace(unaryCarriers_, op, opCarrier{ op, precedence, ASSOCIATIVITY::RIGHT, true });
+			internal::insert_or_emplace(unaryCarriers_, op, opCarrier{ op, precedence, ASSOCIATIVITY::RIGHT, true });
 		}
 
 		template <class LiteralConverters, class ... Ts>

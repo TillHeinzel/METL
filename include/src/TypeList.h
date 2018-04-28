@@ -22,105 +22,62 @@ limitations under the License.
 
 namespace metl
 {
-	namespace detail
+	namespace internal 
 	{
-		struct ForwardSame
+		template<class T>
+		struct Type
 		{
-			template<class T>
-			constexpr decltype(auto) operator() (T&& t)
-			{
-				return std::forward<T>(t);
-			}
+			using type = T;
+		};
+	}
+}
+
+namespace metl
+{
+	namespace internal 
+	{
+		template<class...> struct TypeList { constexpr TypeList() = default; };
+
+		template<size_t I, class ToFind>
+		constexpr size_t findFirstIndex()
+		{
+			return I;
+		}
+
+		template<size_t I, class ToFind, class T, class... Ts>
+		constexpr size_t findFirstIndex()
+		{
+			return std::is_same<ToFind, T>::value ? I : findFirstIndex<I + 1, ToFind, Ts...>();
+		}
+
+		template<class ToFind, class... Ts>
+		constexpr size_t findFirstIndex(TypeList<Ts...>)
+		{
+			return findFirstIndex<0, ToFind, Ts...>();
+		}
+
+		template<class ToFind, class... Ts>
+		constexpr bool isInList()
+		{
+			return findFirstIndex<ToFind>(TypeList<Ts...>{}) < sizeof...(Ts);
+		}
+
+		template<class ToFind, class... Ts>
+		constexpr bool isInList(TypeList<Ts...> l)
+		{
+			return findFirstIndex<ToFind>(TypeList<Ts...>{}) < sizeof...(Ts);
+		}
+
+		template<class ToFind, class... Ts>
+		using IsInList = std::integral_constant<bool, isInList<ToFind, Ts...>()>;
+
+		template<unsigned index, class... Ts>
+		struct Get
+		{
+			using type = std::remove_cv_t<std::remove_reference_t<decltype(std::get<index>(std::tuple<Ts...>(std::declval<Ts>()...)))>>;
 		};
 
 
-		template<class TrueBranch, class FalseBranch>
-		decltype(auto) constexpr constexpr_ternary_invoke(const std::true_type&, const TrueBranch& trueBranch, const FalseBranch&)
-		{
-			return trueBranch(ForwardSame());
-		}
-
-		template<class TrueBranch, class FalseBranch>
-		decltype(auto) constexpr constexpr_ternary_invoke(const std::false_type&, const TrueBranch&, const FalseBranch& falseBranch)
-		{
-			return falseBranch(ForwardSame());
-		}
+		template<unsigned index, class... Ts> using Get_t = typename Get<index, Ts...>::type;
 	}
-	template<class Condition, class TrueBranch, class FalseBranch>
-	decltype(auto) constexpr constexpr_ternary(const Condition&, const TrueBranch& trueBranch, const FalseBranch& falseBranch)
-	{
-		return detail::constexpr_ternary_invoke(std::integral_constant<bool, Condition::value>{}, trueBranch, falseBranch);
-	}
-}
-
-namespace metl
-{
-	template<class Condition, class TrueBranch>
-	decltype(auto) constexpr constexpr_if(const Condition&, const TrueBranch& trueBranch)
-	{
-		return constexpr_ternary(Condition(), trueBranch, [](auto _) {return _(0); });
-	}
-}
-
-namespace metl
-{
-
-	template<class...> struct TypeList { constexpr TypeList() = default; };
-
-	template<size_t I, class ToFind>
-	constexpr size_t findFirstIndex()
-	{
-		return I;
-	}
-
-	template<size_t I, class ToFind, class T, class... Ts>
-	constexpr size_t findFirstIndex()
-	{
-		return std::is_same<ToFind, T>::value ? I : findFirstIndex<I + 1, ToFind, Ts...>();
-	}
-
-	template<class ToFind, class... Ts>
-	constexpr size_t findFirstIndex(TypeList<Ts...>)
-	{
-		return findFirstIndex<0, ToFind, Ts...>();
-	}
-
-	template<class ToFind, class... Ts>
-	constexpr bool isInList()
-	{
-		return findFirstIndex<ToFind>(TypeList<Ts...>{}) < sizeof...(Ts);
-	}
-
-	template<class ToFind, class... Ts>
-	constexpr bool isInList(TypeList<Ts...> l)
-	{
-		return findFirstIndex<ToFind>(TypeList<Ts...>{}) < sizeof...(Ts);
-	}
-
-	template<class ToFind, class... Ts>
-	using IsInList = std::integral_constant<bool, isInList<ToFind, Ts...>()>;
-
-	template<unsigned index, class... Ts>
-	struct Get
-	{
-		using type = std::remove_cv_t<std::remove_reference_t<decltype(std::get<index>(std::tuple<Ts...>(std::declval<Ts>()...)))>>;
-	};
-
-
-	template<unsigned index, class... Ts> using Get_t = typename Get<index, Ts...>::type;
-
-}
-
-namespace metl
-{
-	template<class T>
-	struct Type
-	{
-		using type = T;
-	};
-}
-
-namespace nostd
-{
-	template<bool B> using bool_constant = std::integral_constant<bool, B>;
 }

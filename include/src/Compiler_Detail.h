@@ -20,11 +20,11 @@ limitations under the License.
 #pragma once
 
 #include "VarExpression.h"
-#include "Stack.fwd.h"
+#include "Stack.h"
 
 namespace metl
 {
-	namespace detail
+	namespace internal
 	{
 
 		template<class LiteralConverters, class... Ts>

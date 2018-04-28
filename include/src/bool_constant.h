@@ -1,7 +1,7 @@
 /*
 @file
-metl.h
-include-file for user-projects
+bool_constant.h
+bool constant, removed when upgrading to C++17
 
 Copyright 2017 Till Heinzel
 
@@ -20,5 +20,7 @@ limitations under the License.
 
 #pragma once
 
-#include "src/makeCompiler.h"
-#include "src/addDefaults.h"
+namespace nostd
+{
+	template<bool B> using bool_constant = std::integral_constant<bool, B>;
+}

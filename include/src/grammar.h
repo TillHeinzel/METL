@@ -25,208 +25,214 @@ limitations under the License.
 
 namespace metl
 {
-	// Implementations of special rules are in bottom of file.
+	namespace internal
+	{
+		// Implementations of special rules are in bottom of file.
 
-	namespace pegtl = tao::pegtl;
-	using namespace pegtl;
+		namespace pegtl = tao::pegtl;
+		using namespace pegtl;
 
-	///////////////// ATOMICS ////////////////
-	struct intLiteral
-		: seq< plus<digit>> {};
+		///////////////// ATOMICS ////////////////
+		struct intLiteral
+			: seq< plus<digit>> {};
 
-	struct realLiteral
-		: seq< plus<digit>, one<'.'>, plus<digit>> {};
-	
-	struct Variable; // constants and variables are equivalent wrt the grammar. 
+		struct realLiteral
+			: seq< plus<digit>, one<'.'>, plus<digit>> {};
 
-	template<class... Literals> 
-	struct Expr;
+		struct Variable; // constants and variables are equivalent wrt the grammar. 
 
-	template<class... Literals>
-	struct bracket : seq< one< '(' >, Expr<Literals...>, one< ')' > > {};
+		template<class... Literals>
+		struct Expr;
+
+		template<class... Literals>
+		struct bracket : seq< one< '(' >, Expr<Literals...>, one< ')' > > {};
 
 
-	/////////////// FUNCTIONS ///////////
+		/////////////// FUNCTIONS ///////////
 
-	struct FunctionName;
+		struct FunctionName;
 
-	struct FunctionStart: seq<FunctionName, at<one<'('>>>{};
+		struct FunctionStart : seq<FunctionName, at<one<'('>>> {};
 
-	template<class... Literals>
-	struct Function: if_must<FunctionStart, one<'('>, opt<list<Expr<Literals...>, one<','>, space>>, one<')'>>{};
+		template<class... Literals>
+		struct Function : if_must<FunctionStart, one<'('>, opt<list<Expr<Literals...>, one<','>, space>>, one<')'>> {};
 
-	/////////////// RECURSIVE EXPRESSIONSTRUCTURE ///////////
+		/////////////// RECURSIVE EXPRESSIONSTRUCTURE ///////////
 
-	struct UnaryOperator;
+		struct UnaryOperator;
 
-	struct Suffix;
+		struct Suffix;
 
-	template<class... Literals>
-	struct Atomic:
-		seq<opt<UnaryOperator>, star<space>, sor<bracket<Literals...>, Function<Literals...>, Variable, seq<Literals, opt<Suffix>>...>> {};
-	
-	struct Operator;
+		template<class... Literals>
+		struct Atomic :
+			seq<opt<UnaryOperator>, star<space>, sor<bracket<Literals...>, Function<Literals...>, Variable, seq<Literals, opt<Suffix>>...>> {};
 
-	template<class... Literals>
-	struct Expr
-		: list<Atomic<Literals...>, Operator, space> {};
-	
+		struct Operator;
 
-	////////////////// GRAMMAR //////////////////////
+		template<class... Literals>
+		struct Expr
+			: list<Atomic<Literals...>, Operator, space> {};
 
-	template<class... Literals>
-	struct grammar
-		: must<Expr<Literals...>, pegtl::opt<pegtl::space>, pegtl::eof> {};
+
+		////////////////// GRAMMAR //////////////////////
+
+		template<class... Literals>
+		struct grammar
+			: must<Expr<Literals...>, pegtl::opt<pegtl::space>, pegtl::eof> {};
+	}
 }
 
 namespace metl
 {
-	template<typename Input, class T>
-	static auto match_any_recursive(Input& in, const std::map<std::string, T>& map, std::string t)
-		-> typename std::map<std::string, T>::const_iterator
+	namespace internal
 	{
-		// t starts out empty, and slowly becomes the same as in.current, adding one char on each recursion-step. t is then searched in the keys of map.
-		if (in.size() > t.size()) {
-			t += in.peek_char(t.size()); // append another char to teststring t
-			const auto i = map.lower_bound(t); // not sure why this works
-			if (i != map.end()) {
-				// recursion step. try the next one down the line with an additional char.
-				// This happend before the termination, because we are expected to be greedy.
-				auto i2 = match_any_recursive(in, map, t);
-				if (i2 != map.end())
-				{
-					return i2;
-				}
-				if (i->first == t)  // recursion stop: if we found a match, return.
-				{
-					return i;
+		template<typename Input, class T>
+		static auto match_any_recursive(Input& in, const std::map<std::string, T>& map, std::string t)
+			-> typename std::map<std::string, T>::const_iterator
+		{
+			// t starts out empty, and slowly becomes the same as in.current, adding one char on each recursion-step. t is then searched in the keys of map.
+			if (in.size() > t.size()) {
+				t += in.peek_char(t.size()); // append another char to teststring t
+				const auto i = map.lower_bound(t); // not sure why this works
+				if (i != map.end()) {
+					// recursion step. try the next one down the line with an additional char.
+					// This happend before the termination, because we are expected to be greedy.
+					auto i2 = match_any_recursive(in, map, t);
+					if (i2 != map.end())
+					{
+						return i2;
+					}
+					if (i->first == t)  // recursion stop: if we found a match, return.
+					{
+						return i;
+					}
 				}
 			}
+			return map.end();
 		}
-		return map.end();
-	}
 
-	struct Variable // constants and variables are equivalent wrt the grammar
-	{
-		using analyze_t = analysis::generic< analysis::rule_type::ANY >;
-
-		template< apply_mode A,
-			rewind_mode M,
-			template< typename... > class Action,
-			template< typename... > class Control,
-			typename Input, class Compiler, class... Others>
-			static bool match(Input& in, Compiler& s, const Others&...)
+		struct Variable // constants and variables are equivalent wrt the grammar
 		{
-			const auto& map = s.impl_.getCandV();
-			auto i = match_any_recursive(in, map, std::string());
-			if (i != map.end())
-			{
-				constexpr_if(std::integral_constant<bool,A==pegtl::apply_mode::ACTION>(),
-					[&](auto _)
-				{
-					s.impl_.stack_.push(i->second);
-				});
+			using analyze_t = analysis::generic< analysis::rule_type::ANY >;
 
-				in.bump(i->first.size());
+			template< apply_mode A,
+				rewind_mode M,
+				template< typename... > class Action,
+				template< typename... > class Control,
+				typename Input, class Compiler, class... Others>
+				static bool match(Input& in, Compiler& s, const Others&...)
+			{
+				const auto& map = s.impl_.getCandV();
+				auto i = match_any_recursive(in, map, std::string());
+				if (i != map.end())
+				{
+					constexpr_if(std::integral_constant<bool, A == pegtl::apply_mode::ACTION>(),
+						[&](auto _)
+					{
+						s.impl_.stack_.push(i->second);
+					});
+
+					in.bump(i->first.size());
+					return true;
+				}
+
+				return false;
+			}
+		};
+
+		struct Operator
+		{
+			using analyze_t = analysis::generic< analysis::rule_type::ANY >;
+
+			template< apply_mode A,
+				rewind_mode M,
+				template< typename... > class Action,
+				template< typename... > class Control,
+				typename Input, class Compiler>
+				static bool match(Input& in, Compiler& s)
+			{
+				// In here, we first check if we can match the input to an operator of the current precedence N.
+				// Then, we check if it exists for the desired left and right types. 
+
+				const auto& operators = s.impl_.getCarriers(); // maps the name of each operator to its precedence.
+				auto it = match_any_recursive(in, operators, std::string{});
+
+				if (it == operators.end()) return false; // no operator was found
+
+				s.impl_.stack_.push(it->second);
+				in.bump(it->first.size()); // remove the operator from the input.
 				return true;
 			}
+		};
 
-			return false;
-		}
-	};
-
-	struct Operator
-	{
-		using analyze_t = analysis::generic< analysis::rule_type::ANY >;
-
-		template< apply_mode A,
-			rewind_mode M,
-			template< typename... > class Action,
-			template< typename... > class Control,
-			typename Input, class Compiler>
-			static bool match(Input& in, Compiler& s)
+		struct UnaryOperator
 		{
-			// In here, we first check if we can match the input to an operator of the current precedence N.
-			// Then, we check if it exists for the desired left and right types. 
+			using analyze_t = analysis::generic< analysis::rule_type::ANY >;
 
-			const auto& operators = s.impl_.getCarriers(); // maps the name of each operator to its precedence.
-			auto it = match_any_recursive(in, operators, std::string{});
+			template< apply_mode A,
+				rewind_mode M,
+				template< typename... > class Action,
+				template< typename... > class Control,
+				typename Input, class Compiler>
+				static bool match(Input& in, Compiler& s)
+			{
+				// In here, we first check if we can match the input to an operator of the current precedence N.
+				// Then, we check if it exists for the desired left and right types. 
 
-			if (it == operators.end()) return false; // no operator was found
+				const auto& operators = s.impl_.getUnaryCarriers(); // maps the name of each operator to its precedence.
+				auto it = match_any_recursive(in, operators, std::string{});
 
-			s.impl_.stack_.push(it->second);
-			in.bump(it->first.size()); // remove the operator from the input.
-			return true;
-		}
-	};
+				if (it == operators.end()) return false; // no operator was found
 
-	struct UnaryOperator
-	{
-		using analyze_t = analysis::generic< analysis::rule_type::ANY >;
+				s.impl_.stack_.push(it->second);
+				in.bump(it->first.size()); // remove the operator from the input.
+				return true;
+			}
+		};
 
-		template< apply_mode A,
-			rewind_mode M,
-			template< typename... > class Action,
-			template< typename... > class Control,
-			typename Input, class Compiler>
-			static bool match(Input& in, Compiler& s)
+		struct Suffix
 		{
-			// In here, we first check if we can match the input to an operator of the current precedence N.
-			// Then, we check if it exists for the desired left and right types. 
+			using analyze_t = analysis::generic<analysis::rule_type::ANY>;
 
-			const auto& operators = s.impl_.getUnaryCarriers(); // maps the name of each operator to its precedence.
-			auto it = match_any_recursive(in, operators, std::string{});
+			template< apply_mode A,
+				rewind_mode M,
+				template< typename... > class Action,
+				template< typename... > class Control,
+				typename Input, class Compiler>
+				static bool match(Input& in, Compiler& s)
+			{
+				// In here, we first check if we can match the input to an operator of the current precedence N.
+				// Then, we check if it exists for the desired left and right types. 
 
-			if (it == operators.end()) return false; // no operator was found
+				const auto& suffixes = s.impl_.getSuffixes(); // maps the name of each operator to its precedence.
+				auto it = match_any_recursive(in, suffixes, std::string{});
 
-			s.impl_.stack_.push(it->second);
-			in.bump(it->first.size()); // remove the operator from the input.
-			return true;
-		}
-	};
+				if (it == suffixes.end()) return false; // no operator was found
 
-	struct Suffix
-	{
-		using analyze_t = analysis::generic<analysis::rule_type::ANY>;
+				s.impl_.stack_.push(it->second);
+				in.bump(it->first.size()); // remove the operator from the input.
+				return true;
+			}
+		};
 
-		template< apply_mode A,
-			rewind_mode M,
-			template< typename... > class Action,
-			template< typename... > class Control,
-			typename Input, class Compiler>
-			static bool match(Input& in, Compiler& s)
+		struct FunctionName
 		{
-			// In here, we first check if we can match the input to an operator of the current precedence N.
-			// Then, we check if it exists for the desired left and right types. 
+			using analyze_t = analysis::generic< analysis::rule_type::ANY >;
 
-			const auto& suffixes = s.impl_.getSuffixes(); // maps the name of each operator to its precedence.
-			auto it = match_any_recursive(in, suffixes, std::string{});
+			template< apply_mode A,
+				rewind_mode M,
+				template< typename... > class Action,
+				template< typename... > class Control,
+				typename Input, class Compiler>
+				static bool match(Input& in, Compiler& s)
+			{
+				const auto& functionNames = s.impl_.getFunctionNames();
+				auto it = match_any_recursive(in, functionNames, std::string{});
+				if (it == functionNames.end()) return false;
 
-			if (it == suffixes.end()) return false; // no operator was found
-
-			s.impl_.stack_.push(it->second);
-			in.bump(it->first.size()); // remove the operator from the input.
-			return true;
-		}
-	};
-
-	struct FunctionName
-	{
-		using analyze_t = analysis::generic< analysis::rule_type::ANY >;
-
-		template< apply_mode A,
-			rewind_mode M,
-			template< typename... > class Action,
-			template< typename... > class Control,
-			typename Input, class Compiler>
-			static bool match(Input& in, Compiler& s)
-		{
-			const auto& functionNames = s.impl_.getFunctionNames();
-			auto it = match_any_recursive(in, functionNames, std::string{});
-			if (it == functionNames.end()) return false;
-
-			in.bump(it->first.size()); // remove the operator from the input.
-			return true;
-		}
-	};
+				in.bump(it->first.size()); // remove the operator from the input.
+				return true;
+			}
+		};
+	}
 }

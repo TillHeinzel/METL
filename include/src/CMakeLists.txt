@@ -1,32 +1,10 @@
 cmake_minimum_required (VERSION 3.3)
-project (metl)
+project (metl CXX)
 
-set(SOURCES
+file(GLOB SOURCES *.h)
+
+list(APPEND SOURCES
 	../metl.h
-
-	Compiler.fwd.h
-	Compiler.impl.h
-	Compiler.h
-	
-	addDefaults.h
-	
-	VarExpression.h
-	
-	nameMangling.h
-	grammar.h
-	actions.h
-	
-	TypeList.h
-	
-	CompilerHelpers.h
-	
-	Stack.fwd.h
-	Stack.impl.h
-	
-	Compiler_Detail.fwd.h
-	Compiler_Detail.impl.h
-	
-	DeepCopy.h
 )
 
 # target for "linking" to

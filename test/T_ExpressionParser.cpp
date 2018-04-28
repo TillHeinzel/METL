@@ -92,10 +92,10 @@ TEST_F(LiteralsFixture, user_defined_converter)
 	auto ff = [](const std::string& s) ->double {return std::stod(s); };
 	//decltype(std::declval<decltype(ff)>() (std::declval<std::string>())) d;
 
-	//auto conv = metl::realConverter(ff);
+	//auto conv = metl::makeRealConverter(ff);
 
 	//auto compiler = metl::makeCompiler<double>();
-	auto compiler = metl::makeCompiler<double>(metl::intConverter(ff));
+	auto compiler = metl::makeCompiler<double>(metl::makeIntConverter(ff));
 
 	ASSERT_EQ(compiler.build<double>("1")(), 1.0);
 	ASSERT_EQ(compiler.build<double>("1.0")(), 1.0);
@@ -210,7 +210,7 @@ class UserDefinedLiteralsFixture : public MetlFixture {};
 
 TEST_F(UserDefinedLiteralsFixture, binaryOperatorsAndSuffix)
 {
-	auto compiler = metl::makeCompiler<int, double, std::complex<double>>(metl::intConverter([](std::string str) {return std::complex<double>{0, std::stod(str)}; }));
+	auto compiler = metl::makeCompiler<int, double, std::complex<double>>(metl::makeIntConverter([](std::string str) {return std::complex<double>{0, std::stod(str)}; }));
 
 	auto ff = compiler.build("2");
 	

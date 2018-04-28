@@ -19,7 +19,7 @@ limitations under the License.
 */
 
 #pragma once
-#include "Compiler.fwd.h"
+#include "Compiler.h"
 
 #include "Compiler_Detail.impl.h"
 
@@ -44,14 +44,14 @@ namespace metl
 	namespace detail 
 	{
 		template<class Expr>
-		void castToAll(Expr&, const std::map<std::string, CastImpl<Expr>>&)
+		void castToAll(Expr&, const std::map<std::string, internal::CastImpl<Expr>>&)
 		{
 		}
 
 		template<class T, class... Ts, class Expr>
-		void castToAll(Expr& expr, const std::map<std::string, CastImpl<Expr>>& castImpls)
+		void castToAll(Expr& expr, const std::map<std::string, internal::CastImpl<Expr>>& castImpls)
 		{
-			auto it = castImpls.find(mangleCast(expr.type(), expr.template toType<T>()));
+			auto it = castImpls.find(internal::mangleCast(expr.type(), expr.template toType<T>()));
 			if(it != castImpls.end())
 			{
 				expr.template set<T>(it->second(expr).template get<T>());
@@ -65,7 +65,7 @@ namespace metl
 	{
 		impl_.stack_.clear();
 		tao::pegtl::memory_input<> input(expression, std::string{});
-		tao::pegtl::parse<Grammar, action>(input, *this);
+		tao::pegtl::parse<Grammar, internal::action>(input, *this);
 
 		auto expr =  impl_.stack_.finish();
 
@@ -97,21 +97,21 @@ namespace metl
 	template <class Left, class Right, class F>
 	void Compiler<Grammar, LiteralConverters, Ts...>::setOperator(const std::string& token, const F& f)
 	{
-		impl_.setOperator(token, { type<Left>(), type<Right>() }, metl::makeFunction<Expression, Left, Right>(f));
+		impl_.setOperator(token, { type<Left>(), type<Right>() }, metl::internal::makeFunction<Expression, Left, Right>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
 	template <class T, class F>
 	void Compiler<Grammar, LiteralConverters, Ts...>::setUnaryOperator(const std::string& token, const F& f)
 	{
-		impl_.setUnaryOperator(token, type<T>(), metl::makeFunction<Expression, T>(f));
+		impl_.setUnaryOperator(token, type<T>(), metl::internal::makeFunction<Expression, T>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
 	template <class ... ParamTypes, class F>
 	void Compiler<Grammar, LiteralConverters, Ts...>::setFunction(const std::string& token, const F& f)
 	{
-		impl_.setFunction(token, std::vector<TYPE>{type<ParamTypes>()...}, metl::makeFunction<Expression, ParamTypes...>(f));
+		impl_.setFunction(token, std::vector<TYPE>{type<ParamTypes>()...}, metl::internal::makeFunction<Expression, ParamTypes...>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
@@ -119,8 +119,8 @@ namespace metl
 	void Compiler<Grammar, LiteralConverters, Ts...>::setCast(const F& f)
 	{
 		using To = std::result_of_t<F(From)>;
-		static_assert(isInList<From, Ts...>(), "Type casted from is not one of the types of this compiler");
-		static_assert(isInList<To, Ts...>(), "Type casted to is not one of the types of this compiler");
+		static_assert(internal::isInList<From, Ts...>(), "Type casted from is not one of the types of this compiler");
+		static_assert(internal::isInList<To, Ts...>(), "Type casted to is not one of the types of this compiler");
 
 		auto impl = [f](const Expression& from)
 		{
@@ -133,13 +133,15 @@ namespace metl
 			});
 		};
 
-		impl_.setCast(type<From>(), type<To>(), CastImpl<Expression>(impl));
+		impl_.setCast(type<From>(), type<To>(), internal::CastImpl<Expression>(impl));
 	}
 
 	template <class Grammar, class LiteralsConverters, class ... Ts>
 	template <class From, class To, class F>
 	void Compiler<Grammar, LiteralsConverters, Ts...>::setSuffix(const std::string& token, const F& f)
 	{
+		using namespace internal;
+
 		static_assert(isInList<From, Ts...>(), "Type the suffix converts from is not one of the types of this compiler!");
 		static_assert(isInList<To, Ts...>(), "Type the suffix converts to is not one of the types of this compiler!");
 

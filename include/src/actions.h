@@ -1,8 +1,8 @@
 /*
- @file 
+ @file
 actions.h
 defines actions to be taken when finding specific patterns in the parsed string. Used by PEGTL
- 
+
  Copyright 2017 Till Heinzel
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,108 +22,113 @@ defines actions to be taken when finding specific patterns in the parsed string.
 #include "grammar.h"
 #include "VarExpression.h"
 
+#include "bool_constant.h"
+
 namespace metl
 {
 	struct BadLiteralException;
 
-	template< typename Rule >
-	struct action
-		: nothing<Rule>
-	{};
-
-	template<class TargetType, class... Ts, class Compiler, class Converter>
-	void convertLiteral(Compiler& compiler, const std::string& input, Converter& converter,TypeList<Ts...>)
+	namespace internal
 	{
-		constexpr_ternary(nostd::bool_constant<isInList<TargetType, Ts...>()>(),
-			[&](auto _)
+		template< typename Rule >
+		struct action
+			: nothing<Rule>
+		{};
+
+		template<class TargetType, class... Ts, class Compiler, class Converter>
+		void convertLiteral(Compiler& compiler, const std::string& input, Converter& converter, TypeList<Ts...>)
 		{
-			compiler.impl_.stack_.push(metl::makeConstExpression<typename Compiler::Expression>(converter.f(input)));
-		},
-			[&](auto _)
-		{
-			try
+			constexpr_ternary(nostd::bool_constant<isInList<TargetType, Ts...>()>(),
+				[&](auto _)
 			{
-				converter.f(input);
-			}
-			catch (const BadLiteralException& e)
+				compiler.impl_.stack_.push(makeConstExpression<typename Compiler::Expression>(converter.f(input)));
+			},
+				[&](auto _)
 			{
-				throw e;
+				try
+				{
+					converter.f(input);
+				}
+				catch (const BadLiteralException& e)
+				{
+					throw e;
+				}
 			}
+			);
 		}
-		);
+
+		template<>
+		struct action<intLiteral>
+		{
+			template< typename Input, class Compiler >
+			static void apply(const Input& in, Compiler& compiler)
+			{
+				auto& converter = compiler.impl_.literalConverters_.toInt;
+				using intType = decltype(converter.f(in.string()));
+				convertLiteral<intType>(compiler, in.string(), converter, compiler.impl_.getTypeList());
+			}
+		};
+
+		template<>
+		struct action<realLiteral>
+		{
+			template< typename Input, class Compiler >
+			static void apply(const Input& in, Compiler& compiler)
+			{
+				auto& converter = compiler.impl_.literalConverters_.toReal;
+				using realType = decltype(converter.f(in.string()));
+				convertLiteral<realType>(compiler, in.string(), converter, compiler.impl_.getTypeList());
+			}
+		};
+
+		template<>
+		struct action<FunctionStart>
+		{
+			template< typename Input, class Compiler >
+			static void apply(const Input& in, Compiler& compiler)
+			{
+				compiler.impl_.stack_.pushFunction(in.string());
+			}
+		};
+
+		template<>
+		struct action<one<'('>>
+		{
+			template< typename Input, class Compiler >
+			static void apply(const Input&, Compiler& compiler)
+			{
+				compiler.impl_.stack_.open();
+			}
+		};
+
+		template<>
+		struct action<one<')'>>
+		{
+			template< typename Input, class Compiler >
+			static void apply(const Input&, Compiler& compiler)
+			{
+				compiler.impl_.stack_.close();
+			}
+		};
+		template<>
+		struct action<one<','>>
+		{
+			template< typename Input, class Compiler >
+			static void apply(const Input&, Compiler& compiler)
+			{
+				compiler.impl_.stack_.close();
+				compiler.impl_.stack_.open();
+			}
+		};
+
+		template<class... Literals>
+		struct action<Function<Literals...>>
+		{
+			template< typename Input, class Compiler >
+			static void apply(const Input&, Compiler& compiler)
+			{
+				compiler.impl_.stack_.close();
+			}
+		};
 	}
-
-	template<>
-	struct action<intLiteral>
-	{
-		template< typename Input, class Compiler >
-		static void apply(const Input& in, Compiler& compiler)
-		{
-			auto& converter = compiler.impl_.literalConverters_.toInt;
-			using intType = decltype(converter.f(in.string()));
-			convertLiteral<intType>(compiler, in.string(), converter, compiler.impl_.getTypeList());
-		}
-	};
-
-	template<>
-	struct action<realLiteral>
-	{
-		template< typename Input, class Compiler >
-		static void apply(const Input& in, Compiler& compiler)
-		{
-			auto& converter = compiler.impl_.literalConverters_.toReal;
-			using realType = decltype(converter.f(in.string()));
-			convertLiteral<realType>(compiler, in.string(), converter, compiler.impl_.getTypeList());
-		}
-	};
-
-	template<>
-	struct action<FunctionStart>
-	{
-		template< typename Input, class Compiler >
-		static void apply(const Input& in, Compiler& compiler)
-		{
-			compiler.impl_.stack_.pushFunction(in.string());
-		}
-	};	
-	
-	template<>
-	struct action<one<'('>>
-	{
-		template< typename Input, class Compiler >
-		static void apply(const Input&, Compiler& compiler)
-		{
-			compiler.impl_.stack_.open();
-		}
-	};	
-
-	template<>
-	struct action<one<')'>>
-	{
-		template< typename Input, class Compiler >
-		static void apply(const Input&, Compiler& compiler)
-		{
-			compiler.impl_.stack_.close();
-		}
-	};
-	template<>
-	struct action<one<','>>
-	{
-		template< typename Input, class Compiler >
-		static void apply(const Input&, Compiler& compiler)
-		{
-			compiler.impl_.stack_.close();
-			compiler.impl_.stack_.open();
-		}
-	};
-
-	template<class... Literals>
-	struct action<Function<Literals...>>
-	{
-		template< typename Input, class Compiler >
-		static void apply(const Input&, Compiler& compiler)
-		{
-			compiler.impl_.stack_.close();
-		}
-	};
 }

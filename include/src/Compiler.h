@@ -1,7 +1,7 @@
 /*
 @file
-Compiler.h
-Public access-file for template class Compiler, containing the make-functions and helpers to construct a metl::Compiler
+Compiler.fwd.h
+Declares template class Compiler, which is the public relations class of metl: The only class a user interacts with directly. Except maybe for expressions.
 
 Copyright 2017 Till Heinzel
 
@@ -17,104 +17,61 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
 #pragma once
 
-#include "Compiler.impl.h"
+#include <map>
+
+#include "Compiler_Detail.h"
 
 namespace metl
 {
-	struct BadLiteralException: public std::runtime_error{explicit BadLiteralException(const std::string& s):runtime_error(s){} };
-
-	namespace detail
+	template<class Grammar, class LiteralsConverters, class... Ts>
+	class Compiler
 	{
-		// Type to carry functors f that convert strings representing literals. 
-		// From_t is basically the index for the metl-compiler, so when From_t =int this converter will be invoked to deal with literals "1" or "42", 
-		// while From_t = doube is invoked for "1.0" and "8.008"
-		template<class From_t, class To_t, class F>
-		struct Converter
-		{
-			using From = From_t;
-			using To = To_t;
-			F f;
-		};
+	public:
+		using Expression = VarExpression<Ts...>;
 
-		template<class From_t, class F>
-		auto makeConverter(F f)
-		{
-			using To_t = decltype(f(std::string()));
-			return Converter<From_t, To_t, F>{f};
-		}
+	public:
 
-		template<class IntConverter, class RealConverter>
-		struct LiteralConverters
-		{
-			IntConverter toInt;
-			RealConverter toReal;
-		};
+		Compiler(const LiteralsConverters& literalConverters);
 
-		template<class... Ts>
-		auto makeLiteralConverters(Ts&&...ts) { return LiteralConverters<Ts...>{ts...}; }
-	
-		template<class T> struct DefaultConverterMaker{};
-		template<> struct DefaultConverterMaker<int> { static auto make() { return makeConverter<int>([](const std::string& s) {return std::stoi(s); }); } };
-		template<> struct DefaultConverterMaker<double> { static auto make() { return makeConverter<double>([](const std::string& s) {return std::stod(s); }); } };
-		
-		// recursion-end for when no converter for type T has been passed in, so we define a default.
-		// The default will convert to the default type (currently int and double), it these are part of the compiler, otherwise it will throw a BadLiteralException
-		template<class T, class... Ts>
-		auto getConverter()
-		{
-			return constexpr_ternary(std::integral_constant<bool, isInList<T, Ts...>()>(), [](auto _)
-			{
-				//return _([](const std::string& s) {return std::stoi(s); });
-				return _(DefaultConverterMaker<T>::make());
-			},
-				[](auto _)
-			{
-				return _( makeConverter<T>([](const auto& s) -> T
-				{
-					throw BadLiteralException("");
-				}));
-			});
-		}
-		
-		// recursion-end for when a converter for type T has actually been passed in.
-		template<class T, class... Ts, class TT, class F, class... Converters>
-		auto getConverter(Converter<T, TT, F> converter1, Converters...)
-		{
-			static_assert(isInList<TT, Ts...>(), "type converted to must be part of compiler!");
-			return converter1;
-		}
+		Expression build(const std::string& expression);
 
-		// recursion-step
-		template<class... Ts, class NotLookingForThisConverter, class... Converters>
-		auto getConverter(NotLookingForThisConverter, Converters... converters)
-		{
-			return getConverter<Ts...>(converters...);
-		}
+		template<class T>
+		exprType<T> build(const std::string& expression);
 
-		template<class... Ts, class... Converters>
-		auto constructFullLiteralsConverter(Converters... converters)
-		{
-			auto toInt = getConverter<int, Ts...>(converters...); // picks out the converter from the list that is labelled to interpret int-literals
-			auto toReal = getConverter<double, Ts...>(converters...); // picks out the converter from the list that is labelled to interpret real-literals
+	public:
+		void setOperatorPrecedence(std::string op, unsigned int precedence, ASSOCIATIVITY associativity = ASSOCIATIVITY::LEFT);
+		void setUnaryOperatorPrecedence(std::string op, unsigned int precedence);
 
-			return detail::makeLiteralConverters(toInt, toReal);
-		}
-	}
+		template<class Left, class Right, /*inferred*/ class F>
+		void setOperator(const std::string& token, const F& f);
 
-	template<class F, class T = decltype(std::declval<F>()(std::declval<std::string>())) >
-	detail::Converter<int, T, F> intConverter(F f) {return detail::Converter<int, T, F>{f};	} 
+		template<class T, /*inferred*/ class F>
+		void setUnaryOperator(const std::string& token, const F& f);
 
-	template<class F, class T = decltype(std::declval<F>()(std::declval<std::string>()))>
-	detail::Converter<double, T, F> realConverter(F f) { return detail::Converter<double, T, F>{f}; }
+		// Finds strings of the form token(ParamTypes...) and calls f on the params
+		template<class... ParamTypes, /*inferred*/ class F>
+		void setFunction(const std::string& token, const F& f);
 
+		// tries to implicitly cast from type "From" to whatever type is returned by function f
+		template<class From, /*inferred*/ class F>
+		void setCast(const F& f);
 
-	template<class... Ts, class... Converters>
-	auto makeCompiler(Converters... converters) -> Compiler<grammar<realLiteral, intLiteral>, decltype(detail::constructFullLiteralsConverter<Ts...>(converters...)), Ts...>
-	{
-		auto literalsConverter = detail::constructFullLiteralsConverter<Ts...>(converters...);
-		return Compiler<grammar<realLiteral, intLiteral>, decltype(literalsConverter), Ts...>(literalsConverter);
-	}
+		// adds 'token' as a possible suffix for literals of type From, converting them to type To.
+		template<class From, class To, /*inferred*/class F>
+		void setSuffix(const std::string& token, const F& f);
+
+	public:
+		template<class T>
+		void setConstant(const std::string& token, T&& val);
+
+		template<class T>
+		void setVariable(const std::string& token, T* val);
+	public:
+		template<class T>
+		constexpr static TYPE type();
+
+		internal::Compiler_impl<LiteralsConverters, Ts...> impl_;
+	};
 }

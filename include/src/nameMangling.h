@@ -23,58 +23,42 @@ limitations under the License.
 #include <functional>
 #include <string>
 
-namespace metl
-{
-	enum class TYPE : int;
-
-	inline std::string typeToString(TYPE type)
-	{
-		return std::to_string(static_cast<int>(type));
-	}
-
-	inline std::vector<std::string> typeToString(const std::vector<TYPE>& types)
-	{
-		std::vector<std::string> ret{};
-		for(const auto& type:types)
-		{
-			ret.push_back(typeToString(type));
-		}
-		return ret;
-	}
-}
+#include "TypeEnum.h"
 
 namespace metl
 {
-	constexpr char separator = '@';
+	namespace internal {
+		constexpr char separator = '@';
 
-	inline std::string mangleCast(const TYPE from, const TYPE to)
-	{
-		return typeToString(from) + separator + typeToString(to);
-	}
-
-	inline std::string mangleName(std::string functionName, const std::vector<TYPE>& paramTypes)
-	{
-		for (const auto& t : paramTypes)
+		inline std::string mangleCast(const TYPE from, const TYPE to)
 		{
-			functionName += separator + typeToString(t);
+			return typeToString(from) + separator + typeToString(to);
 		}
 
-		return functionName;
-	}
-
-	template<class Expr>
-	std::string mangleName(std::string functionName, const std::vector<Expr>& params)
-	{
-		for (const auto& t : params)
+		inline std::string mangleName(std::string functionName, const std::vector<TYPE>& paramTypes)
 		{
-			functionName += separator + typeToString(t.type());
+			for (const auto& t : paramTypes)
+			{
+				functionName += separator + typeToString(t);
+			}
+
+			return functionName;
 		}
 
-		return functionName;
-	}
+		template<class Expr>
+		std::string mangleName(std::string functionName, const std::vector<Expr>& params)
+		{
+			for (const auto& t : params)
+			{
+				functionName += separator + typeToString(t.type());
+			}
 
-	inline std::string mangleSuffix(std::string suffix, TYPE from)
-	{
-		return typeToString(from)+separator+suffix;
+			return functionName;
+		}
+
+		inline std::string mangleSuffix(std::string suffix, TYPE from)
+		{
+			return typeToString(from) + separator + suffix;
+		}
 	}
 }
