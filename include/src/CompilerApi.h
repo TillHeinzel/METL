@@ -77,6 +77,7 @@ namespace metl
 		template<class T>
 		constexpr static TYPE type();
 
+	private:
 		internal::Compiler<LiteralsConverters, Ts...> impl_;
 	};
 }

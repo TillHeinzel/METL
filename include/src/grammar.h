@@ -129,14 +129,14 @@ namespace metl
 				typename Input, class Compiler, class... Others>
 				static bool match(Input& in, Compiler& s, const Others&...)
 			{
-				const auto& map = s.impl_.getCandV();
+				const auto& map = s.bits_.getCandV();
 				auto i = match_any_recursive(in, map, std::string());
 				if (i != map.end())
 				{
 					constexpr_if(std::integral_constant<bool, A == pegtl::apply_mode::ACTION>(),
 						[&](auto _)
 					{
-						s.impl_.stack_.push(i->second);
+						s.stack_.push(i->second);
 					});
 
 					in.bump(i->first.size());
@@ -161,12 +161,12 @@ namespace metl
 				// In here, we first check if we can match the input to an operator of the current precedence N.
 				// Then, we check if it exists for the desired left and right types. 
 
-				const auto& operators = s.impl_.getCarriers(); // maps the name of each operator to its precedence.
+				const auto& operators = s.bits_.getCarriers(); // maps the name of each operator to its precedence.
 				auto it = match_any_recursive(in, operators, std::string{});
 
 				if (it == operators.end()) return false; // no operator was found
 
-				s.impl_.stack_.push(it->second);
+				s.stack_.push(it->second);
 				in.bump(it->first.size()); // remove the operator from the input.
 				return true;
 			}
@@ -186,12 +186,12 @@ namespace metl
 				// In here, we first check if we can match the input to an operator of the current precedence N.
 				// Then, we check if it exists for the desired left and right types. 
 
-				const auto& operators = s.impl_.getUnaryCarriers(); // maps the name of each operator to its precedence.
+				const auto& operators = s.bits_.getUnaryCarriers(); // maps the name of each operator to its precedence.
 				auto it = match_any_recursive(in, operators, std::string{});
 
 				if (it == operators.end()) return false; // no operator was found
 
-				s.impl_.stack_.push(it->second);
+				s.stack_.push(it->second);
 				in.bump(it->first.size()); // remove the operator from the input.
 				return true;
 			}
@@ -211,12 +211,12 @@ namespace metl
 				// In here, we first check if we can match the input to an operator of the current precedence N.
 				// Then, we check if it exists for the desired left and right types. 
 
-				const auto& suffixes = s.impl_.getSuffixes(); // maps the name of each operator to its precedence.
+				const auto& suffixes = s.bits_.getSuffixes(); // maps the name of each operator to its precedence.
 				auto it = match_any_recursive(in, suffixes, std::string{});
 
 				if (it == suffixes.end()) return false; // no operator was found
 
-				s.impl_.stack_.push(it->second);
+				s.stack_.push(it->second);
 				in.bump(it->first.size()); // remove the operator from the input.
 				return true;
 			}
@@ -233,7 +233,7 @@ namespace metl
 				typename Input, class Compiler>
 				static bool match(Input& in, Compiler& s)
 			{
-				const auto& functionNames = s.impl_.getFunctionNames();
+				const auto& functionNames = s.bits_.getFunctionNames();
 				auto it = match_any_recursive(in, functionNames, std::string{});
 				if (it == functionNames.end()) return false;
 

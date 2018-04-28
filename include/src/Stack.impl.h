@@ -151,17 +151,9 @@ namespace metl
 	{
 
 		template <class ... Ts>
-		Stack<Ts...>::Substack::Substack(
-			const std::map<std::string, FunctionImpl<Expression>>& opMap,
-			const std::map<std::string, FunctionImpl<Expression>>& functionMap,
-			const std::map<std::string, CastImpl<Expression>>& castImplementations,
-			const std::map<std::string, CastImpl<Expression>>& suffixImplementations,
-			const std::map<TYPE, std::vector<TYPE>>& castDeclarations)
-			:opMap_(opMap),
-			functionMap_(functionMap),
-			suffixMap_(suffixImplementations),
-			castImplementations_(castImplementations),
-			castDeclarations_(castDeclarations)
+		Stack<Ts...>::Substack::Substack(const CompilerBits<Ts...>& bits
+			)
+			:bits_(bits)
 		{
 		}
 
@@ -197,19 +189,19 @@ namespace metl
 			assert(expressions_.back().category() == CATEGORY::CONSTEXPR);
 
 			const auto inType = expressions_.back().type();
-			auto it = suffixMap_.find(mangleSuffix(suffix.name, { inType }));
+			auto it = bits_.suffixImplementations_.find(mangleSuffix(suffix.name, { inType }));
 
-			if (it == suffixMap_.end())
+			if (it == bits_.suffixImplementations_.end())
 			{
-				std::vector<TYPE> allowedCasts = castDeclarations_.at(inType);
+				std::vector<TYPE> allowedCasts = bits_.castDeclarations_.at(inType);
 
 
 				std::vector<TYPE> validCasts;
 				std::vector<std::string> possibleFunctions;
 				for (auto c : allowedCasts)
 				{
-					auto it2 = suffixMap_.find(mangleSuffix(suffix.name, { c }));
-					if (it2 != suffixMap_.end())
+					auto it2 = bits_.suffixImplementations_.find(mangleSuffix(suffix.name, { c }));
+					if (it2 != bits_.suffixImplementations_.end())
 					{
 						possibleFunctions.push_back(it2->first);
 						validCasts.push_back(c);
@@ -271,21 +263,21 @@ namespace metl
 
 			auto inTypes = getTypes(expressions_);
 
-			auto it = functionMap_.find(mangleName(*function_, inTypes));
-			if (it == functionMap_.end())
+			auto it = bits_.functions_.find(mangleName(*function_, inTypes));
+			if (it == bits_.functions_.end())
 			{
 				std::vector<std::vector<TYPE>> castCombis{ {} };
 				for (auto t : inTypes)
 				{
-					castCombis = tensorSum(castCombis, castDeclarations_.at(t));
+					castCombis = tensorSum(castCombis, bits_.castDeclarations_.at(t));
 				}
 
 				std::vector<std::vector<TYPE>> validCasts;
 				std::vector<std::string> possibleFunctions;
 				for (auto c : castCombis)
 				{
-					auto it2 = functionMap_.find(mangleName(*function_, c));
-					if (it2 != functionMap_.end())
+					auto it2 = bits_.functions_.find(mangleName(*function_, c));
+					if (it2 != bits_.functions_.end())
 					{
 						possibleFunctions.push_back(it2->first);
 						validCasts.push_back(c);
@@ -333,21 +325,21 @@ namespace metl
 			const auto opName = operators_.back().name;
 
 			auto inTypes = std::vector<TYPE>{ (expressions_.rbegin() + 1)->type(), expressions_.rbegin()->type() };
-			auto it = opMap_.find(mangleName(opName, inTypes));
-			if (it == opMap_.end())
+			auto it = bits_.operators_.find(mangleName(opName, inTypes));
+			if (it == bits_.operators_.end())
 			{
 				std::vector<std::vector<TYPE>> castCombis{ {} };
 				for (auto t : inTypes)
 				{
-					castCombis = tensorSum(castCombis, castDeclarations_.at(t));
+					castCombis = tensorSum(castCombis, bits_.castDeclarations_.at(t));
 				}
 
 				std::vector<std::vector<TYPE>> validCasts;
 				std::vector<std::string> possibleFunctions;
 				for (auto c : castCombis)
 				{
-					auto it2 = opMap_.find(mangleName(opName, c));
-					if (it2 != opMap_.end())
+					auto it2 = bits_.operators_.find(mangleName(opName, c));
+					if (it2 != bits_.operators_.end())
 					{
 						possibleFunctions.push_back(it2->first);
 						validCasts.push_back(c);
@@ -395,18 +387,18 @@ namespace metl
 			const auto opName = operators_.back().name;
 
 			auto inType = expressions_.back().type();
-			auto it = opMap_.find(mangleName(opName, { inType }));
-			if (it == opMap_.end())
+			auto it = bits_.operators_.find(mangleName(opName, { inType }));
+			if (it == bits_.operators_.end())
 			{
-				std::vector<TYPE> allowedCasts = castDeclarations_.at(inType);
+				std::vector<TYPE> allowedCasts = bits_.castDeclarations_.at(inType);
 
 
 				std::vector<TYPE> validCasts;
 				std::vector<std::string> possibleFunctions;
 				for (auto c : allowedCasts)
 				{
-					auto it2 = opMap_.find(mangleName(opName, { c }));
-					if (it2 != opMap_.end())
+					auto it2 = bits_.operators_.find(mangleName(opName, { c }));
+					if (it2 != bits_.operators_.end())
 					{
 						possibleFunctions.push_back(it2->first);
 						validCasts.push_back(c);
@@ -464,7 +456,7 @@ namespace metl
 				const auto toType = targetTypes.at(i_target);
 				if (fromType != toType)
 				{
-					expr = castImplementations_.at(mangleCast(fromType, toType))(expr);
+					expr = bits_.castImplementations_.at(mangleCast(fromType, toType))(expr);
 				}
 				++i_target;
 			}
@@ -477,20 +469,12 @@ namespace metl
 	namespace internal
 	{
 		template <class ... Ts>
-		Stack<Ts...>::Stack(
-			const std::map<std::string, FunctionImpl<Expression>>& opMap,
-			const std::map<std::string, FunctionImpl<Expression>>& funcMap,
-			const std::map<std::string, CastImpl<Expression>>& castImplementations,
-			const std::map<std::string, CastImpl<Expression>>& suffixImplementations,
-			const std::map<TYPE, std::vector<TYPE>>& castDeclarations)
-			:opMap_(opMap),
-			funcMap_(funcMap),
-			castImplementations_(castImplementations),
-			suffixImplementations_(suffixImplementations),
-			castDeclarations_(castDeclarations)
+		Stack<Ts...>::Stack(const CompilerBits<Ts...>& bits)
+			:bits_(bits)
 		{
 			open();
 		}
+
 		template <class ... Ts>
 		void Stack<Ts...>::push(const Expression& t)
 		{
@@ -520,7 +504,7 @@ namespace metl
 		template <class ... Ts>
 		void Stack<Ts...>::open()
 		{
-			subStacks_.emplace_back(opMap_, funcMap_, castImplementations_, suffixImplementations_, castDeclarations_);
+			subStacks_.emplace_back(bits_);
 		}
 
 		template <class ... Ts>

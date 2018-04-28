@@ -57,11 +57,11 @@ namespace metl
 	{
 		impl_.stack_.clear();
 		tao::pegtl::memory_input<> input(expression, std::string{});
-		tao::pegtl::parse<Grammar, internal::action>(input, *this);
+		tao::pegtl::parse<Grammar, internal::action>(input, impl_);
 
 		auto expr =  impl_.stack_.finish();
 
-		detail::castToAll<Ts...>(expr, impl_.getcastImplementations());
+		detail::castToAll<Ts...>(expr, impl_.bits_.getcastImplementations());
 
 		return expr;
 	}
@@ -76,34 +76,34 @@ namespace metl
 	template <class Grammar, class LiteralConverters, class... Ts>
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setOperatorPrecedence(const std::string op, const unsigned int precedence, const ASSOCIATIVITY associativity)
 	{
-		impl_.setOperatorPrecedence(op, precedence, associativity);
+		impl_.bits_.setOperatorPrecedence(op, precedence, associativity);
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setUnaryOperatorPrecedence(const std::string op, const unsigned precedence)
 	{
-		impl_.setUnaryOperatorPrecedence(op, precedence);
+		impl_.bits_.setUnaryOperatorPrecedence(op, precedence);
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
 	template <class Left, class Right, class F>
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setOperator(const std::string& token, const F& f)
 	{
-		impl_.setOperator(token, { type<Left>(), type<Right>() }, metl::internal::makeFunction<Expression, Left, Right>(f));
+		impl_.bits_.setOperator(token, { type<Left>(), type<Right>() }, metl::internal::makeFunction<Expression, Left, Right>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
 	template <class T, class F>
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setUnaryOperator(const std::string& token, const F& f)
 	{
-		impl_.setUnaryOperator(token, type<T>(), metl::internal::makeFunction<Expression, T>(f));
+		impl_.bits_.setUnaryOperator(token, type<T>(), metl::internal::makeFunction<Expression, T>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
 	template <class ... ParamTypes, class F>
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setFunction(const std::string& token, const F& f)
 	{
-		impl_.setFunction(token, std::vector<TYPE>{type<ParamTypes>()...}, metl::internal::makeFunction<Expression, ParamTypes...>(f));
+		impl_.bits_.setFunction(token, std::vector<TYPE>{type<ParamTypes>()...}, metl::internal::makeFunction<Expression, ParamTypes...>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
@@ -125,7 +125,7 @@ namespace metl
 			});
 		};
 
-		impl_.setCast(type<From>(), type<To>(), internal::CastImpl<Expression>(impl));
+		impl_.bits_.setCast(type<From>(), type<To>(), internal::CastImpl<Expression>(impl));
 	}
 
 	template <class Grammar, class LiteralsConverters, class ... Ts>
@@ -148,7 +148,7 @@ namespace metl
 			});
 		};
 
-		impl_.setSuffix(token, type<From>(), CastImpl<Expression>(impl));
+		impl_.bits_.setSuffix(token, type<From>(), CastImpl<Expression>(impl));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
@@ -157,7 +157,7 @@ namespace metl
 	{
 		/*
 					static_assert(isInList<T, Ts...>(), "T must be one of the types the compiler works with.");*/
-		impl_.addConstantOrVariable(token, internal::makeConstExpression<Expression>(std::forward<T>(val)));
+		impl_.bits_.addConstantOrVariable(token, internal::makeConstExpression<Expression>(std::forward<T>(val)));
 	}
 
 	template <class Grammar, class LiteralsConverters, class ... Ts>
@@ -171,14 +171,14 @@ namespace metl
 	typename CompilerApi<Grammar, LiteralsConverters, Ts...>::Expression CompilerApi<Grammar, LiteralsConverters, Ts...>::
 	getConstant(const std::string& token)
 	{
-		return impl_.getCandV().at(token);
+		return impl_.bits_.getCandV().at(token);
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
 	template <class T>
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setVariable(const std::string& token, T* val)
 	{
-		impl_.addConstantOrVariable(token, makeVariableExpression<Expression>(val));
+		impl_.bits_.addConstantOrVariable(token, makeVariableExpression<Expression>(val));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>

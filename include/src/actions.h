@@ -41,7 +41,7 @@ namespace metl
 			constexpr_ternary(nostd::bool_constant<isInList<TargetType, Ts...>()>(),
 				[&](auto _)
 			{
-				compiler.impl_.stack_.push(makeConstExpression<typename Compiler::Expression>(converter.f(input)));
+				compiler.stack_.push(makeConstExpression<typename Compiler::Expression>(converter.f(input)));
 			},
 				[&](auto _)
 			{
@@ -63,9 +63,9 @@ namespace metl
 			template< typename Input, class Compiler >
 			static void apply(const Input& in, Compiler& compiler)
 			{
-				auto& converter = compiler.impl_.literalConverters_.toInt;
+				auto& converter = compiler.literalConverters_.toInt;
 				using intType = decltype(converter.f(in.string()));
-				convertLiteral<intType>(compiler, in.string(), converter, compiler.impl_.getTypeList());
+				convertLiteral<intType>(compiler, in.string(), converter, compiler.getTypeList());
 			}
 		};
 
@@ -75,9 +75,9 @@ namespace metl
 			template< typename Input, class Compiler >
 			static void apply(const Input& in, Compiler& compiler)
 			{
-				auto& converter = compiler.impl_.literalConverters_.toReal;
+				auto& converter = compiler.literalConverters_.toReal;
 				using realType = decltype(converter.f(in.string()));
-				convertLiteral<realType>(compiler, in.string(), converter, compiler.impl_.getTypeList());
+				convertLiteral<realType>(compiler, in.string(), converter, compiler.getTypeList());
 			}
 		};
 
@@ -87,7 +87,7 @@ namespace metl
 			template< typename Input, class Compiler >
 			static void apply(const Input& in, Compiler& compiler)
 			{
-				compiler.impl_.stack_.pushFunction(in.string());
+				compiler.stack_.pushFunction(in.string());
 			}
 		};
 
@@ -97,7 +97,7 @@ namespace metl
 			template< typename Input, class Compiler >
 			static void apply(const Input&, Compiler& compiler)
 			{
-				compiler.impl_.stack_.open();
+				compiler.stack_.open();
 			}
 		};
 
@@ -107,7 +107,7 @@ namespace metl
 			template< typename Input, class Compiler >
 			static void apply(const Input&, Compiler& compiler)
 			{
-				compiler.impl_.stack_.close();
+				compiler.stack_.close();
 			}
 		};
 
@@ -117,8 +117,8 @@ namespace metl
 			template< typename Input, class Compiler >
 			static void apply(const Input&, Compiler& compiler)
 			{
-				compiler.impl_.stack_.close();
-				compiler.impl_.stack_.open();
+				compiler.stack_.close();
+				compiler.stack_.open();
 			}
 		};
 
@@ -128,7 +128,7 @@ namespace metl
 			template< typename Input, class Compiler >
 			static void apply(const Input&, Compiler& compiler)
 			{
-				compiler.impl_.stack_.close();
+				compiler.stack_.close();
 			}
 		};
 
@@ -138,7 +138,7 @@ namespace metl
 			template< typename Input, class Compiler >
 			static void apply(const Input& in, Compiler& compiler)
 			{
-				//compiler.impl_.stack_.startAssignment(in.string());
+				//compiler.stack_.startAssignment(in.string());
 			}
 		};
 	}

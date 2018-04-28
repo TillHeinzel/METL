@@ -24,80 +24,9 @@ limitations under the License.
 #include <string>
 
 #include "VarExpression.h"
+#include "CompilerBits.h"
+#include "Associativity.h"
 
-namespace metl
-{
-	enum class ASSOCIATIVITY { LEFT, RIGHT };
-
-	namespace internal
-	{
-		template<class Expression, class T>
-		Expression makeConstExpression(const T& v)
-		{
-			auto f = [v]()
-			{
-				return v;
-			};
-
-			return Expression(exprType<T>(f), CATEGORY::CONSTEXPR);
-		}
-
-		template<class ExprT>
-		class FunctionImpl
-		{
-			using FunctionType = std::function<ExprT(const std::vector<ExprT>&)>;
-		public:
-			FunctionImpl(FunctionType f) :f_(f) {}
-
-			ExprT operator()(const std::vector<ExprT>& v) const;
-
-			template<class T>
-			FunctionImpl& operator=(T&& t)
-			{
-				f_ = t;
-				return *this;
-			}
-
-		private:
-
-			FunctionType f_;
-		};
-		template<class ExprT>
-		class CastImpl
-		{
-			using FunctionType = std::function<ExprT(ExprT)>;
-		public:
-			CastImpl(FunctionType f) :f_(f) {}
-
-			ExprT operator()(ExprT v) const;
-
-			template<class T>
-			CastImpl& operator=(T&& t)
-			{
-				f_ = t;
-				return *this;
-			}
-
-		private:
-
-			FunctionType f_;
-		};
-
-
-		struct opCarrier
-		{
-			std::string name;
-			unsigned int precedence;
-			ASSOCIATIVITY associativity;
-			bool isUnary;
-		};
-
-		struct suffixCarrier
-		{
-			std::string name;
-		};
-	}
-}
 
 namespace metl
 {
@@ -111,11 +40,7 @@ namespace metl
 			{
 			public:
 
-				explicit Substack(const std::map<std::string, FunctionImpl<Expression>>& opMap,
-					const std::map<std::string, FunctionImpl<Expression>>& functionMap,
-					const std::map<std::string, CastImpl<Expression>>& castImplementations,
-					const std::map<std::string, CastImpl<Expression>>& suffixImplementations,
-					const std::map<TYPE, std::vector<TYPE>>& castDeclarations);
+				explicit Substack(const CompilerBits<Ts...>& bits);
 
 
 				void push(const Expression l);
@@ -139,13 +64,8 @@ namespace metl
 				std::vector< opCarrier > operators_;
 
 				std::unique_ptr<std::string> function_;
-
-				const std::map<std::string, FunctionImpl<Expression>>& opMap_;
-				const std::map<std::string, FunctionImpl<Expression>>& functionMap_;
-				const std::map<std::string, CastImpl<Expression>>& suffixMap_;
-
-				const std::map<std::string, CastImpl<Expression>>& castImplementations_;
-				const std::map<TYPE, std::vector<TYPE>>& castDeclarations_;
+				
+				const CompilerBits<Ts...>& bits_;
 
 
 			private:
@@ -155,11 +75,7 @@ namespace metl
 			};
 
 		public:
-			Stack(const std::map<std::string, FunctionImpl<Expression>>& opMap,
-				const std::map<std::string, FunctionImpl<Expression>>& funcMap,
-				const std::map<std::string, CastImpl<Expression>>& castImplementations,
-				const std::map<std::string, CastImpl<Expression>>& suffixImplementations,
-				const std::map<TYPE, std::vector<TYPE>>& castDeclarations);
+			Stack(const CompilerBits<Ts...>& bits);
 
 			void push(const Expression& t);
 
@@ -179,12 +95,7 @@ namespace metl
 		private:
 			std::vector<Substack> subStacks_;
 
-			const std::map<std::string, FunctionImpl<Expression>>& opMap_;
-			const std::map<std::string, FunctionImpl<Expression>>& funcMap_;
-
-			const std::map<std::string, CastImpl<Expression>>& castImplementations_;
-			const std::map<std::string, CastImpl<Expression>>& suffixImplementations_;
-			const std::map<TYPE, std::vector<TYPE>>& castDeclarations_;
+			const CompilerBits<Ts...>& bits_;
 		};
 	}
 }
