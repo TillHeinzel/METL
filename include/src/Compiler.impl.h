@@ -165,7 +165,21 @@ namespace metl
 	{
 		/*
 					static_assert(isInList<T, Ts...>(), "T must be one of the types the compiler works with.");*/
-		impl_.addConstantOrVariable(token, makeConstExpression<Expression>(std::forward<T>(val)));
+		impl_.addConstantOrVariable(token, internal::makeConstExpression<Expression>(std::forward<T>(val)));
+	}
+
+	template <class Grammar, class LiteralsConverters, class ... Ts>
+	template <class T>
+	T Compiler<Grammar, LiteralsConverters, Ts...>::getConstant(const std::string& token)
+	{
+		return getConstant(token).template get<T>()();
+	}
+
+	template <class Grammar, class LiteralsConverters, class ... Ts>
+	typename Compiler<Grammar, LiteralsConverters, Ts...>::Expression Compiler<Grammar, LiteralsConverters, Ts...>::
+	getConstant(const std::string& token)
+	{
+		return impl_.getCandV().at(token);
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>

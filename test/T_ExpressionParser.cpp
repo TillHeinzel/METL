@@ -10,6 +10,19 @@ public:
 	const double tol = 1e-15;
 };
 
+TEST_F(MetlFixture, SetReadConstants)
+{
+	auto c = metl::makeCompiler<int, double>();
+
+	c.setConstant("a", 1);
+
+
+
+	ASSERT_EQ(1, c.build<int>("a")());
+	ASSERT_EQ(1, c.getConstant<int>("a"));
+
+}
+
 TEST_F(MetlFixture, VarExpressionSet)
 {
 	auto c = metl::makeCompiler<int, double>();
@@ -218,4 +231,18 @@ TEST_F(UserDefinedLiteralsFixture, binaryOperatorsAndSuffix)
 	auto result = ff.get<std::complex<double>>()();
 
 	ASSERT_EQ(checkAgainst, result);
+}
+
+class AssignmentFixture : public MetlFixture {};
+
+
+TEST_F(AssignmentFixture, assignLiterals)
+{
+	auto compiler = metl::makeCompiler<int, double, std::complex<double>>();
+
+	metl::setDefaults(compiler);
+
+	auto ff = compiler.build<int>("a = 2");
+
+	ASSERT_EQ(2, compiler.getConstant<int>("a"));
 }
