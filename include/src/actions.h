@@ -121,8 +121,8 @@ namespace metl
 			}
 		};
 
-		template<class... Literals>
-		struct action<Function<Literals...>>
+		template<>
+		struct action<Function>
 		{
 			template< typename Input, class Compiler >
 			static void apply(const Input&, Compiler& compiler)

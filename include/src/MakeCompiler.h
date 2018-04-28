@@ -30,7 +30,7 @@ namespace metl
 	auto makeCompiler_impl(IntConverter intConv, RealConverter realConv)
 	{
 		auto literalsConverter = internal::makeLiteralConverters(intConv, realConv);
-		return Compiler<internal::grammar<internal::realLiteral, internal::intLiteral>, decltype(literalsConverter), Ts...>(literalsConverter);
+		return Compiler<internal::grammar, decltype(literalsConverter), Ts...>(literalsConverter);
 	}
 
 

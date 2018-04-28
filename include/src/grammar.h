@@ -41,11 +41,9 @@ namespace metl
 
 		struct Variable; // constants and variables are equivalent wrt the grammar. 
 
-		template<class... Literals>
 		struct Expr;
 
-		template<class... Literals>
-		struct bracket : seq< one< '(' >, Expr<Literals...>, one< ')' > > {};
+		struct bracket : seq< one< '(' >, Expr, one< ')' > > {};
 
 
 		/////////////// FUNCTIONS ///////////
@@ -54,8 +52,7 @@ namespace metl
 
 		struct FunctionStart : seq<FunctionName, at<one<'('>>> {};
 
-		template<class... Literals>
-		struct Function : if_must<FunctionStart, one<'('>, opt<list<Expr<Literals...>, one<','>, space>>, one<')'>> {};
+		struct Function : if_must<FunctionStart, one<'('>, opt<list<Expr, one<','>, space>>, one<')'>> {};
 
 		/////////////// RECURSIVE EXPRESSIONSTRUCTURE ///////////
 
@@ -63,22 +60,28 @@ namespace metl
 
 		struct Suffix;
 
-		template<class... Literals>
 		struct Atomic :
-			seq<opt<UnaryOperator>, star<space>, sor<bracket<Literals...>, Function<Literals...>, Variable, seq<Literals, opt<Suffix>>...>> {};
+			seq<opt<UnaryOperator>, star<space>, sor<bracket, Function, Variable, seq<realLiteral, opt<Suffix>>, seq<intLiteral, opt<Suffix>>>> {};
 
 		struct Operator;
 
-		template<class... Literals>
 		struct Expr
-			: list<Atomic<Literals...>, Operator, space> {};
+			: list<Atomic, Operator, space> {};
 
+		
+
+		////////////////// ASSIGNMENT //////////////////////
+
+		struct ValidVariableID:
+			seq<alpha, star<alnum>>
+		{};
+
+		//struct AssignmentExpression = 
 
 		////////////////// GRAMMAR //////////////////////
 
-		template<class... Literals>
 		struct grammar
-			: must<Expr<Literals...>, pegtl::opt<pegtl::space>, pegtl::eof> {};
+			: must<Expr, pegtl::opt<pegtl::space>, pegtl::eof> {};
 	}
 }
 
