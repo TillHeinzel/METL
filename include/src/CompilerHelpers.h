@@ -1,7 +1,7 @@
 /*
 @file
 CompilersHelpers.h
-Bunch of helpers for the compiler. Named so because included by Compiler-files
+Bunch of helpers for the compiler. Named so because included by CompilerApi-files
 
 Copyright 2017 Till Heinzel
 

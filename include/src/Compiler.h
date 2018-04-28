@@ -1,7 +1,7 @@
 /*
 @file
-Compiler.fwd.h
-Declares template class Compiler, which is the public relations class of metl: The only class a user interacts with directly. Except maybe for expressions.
+Compiler.h
+Declares template class Compiler, which carries all the user-defined operators, functions, etc.
 
 Copyright 2017 Till Heinzel
 
@@ -21,62 +21,74 @@ limitations under the License.
 
 #include <map>
 
-#include "Compiler_Detail.h"
+#include "VarExpression.h"
+#include "Stack.h"
 
 namespace metl
 {
-	template<class Grammar, class LiteralsConverters, class... Ts>
-	class Compiler
+	namespace internal
 	{
-	public:
-		using Expression = VarExpression<Ts...>;
 
-	public:
+		template<class LiteralConverters, class... Ts>
+		class Compiler
+		{
 
-		Compiler(const LiteralsConverters& literalConverters);
+		public:
+			using Expression = VarExpression<Ts...>;
+			constexpr static auto getTypeList() { return TypeList<Ts...>(); }
 
-		Expression build(const std::string& expression);
+			Compiler(const LiteralConverters& literalConverters);
 
-		template<class T>
-		exprType<T> build(const std::string& expression);
 
-	public:
-		void setOperatorPrecedence(std::string op, unsigned int precedence, ASSOCIATIVITY associativity = ASSOCIATIVITY::LEFT);
-		void setUnaryOperatorPrecedence(std::string op, unsigned int precedence);
+			void setOperatorPrecedence(const std::string& op, unsigned int precedence, ASSOCIATIVITY associativity = ASSOCIATIVITY::LEFT);
+			void setUnaryOperatorPrecedence(const std::string& op, unsigned int precedence);
 
-		template<class Left, class Right, /*inferred*/ class F>
-		void setOperator(const std::string& token, const F& f);
+			void setOperator(const std::string& token, const std::vector<TYPE>& paramTypes, const FunctionImpl<Expression>& op);
 
-		template<class T, /*inferred*/ class F>
-		void setUnaryOperator(const std::string& token, const F& f);
+			void setUnaryOperator(const std::string& token, TYPE paramType, const FunctionImpl<Expression>& op);
 
-		// Finds strings of the form token(ParamTypes...) and calls f on the params
-		template<class... ParamTypes, /*inferred*/ class F>
-		void setFunction(const std::string& token, const F& f);
+			void setFunction(const std::string& token, const std::vector<TYPE>& paramTypes, const FunctionImpl<Expression>& function);
 
-		// tries to implicitly cast from type "From" to whatever type is returned by function f
-		template<class From, /*inferred*/ class F>
-		void setCast(const F& f);
+			void setCast(TYPE from, TYPE to, const CastImpl<Expression>& fs);
 
-		// adds 'token' as a possible suffix for literals of type From, converting them to type To.
-		template<class From, class To, /*inferred*/class F>
-		void setSuffix(const std::string& token, const F& f);
+			void setSuffix(const std::string& token, TYPE from, const CastImpl<Expression>& conversion);
 
-	public:
-		template<class T>
-		void setConstant(const std::string& token, T&& val);
+			void addConstantOrVariable(const std::string& token, const Expression& val);
 
-		template<class T>
-		T getConstant(const std::string& token);
+			template<class T>
+			constexpr static TYPE type();
 
-		Expression getConstant(const std::string& token);
+			const auto& getOperators() { return operators_; }
+			const auto& getCandV() { return constantsAndVariables_; }
+			const auto& getCarriers() { return opCarriers_; }
+			const auto& getUnaryCarriers() { return unaryCarriers_; }
+			const auto& getFunctionNames() { return functionNames_; }
+			const auto& getFunctions() { return functions_; }
+			const auto& getcastImplementations() { return castImplementations_; }
+			const auto& getcastDeclarations() { return castDeclarations_; }
+			const auto& getSuffixes() { return suffixes_; }
+			const auto& getSuffixImplementations() { return suffixes_; }
 
-		template<class T>
-		void setVariable(const std::string& token, T* val);
-	public:
-		template<class T>
-		constexpr static TYPE type();
 
-		internal::Compiler_impl<LiteralsConverters, Ts...> impl_;
-	};
+		public:
+			Stack<Ts...> stack_;
+			LiteralConverters literalConverters_;
+
+
+		private:
+
+			std::map<std::string, CastImpl<Expression>> castImplementations_;
+			std::map<std::string, CastImpl<Expression>> suffixImplementations_;
+			std::map<std::string, suffixCarrier> suffixes_;
+			std::map<TYPE, std::vector<TYPE>> castDeclarations_;
+
+			std::map<std::string, opCarrier> opCarriers_; // maps unmangled operators to their precedence
+			std::map<std::string, opCarrier> unaryCarriers_; // maps unmangled operators to their precedence
+			std::map<std::string, FunctionImpl<Expression>> operators_; //maps mangled names to implementations for operators
+			std::map<std::string, FunctionImpl<Expression>> functions_; // maps mangled names to implementations for functions.
+			std::map<std::string, std::string> functionNames_; // dummy, just so we have the sorting.
+			std::map<std::string, Expression> constantsAndVariables_; // maps identifiers for constants and variables to the expressions returning their values.
+
+		};
+	}
 }

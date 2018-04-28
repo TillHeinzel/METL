@@ -1,7 +1,7 @@
 /*
 @file
 Compiler.h
-Public access-file for template class Compiler, containing the make-functions and helpers to construct a metl::Compiler
+Public access-file for template class CompilerApi, containing the make-functions and helpers to construct a metl::CompilerApi
 
 Copyright 2017 Till Heinzel
 
@@ -20,7 +20,7 @@ limitations under the License.
 
 #pragma once
 
-#include "Compiler.impl.h"
+#include "CompilerApi.impl.h"
 #include "sortAndAddDefaults.h"
 #include "LiteralConverters.h"
 
@@ -30,7 +30,7 @@ namespace metl
 	auto makeCompiler_impl(IntConverter intConv, RealConverter realConv)
 	{
 		auto literalsConverter = internal::makeLiteralConverters(intConv, realConv);
-		return Compiler<internal::grammar, decltype(literalsConverter), Ts...>(literalsConverter);
+		return CompilerApi<internal::grammar, decltype(literalsConverter), Ts...>(literalsConverter);
 	}
 
 
