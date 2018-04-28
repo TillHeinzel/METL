@@ -236,7 +236,7 @@ TEST_F(UserDefinedLiteralsFixture, binaryOperatorsAndSuffix)
 class AssignmentFixture : public MetlFixture {};
 
 
-TEST_F(AssignmentFixture, assignLiterals)
+TEST_F(AssignmentFixture, assignToNewConstant)
 {
 	auto compiler = metl::makeCompiler<int, double, std::complex<double>>();
 
@@ -245,4 +245,30 @@ TEST_F(AssignmentFixture, assignLiterals)
 	auto ff = compiler.build<int>("a = 2");
 
 	ASSERT_EQ(2, compiler.getConstant<int>("a"));
+}
+
+TEST_F(AssignmentFixture, assignToExistingConstant)
+{
+	auto compiler = metl::makeCompiler<int, double, std::complex<double>>();
+
+	metl::setDefaults(compiler);
+	compiler.setConstant("a", 1);
+
+	auto ff = compiler.build<int>("a = 2");
+
+	ASSERT_EQ(2, compiler.getConstant<int>("a"));
+}
+
+TEST_F(AssignmentFixture, assignToExistingVariable)
+{
+	auto compiler = metl::makeCompiler<int, double, std::complex<double>>();
+
+	metl::setDefaults(compiler);
+
+	auto a = 1;
+	compiler.setVariable("a", &a);
+
+	auto ff = compiler.build<int>("a = 2");
+
+	ASSERT_EQ(2, a);
 }

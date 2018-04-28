@@ -138,7 +138,7 @@ namespace metl
 			template< typename Input, class Compiler >
 			static void apply(const Input& in, Compiler& compiler)
 			{
-				//compiler.stack_.startAssignment(in.string());
+				compiler.startAssignment(in.string());
 			}
 		};
 	}

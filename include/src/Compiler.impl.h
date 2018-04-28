@@ -49,5 +49,26 @@ namespace metl
 		{
 			return classToType2<T, Ts...>();
 		}
+
+
+		template <class LiteralConverters, class ... Ts>
+		typename Compiler<LiteralConverters, Ts...>::Expression Compiler<LiteralConverters, Ts...>::finish()
+		{
+			auto val = stack_.finish();
+
+			if(assignToThis_ != "")
+			{
+				//bits_.addConstantOrVariable(assignToThis_, val.template get<>()());
+			}
+
+			assignToThis_ = "";
+			return val;
+		}
+
+		template <class LiteralConverters, class ... Ts>
+		void Compiler<LiteralConverters, Ts...>::startAssignment(const std::string& varName)
+		{
+			assignToThis_ = varName;
+		}
 	}
 }

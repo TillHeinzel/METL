@@ -44,12 +44,18 @@ namespace metl
 			template<class T>
 			constexpr static TYPE type();
 
-			auto finish() { return stack_.finish(); }
+			Expression finish();
+
+			void startAssignment(const std::string& varName);
 
 		public:
 			CompilerBits<Ts...> bits_;
 			LiteralConverters literalConverters_;
 			Stack<Ts...> stack_;
+
+		private:
+			std::string assignToThis_;
 		};
+
 	}
 }

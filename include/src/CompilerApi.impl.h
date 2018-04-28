@@ -171,14 +171,21 @@ namespace metl
 	typename CompilerApi<Grammar, LiteralsConverters, Ts...>::Expression CompilerApi<Grammar, LiteralsConverters, Ts...>::
 	getConstant(const std::string& token)
 	{
-		return impl_.bits_.getCandV().at(token);
+		try
+		{
+			return impl_.bits_.getCandV().at(token);
+		}
+		catch (...)
+		{
+			throw std::runtime_error("Variable with name \"" + token + "\" could not be found");
+		}
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
 	template <class T>
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setVariable(const std::string& token, T* val)
 	{
-		impl_.bits_.addConstantOrVariable(token, makeVariableExpression<Expression>(val));
+		impl_.bits_.addConstantOrVariable(token, internal::makeVariableExpression<Expression>(val));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
