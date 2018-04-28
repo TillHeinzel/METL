@@ -128,8 +128,14 @@ namespace metl
 	{
 		using namespace internal;
 
-		using intType = decltype(c.impl_.literalConverters_.toInt.f(std::declval<std::string>()));
-		using realType = decltype(c.impl_.literalConverters_.toReal.f(std::declval<std::string>()));
+		using CompilerApi_T = std::remove_reference_t<decltype(c)>;
+		using LiteralConverters = typename CompilerApi_T::LiteralsConverters;
+
+		using IntConverter = typename LiteralConverters::IntConverter;
+		using intType = typename IntConverter::To;
+
+		using RealConverter = typename LiteralConverters::RealConverter;
+		using realType = typename RealConverter::To;
 
 		// defaults with intType
 		constexpr_if(IsInList<intType, Ts...>(), [&c](auto _)

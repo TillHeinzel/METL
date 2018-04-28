@@ -59,7 +59,7 @@ namespace metl
 		tao::pegtl::memory_input<> input(expression, std::string{});
 		tao::pegtl::parse<Grammar, internal::action>(input, impl_);
 
-		auto expr =  impl_.stack_.finish();
+		auto expr =  impl_.finish();
 
 		detail::castToAll<Ts...>(expr, impl_.bits_.getcastImplementations());
 

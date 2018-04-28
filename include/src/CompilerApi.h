@@ -25,11 +25,12 @@ limitations under the License.
 
 namespace metl
 {
-	template<class Grammar, class LiteralsConverters, class... Ts>
+	template<class Grammar, class LiteralsConverters_, class... Ts>
 	class CompilerApi
 	{
 	public:
 		using Expression = VarExpression<Ts...>;
+		using LiteralsConverters = LiteralsConverters_;
 
 	public:
 

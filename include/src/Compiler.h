@@ -44,6 +44,8 @@ namespace metl
 			template<class T>
 			constexpr static TYPE type();
 
+			auto finish() { return stack_.finish(); }
+
 		public:
 			CompilerBits<Ts...> bits_;
 			LiteralConverters literalConverters_;
