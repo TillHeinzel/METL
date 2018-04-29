@@ -78,14 +78,14 @@ namespace metl
 			seq<alpha, star<alnum>>
 		{};
 
-		struct AssignmentExpr :
-			seq<padding, ValidVariableID, padding, one<'='>, padding, Expr>
+		struct AssignmentBit :
+			seq<padding, ValidVariableID, padding, one<'='>, padding>
 		{};
 
 		////////////////// GRAMMAR //////////////////////
 
 		struct grammar
-			: must<sor<Expr, AssignmentExpr>, padding, pegtl::eof> {};
+			: must<if_then_else<at<AssignmentBit>, seq<AssignmentBit, Expr>, Expr>, padding, pegtl::eof> {};
 	}
 }
 
