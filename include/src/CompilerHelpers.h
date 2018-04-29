@@ -63,13 +63,18 @@ namespace metl
 			);
 		}
 
+		template<class T>
+		struct VariableExpression
+		{
+			T* v;
+
+			T operator() () { return *v; }
+		};
+
 		template<class Expression, class T>
 		Expression makeVariableExpression(T* v)
 		{
-			auto f = [v]()
-			{
-				return *v;
-			};
+			auto f = VariableExpression<T>{ v };
 
 			return Expression(exprType<T>(f), CATEGORY::DYNEXPR);
 		}

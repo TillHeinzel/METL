@@ -19,7 +19,7 @@ TEST_F(MetlFixture, SetReadConstants)
 
 
 	ASSERT_EQ(1, c.build<int>("a")());
-	ASSERT_EQ(1, c.getConstant<int>("a"));
+	ASSERT_EQ(1, c.getValue<int>("a"));
 
 }
 
@@ -236,7 +236,7 @@ TEST_F(UserDefinedLiteralsFixture, binaryOperatorsAndSuffix)
 class AssignmentFixture : public MetlFixture {};
 
 
-TEST_F(AssignmentFixture, assignToNewConstant)
+TEST_F(AssignmentFixture, assignLiteralToNewConstant)
 {
 	auto compiler = metl::makeCompiler<int, double, std::complex<double>>();
 
@@ -244,10 +244,10 @@ TEST_F(AssignmentFixture, assignToNewConstant)
 
 	auto ff = compiler.build<int>("a = 2");
 
-	ASSERT_EQ(2, compiler.getConstant<int>("a"));
+	ASSERT_EQ(2, compiler.getValue<int>("a"));
 }
 
-TEST_F(AssignmentFixture, assignToExistingConstant)
+TEST_F(AssignmentFixture, assignLiteralToExistingConstant)
 {
 	auto compiler = metl::makeCompiler<int, double, std::complex<double>>();
 
@@ -256,10 +256,10 @@ TEST_F(AssignmentFixture, assignToExistingConstant)
 
 	auto ff = compiler.build<int>("a = 2");
 
-	ASSERT_EQ(2, compiler.getConstant<int>("a"));
+	ASSERT_EQ(2, compiler.getValue<int>("a"));
 }
 
-TEST_F(AssignmentFixture, assignToExistingVariable)
+TEST_F(AssignmentFixture, assignLiteralToExistingVariable)
 {
 	auto compiler = metl::makeCompiler<int, double, std::complex<double>>();
 
@@ -271,4 +271,63 @@ TEST_F(AssignmentFixture, assignToExistingVariable)
 	auto ff = compiler.build<int>("a = 2");
 
 	ASSERT_EQ(2, a);
+}
+
+TEST_F(AssignmentFixture, assignExpressionToNewConstant)
+{
+	auto compiler = metl::makeCompiler<int, double, std::complex<double>>();
+
+	metl::setDefaults(compiler);
+	compiler.setConstant("b", 45.0);
+
+	auto x = 3;
+	compiler.setVariable("x", &x);
+
+	auto ff = compiler.build<double>("a = 2*x+b");
+
+	x = 4;
+	ASSERT_EQ(2*3+45.0, compiler.getValue<double>("a"));
+}
+
+TEST_F(AssignmentFixture, assignExpressionToExistingConstant)
+{
+	auto compiler = metl::makeCompiler<int, double, std::complex<double>>();
+
+	metl::setDefaults(compiler);
+	compiler.setConstant("a", 1);
+	EXPECT_EQ(1, compiler.getValue<int>("a"));
+
+	compiler.setConstant("b", 45.0);
+
+	auto x = 3;
+	compiler.setVariable("x", &x);
+
+	// constants can change type
+	auto ff = compiler.build<double>("a = 2*x+b");
+
+	EXPECT_EQ(2 * 3 + 45.0, compiler.getValue<double>("a"));
+}
+
+TEST_F(AssignmentFixture, assignExpressionToExistingVariable)
+{
+	auto compiler = metl::makeCompiler<int, double, std::complex<double>>();
+
+	metl::setDefaults(compiler);
+
+	auto a = 1.0;
+	compiler.setVariable("a", &a);
+
+	compiler.setConstant("b", 45.0);
+
+	auto x = 3;
+	compiler.setVariable("x", &x);
+
+	// variables can not change type
+	EXPECT_ANY_THROW(compiler.build<std::complex<double>>("a = 2i*x+b"));
+
+	compiler.build<double>("a = 2*x+b");
+	EXPECT_EQ(2 * 3 + 45.0, compiler.getValue<double>("a"));
+
+	compiler.build<double>("a = 2");
+	EXPECT_EQ(2.0, compiler.getValue<double>("a"));
 }

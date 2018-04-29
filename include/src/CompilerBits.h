@@ -28,13 +28,18 @@ namespace metl
 {
 	namespace internal
 	{
+		template<class T>
+		struct constexprFunction
+		{
+			T v;
+
+			T operator()() const { return v; }
+		};
+
 		template<class Expression, class T>
 		Expression makeConstExpression(const T& v)
 		{
-			auto f = [v]()
-			{
-				return v;
-			};
+			auto f = constexprFunction<T>{ v };
 
 			return Expression(exprType<T>(f), CATEGORY::CONSTEXPR);
 		}

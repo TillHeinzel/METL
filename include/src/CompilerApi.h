@@ -68,9 +68,9 @@ namespace metl
 		void setConstant(const std::string& token, T&& val);
 
 		template<class T>
-		T getConstant(const std::string& token);
+		T getValue(const std::string& token);
 
-		Expression getConstant(const std::string& token);
+		Expression getValue(const std::string& token);
 
 		template<class T>
 		void setVariable(const std::string& token, T* val);

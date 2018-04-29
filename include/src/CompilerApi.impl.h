@@ -162,14 +162,14 @@ namespace metl
 
 	template <class Grammar, class LiteralsConverters, class ... Ts>
 	template <class T>
-	T CompilerApi<Grammar, LiteralsConverters, Ts...>::getConstant(const std::string& token)
+	T CompilerApi<Grammar, LiteralsConverters, Ts...>::getValue(const std::string& token)
 	{
-		return getConstant(token).template get<T>()();
+		return getValue(token).template get<T>()();
 	}
 
 	template <class Grammar, class LiteralsConverters, class ... Ts>
 	typename CompilerApi<Grammar, LiteralsConverters, Ts...>::Expression CompilerApi<Grammar, LiteralsConverters, Ts...>::
-	getConstant(const std::string& token)
+	getValue(const std::string& token)
 	{
 		try
 		{
