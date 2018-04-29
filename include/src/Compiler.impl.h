@@ -111,8 +111,6 @@ namespace metl
 					}
 					assignToVar(it->second, evaluatedExpr);
 				}
-
-
 			}
 
 			assignToThis_ = "";

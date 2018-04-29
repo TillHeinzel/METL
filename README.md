@@ -2,6 +2,11 @@
 
 A small, header-only c++14 library for parsing math expressions, built on top of [PEGTL](https://github.com/taocpp/PEGTL).
 
+Current features:
+*  build once, call often: METL compiles your expression to a std::function that 
+*  Extremely flexible: You can create any operator or function you want and use it with any type you want. 
+*  
+
 ## Introduction
 
 METL is very flexible in that it can work with any types and any functions or operators you can come up with.
@@ -180,10 +185,29 @@ var = 3.0;
 f(); // result is sin(3.0)
 ```
 For variable we pass in address of the variable, so the resulting function (here f) holds that address. 
-Special care should be taken to avoid dangling pointers.
+When building a function that refers to a local c++-variable, remember that function will start behaving weirdly if the pointed-to variable is freed up.
+
+You can access the value of a variable or constant in the compiler by calling
+```c++
+compiler.getValue<double>("a");
+```
 
 ### parentheses
 parenthesis work as in normal math and are built-in. So e.g. "(1+2)*3" gives 9.0.
+
+### Assignment
+METL can handle assignment-expressions ("identifier = {expression}"):
+```c++
+auto ff = compiler.build<double>("a = 2.0*b+x");
+```
+
+This will have one of three results:
+1) if identifier does not exist yet, a new constant is created
+2) if identifier is a constant, that constant is replaced
+3) if identifier is a variable, the value of the pointed-to variable is changed
+
+Important: The assignment only happens during the build! The expression is evaluated and assigned to the constant/variable, but the created function will be equivalent to the one created by the expression "2.0*b+x".
+If you want to assign a result again, you will have to do so more directly through setConstant, or by changing the c++variable a METL-variable is pointing to.
 
 ## reserved keywords
 In its current state, the metl-compiler can take any labels for operators and functions. At some point, there may be more stringent rules for this, but for now I advice against using:
