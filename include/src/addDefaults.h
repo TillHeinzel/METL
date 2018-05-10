@@ -165,7 +165,7 @@ namespace metl
 		});
 
 		// if both integer and real-types exist, add cast from int to real
-		constexpr_if(std::integral_constant<bool, isInList<intType, Ts...>() && isInList<realType, Ts...>()>{},
+		constexpr_if(std::integral_constant<bool, isInList<intType, Ts...>() && isInList<realType, Ts...>() && std::is_floating_point<realType>::value && std::is_integral<intType>::value > {},
 			[&c](auto _)
 		{
 			c.template setCast<intType>(_([](const intType& in)
