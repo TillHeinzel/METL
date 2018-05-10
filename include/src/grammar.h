@@ -22,6 +22,7 @@ limitations under the License.
 
 #include <tao/pegtl.hpp>
 
+#include "src/ConstexprBranching.h"
 
 namespace metl
 {
@@ -137,9 +138,9 @@ namespace metl
 				if (i != map.end())
 				{
 					constexpr_if(std::integral_constant<bool, A == pegtl::apply_mode::ACTION>(),
-						[&](auto _)
+						[&](auto _) ->void
 					{
-						s.stack_.push(i->second);
+						_(s).stack_.push(i->second);
 					});
 
 					in.bump(i->first.size());

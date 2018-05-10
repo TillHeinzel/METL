@@ -23,11 +23,11 @@ defines actions to be taken when finding specific patterns in the parsed string.
 #include "VarExpression.h"
 
 #include "bool_constant.h"
+#include "ConstexprBranching.h"
+#include "Exceptions.h"
 
 namespace metl
 {
-	struct BadLiteralException;
-
 	namespace internal
 	{
 		template< typename Rule >
@@ -38,16 +38,16 @@ namespace metl
 		template<class TargetType, class... Ts, class Compiler, class Converter>
 		void convertLiteral(Compiler& compiler, const std::string& input, Converter& converter, TypeList<Ts...>)
 		{
-			constexpr_ternary(nostd::bool_constant<isInList<TargetType, Ts...>()>(),
-				[&](auto _)
+			constexpr_if_else(nostd::bool_constant<isInList<TargetType, Ts...>()>(),
+				[&](auto _) ->void
 			{
-				compiler.stack_.push(makeConstExpression<typename Compiler::Expression>(converter.f(input)));
+				_(compiler).stack_.push(makeConstExpression<typename Compiler::Expression>(converter.f(input)));
 			},
-				[&](auto _)
+				[&](auto _)->void
 			{
 				try
 				{
-					converter.f(input);
+					_(converter).f(input);
 				}
 				catch (const BadLiteralException& e)
 				{

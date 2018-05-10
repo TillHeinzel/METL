@@ -20,5 +20,5 @@ limitations under the License.
 
 #pragma once
 
-#include "src/makeCompiler.h"
+#include "src/MakeCompiler.h"
 #include "src/addDefaults.h"

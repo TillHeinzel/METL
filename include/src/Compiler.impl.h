@@ -39,8 +39,8 @@ namespace metl
 	{
 		template <class LiteralConverters, class ... Ts>
 		Compiler<LiteralConverters, Ts...>::Compiler(const LiteralConverters& literalConverters) :
-			stack_(bits_),
-			literalConverters_(literalConverters)
+			literalConverters_(literalConverters),
+			stack_(bits_)
 		{}
 
 		template <class LiteralConverters, class... Ts>

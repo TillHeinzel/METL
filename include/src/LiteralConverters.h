@@ -21,11 +21,10 @@ limitations under the License.
 #pragma once
 
 #include "ConstexprBranching.h"
+#include "Exceptions.h"
 
 namespace metl
 {
-	struct BadLiteralException : public std::runtime_error { explicit BadLiteralException(const std::string& s) :runtime_error(s) {} };
-
 	namespace internal
 	{
 		// Type to carry functors f that convert strings representing literals. 
