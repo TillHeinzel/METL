@@ -1,7 +1,7 @@
 /*
 @file
 Compiler.impl.h
-Defines functions of template class Compiler
+Implements functions for class Compiler
 
 Copyright 2017 Till Heinzel
 
@@ -21,164 +21,106 @@ limitations under the License.
 #pragma once
 #include "Compiler.h"
 
-#include "Compiler_Detail.impl.h"
+#include <tao/pegtl.hpp>
 
+#include "grammar.h"
+#include "actions.h"
+
+#include "nameMangling.h"
+#include "Stack.impl.h"
+
+#include "CompilerHelpers.h"
+#include "CompilerBits.impl.h"
+#include <locale>
 
 namespace metl
 {
-
-	//template <class Grammar, class LiteralConverters, class... Ts>
-	//Compiler<Grammar, LiteralConverters, Ts...>::Compiler() :
-	//	stack_(operators_, functions_, castImplementations_, castDeclarations_),
-	//	castDeclarations_({ std::make_pair(type<Ts>(), std::vector<TYPE>{type<Ts>()})... })
-	//{
-	//}
-
-	template <class Grammar, class LiteralsConverters, class ... Ts>
-	Compiler<Grammar, LiteralsConverters, Ts...>::Compiler(const LiteralsConverters& literalConverters) :
-	impl_(literalConverters)
+	namespace internal
 	{
+		template <class LiteralConverters, class ... Ts>
+		Compiler<LiteralConverters, Ts...>::Compiler(const LiteralConverters& literalConverters) :
+			literalConverters_(literalConverters),
+			stack_(bits_)
+		{}
 
-	}
-
-	namespace detail 
-	{
-		template<class Expr>
-		void castToAll(Expr&, const std::map<std::string, internal::CastImpl<Expr>>&)
+		template <class LiteralConverters, class... Ts>
+		template <class T>
+		constexpr TYPE Compiler<LiteralConverters, Ts...>::type()
 		{
+			return classToType2<T, Ts...>();
 		}
 
-		template<class T, class... Ts, class Expr>
-		void castToAll(Expr& expr, const std::map<std::string, internal::CastImpl<Expr>>& castImpls)
+		namespace
 		{
-			auto it = castImpls.find(internal::mangleCast(expr.type(), expr.template toType<T>()));
-			if(it != castImpls.end())
+
+
+			template<class Expression>
+			void assignToVar_impl(Expression&, const Expression&)// assumes the two expression have the same type
 			{
-				expr.template set<T>(it->second(expr).template get<T>());
+				throw std::runtime_error("Something weird happened here");
 			}
-			castToAll<Ts...>(expr, castImpls);
+
+			template<class T, class... RemainingTs, class Expression>
+			void assignToVar_impl(Expression& existingVarExpression, const Expression& evaluatedExpr)// assumes the two expression have the same type
+			{
+				if(existingVarExpression.type() == existingVarExpression.template toType<T>())
+				{
+					*existingVarExpression.template get<T>().template target<VariableExpression<T>>()->v = evaluatedExpr.template get<T>()();
+				}
+				else 
+				{
+					assignToVar_impl<RemainingTs...>(existingVarExpression, evaluatedExpr);
+				}
+			}
+			
+			template<class... Ts>
+			void assignToVar(VarExpression<Ts...>& existingVarExpression, const VarExpression<Ts...>& evaluatedExpr)// assumes the two expression have the same type
+			{
+				assignToVar_impl<Ts...>(existingVarExpression, evaluatedExpr);
+			}
 		}
-	}
 
-	template <class Grammar, class LiteralConverters, class... Ts>
-	typename Compiler<Grammar, LiteralConverters, Ts...>::Expression Compiler<Grammar, LiteralConverters, Ts...>::build(const std::string& expression)
-	{
-		impl_.stack_.clear();
-		tao::pegtl::memory_input<> input(expression, std::string{});
-		tao::pegtl::parse<Grammar, internal::action>(input, *this);
-
-		auto expr =  impl_.stack_.finish();
-
-		detail::castToAll<Ts...>(expr, impl_.getcastImplementations());
-
-		return expr;
-	}
-
-	template <class Grammar, class LiteralConverters, class... Ts>
-	template <class T>
-	exprType<T> Compiler<Grammar, LiteralConverters, Ts...>::build(const std::string& expression)
-	{
-		return build(expression).template get<T>();
-	}
-
-	template <class Grammar, class LiteralConverters, class... Ts>
-	void Compiler<Grammar, LiteralConverters, Ts...>::setOperatorPrecedence(const std::string op, const unsigned int precedence, const ASSOCIATIVITY associativity)
-	{
-		impl_.setOperatorPrecedence(op, precedence, associativity);
-	}
-
-	template <class Grammar, class LiteralConverters, class... Ts>
-	void Compiler<Grammar, LiteralConverters, Ts...>::setUnaryOperatorPrecedence(const std::string op, const unsigned precedence)
-	{
-		impl_.setUnaryOperatorPrecedence(op, precedence);
-	}
-
-	template <class Grammar, class LiteralConverters, class... Ts>
-	template <class Left, class Right, class F>
-	void Compiler<Grammar, LiteralConverters, Ts...>::setOperator(const std::string& token, const F& f)
-	{
-		impl_.setOperator(token, { type<Left>(), type<Right>() }, metl::internal::makeFunction<Expression, Left, Right>(f));
-	}
-
-	template <class Grammar, class LiteralConverters, class... Ts>
-	template <class T, class F>
-	void Compiler<Grammar, LiteralConverters, Ts...>::setUnaryOperator(const std::string& token, const F& f)
-	{
-		impl_.setUnaryOperator(token, type<T>(), metl::internal::makeFunction<Expression, T>(f));
-	}
-
-	template <class Grammar, class LiteralConverters, class... Ts>
-	template <class ... ParamTypes, class F>
-	void Compiler<Grammar, LiteralConverters, Ts...>::setFunction(const std::string& token, const F& f)
-	{
-		impl_.setFunction(token, std::vector<TYPE>{type<ParamTypes>()...}, metl::internal::makeFunction<Expression, ParamTypes...>(f));
-	}
-
-	template <class Grammar, class LiteralConverters, class... Ts>
-	template <class From, class F>
-	void Compiler<Grammar, LiteralConverters, Ts...>::setCast(const F& f)
-	{
-		using To = std::result_of_t<F(From)>;
-		static_assert(internal::isInList<From, Ts...>(), "Type casted from is not one of the types of this compiler");
-		static_assert(internal::isInList<To, Ts...>(), "Type casted to is not one of the types of this compiler");
-
-		auto impl = [f](const Expression& from)
+		template <class LiteralConverters, class ... Ts>
+		typename Compiler<LiteralConverters, Ts...>::Expression Compiler<LiteralConverters, Ts...>::finish()
 		{
-			auto f_from = from.template get<From>();
-			return Expression(exprType<To>{
-				[f, f_from]()
+			auto expr = stack_.finish();
+
+			if(assignToThis_ != "")
+			{
+				auto evaluatedExpr = evaluateConstExpr(expr);
+
+				auto it = bits_.constantsAndVariables_.find(assignToThis_);
+				if(it == bits_.constantsAndVariables_.end())
 				{
-					return f(f_from());
+					bits_.constantsAndVariables_.emplace(assignToThis_, evaluatedExpr);
 				}
-			});
-		};
+				else if(it->second.category() == CATEGORY::CONSTEXPR)
+				{
+					it->second = evaluatedExpr;
+				}
+				else // name exist, is dynexpr
+				{
+					if(evaluatedExpr.type() != it->second.type())
+					{
+						auto fromType = evaluatedExpr.type();
+						auto toType = it->second.type();
 
-		impl_.setCast(type<From>(), type<To>(), internal::CastImpl<Expression>(impl));
-	}
+						auto castIt = bits_.castImplementations_.find(mangleCast(fromType, toType));
+						if (castIt == bits_.castImplementations_.end()) throw std::runtime_error("cannot assign to incompatible type");
+						evaluatedExpr = castIt->second(evaluatedExpr);
+					}
+					assignToVar(it->second, evaluatedExpr);
+				}
+			}
 
-	template <class Grammar, class LiteralsConverters, class ... Ts>
-	template <class From, class To, class F>
-	void Compiler<Grammar, LiteralsConverters, Ts...>::setSuffix(const std::string& token, const F& f)
-	{
-		using namespace internal;
+			assignToThis_ = "";
+			return expr;
+		}
 
-		static_assert(isInList<From, Ts...>(), "Type the suffix converts from is not one of the types of this compiler!");
-		static_assert(isInList<To, Ts...>(), "Type the suffix converts to is not one of the types of this compiler!");
-
-		auto impl = [f](const Expression& from)
+		template <class LiteralConverters, class ... Ts>
+		void Compiler<LiteralConverters, Ts...>::startAssignment(const std::string& varName)
 		{
-			auto f_from = from.template get<From>();
-			return Expression(exprType<To>{
-				[f, f_from]()
-				{
-					return f(f_from());
-				}
-			});
-		};
-
-		impl_.setSuffix(token, type<From>(), CastImpl<Expression>(impl));
-	}
-
-	template <class Grammar, class LiteralConverters, class... Ts>
-	template <class T>
-	void Compiler<Grammar, LiteralConverters, Ts...>::setConstant(const std::string& token, T&& val)
-	{
-		/*
-					static_assert(isInList<T, Ts...>(), "T must be one of the types the compiler works with.");*/
-		impl_.addConstantOrVariable(token, makeConstExpression<Expression>(std::forward<T>(val)));
-	}
-
-	template <class Grammar, class LiteralConverters, class... Ts>
-	template <class T>
-	void Compiler<Grammar, LiteralConverters, Ts...>::setVariable(const std::string& token, T* val)
-	{
-		impl_.addConstantOrVariable(token, makeVariableExpression<Expression>(val));
-	}
-
-	template <class Grammar, class LiteralConverters, class... Ts>
-	template <class T>
-	constexpr TYPE Compiler<Grammar, LiteralConverters, Ts...>::type()
-	{
-		return classToType2<T, Ts...>();
+			assignToThis_ = varName;
+		}
 	}
 }

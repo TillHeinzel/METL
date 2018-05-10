@@ -1,7 +1,7 @@
 /*
 @file
-metl.h
-include-file for user-projects
+Associativity.h
+Associativity Enum
 
 Copyright 2017 Till Heinzel
 
@@ -20,5 +20,7 @@ limitations under the License.
 
 #pragma once
 
-#include "src/MakeCompiler.h"
-#include "src/addDefaults.h"
+namespace metl
+{
+	enum class ASSOCIATIVITY { LEFT, RIGHT };
+}

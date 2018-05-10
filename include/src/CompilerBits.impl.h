@@ -1,7 +1,7 @@
 /*
 @file
-Compiler_Detail.impl.h
-Implements functions for class Compiler_Detail
+Compiler.impl.h
+Implements functions for class Compiler
 
 Copyright 2017 Till Heinzel
 
@@ -19,7 +19,7 @@ limitations under the License.
 */
 
 #pragma once
-#include "Compiler_Detail.h"
+#include "CompilerBits.h"
 
 #include <tao/pegtl.hpp>
 
@@ -30,6 +30,7 @@ limitations under the License.
 #include "Stack.impl.h"
 
 #include "CompilerHelpers.h"
+#include <locale>
 
 namespace metl
 {
@@ -53,15 +54,8 @@ namespace metl
 {
 	namespace internal
 	{
-		template <class LiteralConverters, class ... Ts>
-		Compiler_impl<LiteralConverters, Ts...>::Compiler_impl(const LiteralConverters& literalConverters) :
-			stack_(operators_, functions_, castImplementations_, suffixImplementations_, castDeclarations_),
-			literalConverters_(literalConverters),
-			castDeclarations_({ std::make_pair(type<Ts>(), std::vector<TYPE>{type<Ts>()})... })
-		{}
-
-		template <class LiteralConverters, class ... Ts>
-		void Compiler_impl<LiteralConverters, Ts...>::setOperatorPrecedence(const std::string& op, unsigned precedence,
+		template <class ... Ts>
+		void CompilerBits<Ts...>::setOperatorPrecedence(const std::string& op, unsigned precedence,
 			ASSOCIATIVITY associativity)
 		{
 
@@ -70,14 +64,14 @@ namespace metl
 			internal::insert_or_emplace(opCarriers_, op, opCarrier{ op, precedence, associativity, false });
 		}
 
-		template <class LiteralConverters, class ... Ts>
-		void Compiler_impl<LiteralConverters, Ts...>::setUnaryOperatorPrecedence(const std::string& op, unsigned precedence)
+		template <class ... Ts>
+		void CompilerBits<Ts...>::setUnaryOperatorPrecedence(const std::string& op, unsigned precedence)
 		{
 			internal::insert_or_emplace(unaryCarriers_, op, opCarrier{ op, precedence, ASSOCIATIVITY::RIGHT, true });
 		}
 
-		template <class LiteralConverters, class ... Ts>
-		void Compiler_impl<LiteralConverters, Ts...>::setOperator(const std::string& token,
+		template <class ... Ts>
+		void CompilerBits<Ts...>::setOperator(const std::string& token,
 			const std::vector<TYPE>& paramTypes, const FunctionImpl<Expression>& op)
 		{
 			// check, if operator is in the list of precedences. 
@@ -91,8 +85,8 @@ namespace metl
 			insert_or_emplace(operators_, mangledName, op);
 		}
 
-		template <class LiteralConverters, class ... Ts>
-		void Compiler_impl<LiteralConverters, Ts...>::setUnaryOperator(const std::string& token, TYPE paramType,
+		template <class ... Ts>
+		void CompilerBits<Ts...>::setUnaryOperator(const std::string& token, TYPE paramType,
 			const FunctionImpl<Expression>& op)
 		{
 			auto it = unaryCarriers_.find(token);
@@ -105,16 +99,16 @@ namespace metl
 			insert_or_emplace(operators_, mangledName, op);
 		}
 
-		template <class LiteralConverters, class ... Ts>
-		void Compiler_impl<LiteralConverters, Ts...>::setFunction(const std::string& token,
+		template <class ... Ts>
+		void CompilerBits<Ts...>::setFunction(const std::string& token,
 			const std::vector<TYPE>& paramTypes, const FunctionImpl<Expression>& function)
 		{
 			insert_or_emplace(functionNames_, token, token);
 			insert_or_emplace(functions_, mangleName(token, paramTypes), function);
 		}
 
-		template <class LiteralConverters, class ... Ts>
-		void Compiler_impl<LiteralConverters, Ts...>::setCast(const TYPE from, const TYPE to, const CastImpl<Expression>& fs)
+		template <class ... Ts>
+		void CompilerBits<Ts...>::setCast(const TYPE from, const TYPE to, const CastImpl<Expression>& fs)
 		{
 			auto it = castDeclarations_.find(from);
 			if (it == castDeclarations_.end())
@@ -129,25 +123,35 @@ namespace metl
 			insert_or_emplace(castImplementations_, mangleCast(from, to), fs);
 		}
 
-		template <class LiteralConverters, class ... Ts>
-		void Compiler_impl<LiteralConverters, Ts...>::setSuffix(const std::string& token, const TYPE from, const CastImpl<Expression>& conversion)
+		template <class ... Ts>
+		void CompilerBits<Ts...>::setSuffix(const std::string& token, const TYPE from, const CastImpl<Expression>& conversion)
 		{
 			insert_or_emplace(suffixes_, token, suffixCarrier{ token });
 			insert_or_emplace(suffixImplementations_, mangleSuffix(token, from), conversion);
 		}
 
-		template <class LiteralConverters, class ... Ts>
-		void Compiler_impl<LiteralConverters, Ts...>::addConstantOrVariable(const std::string& token, const Expression& val)
+		inline bool isAllAlnum(const std::string& s)
+		{
+			for(const auto& c:s)
+			{
+				if (!isalnum(c)) return false;
+			}
+			return true;
+		}
+
+		template <class ... Ts>
+		void CompilerBits<Ts...>::addConstantOrVariable(const std::string& token, const Expression& val)
 		{
 			if (token.empty()) throw std::runtime_error("token must not be empty!");
+			if (!isAllAlnum(token)) throw std::runtime_error("token must be alphanumeric!");
 			if (isdigit(token.front())) throw std::runtime_error("token must not start with a number!");
 
 			insert_or_emplace(constantsAndVariables_, token, val);
 		}
 
-		template <class LiteralConverters, class... Ts>
+		template <class... Ts>
 		template <class T>
-		constexpr TYPE Compiler_impl<LiteralConverters, Ts...>::type()
+		constexpr TYPE CompilerBits<Ts...>::type()
 		{
 			return classToType2<T, Ts...>();
 		}

@@ -1,7 +1,7 @@
 /*
 @file
 Compiler.h
-Public access-file for template class Compiler, containing the make-functions and helpers to construct a metl::Compiler
+Public access-file for template class CompilerApi, containing the make-functions and helpers to construct a metl::CompilerApi
 
 Copyright 2017 Till Heinzel
 
@@ -20,19 +20,42 @@ limitations under the License.
 
 #pragma once
 
-#include "Compiler.impl.h"
+#include "CompilerApi.impl.h"
 #include "sortAndAddDefaults.h"
 #include "LiteralConverters.h"
 
 namespace metl
 {
-	template<class... Ts, class IntConverter, class RealConverter>
-	auto makeCompiler_impl(IntConverter intConv, RealConverter realConv)
+	namespace settings
 	{
-		auto literalsConverter = internal::makeLiteralConverters(intConv, realConv);
-		return Compiler<internal::grammar<internal::realLiteral, internal::intLiteral>, decltype(literalsConverter), Ts...>(literalsConverter);
+		struct EnabledAssignment {};
 	}
 
+	inline auto enableAssignment()
+	{
+		return internal::wrapSetting<settings::EnabledAssignment>(std::true_type{});
+	}
+	inline auto disableAssignment()
+	{
+		return internal::wrapSetting<settings::EnabledAssignment>(std::false_type{});
+	}
+}
+
+namespace metl
+{
+	template<class... Ts, class IntConverter, class RealConverter>
+	auto makeCompiler_impl(IntConverter intConv, RealConverter realConv, std::true_type)
+	{
+		auto literalsConverter = internal::makeLiteralConverters(intConv, realConv);
+		return CompilerApi<internal::grammarWithAssignment, decltype(literalsConverter), Ts...>(literalsConverter);
+	}
+
+	template<class... Ts, class IntConverter, class RealConverter>
+	auto makeCompiler_impl(IntConverter intConv, RealConverter realConv, std::false_type)
+	{
+		auto literalsConverter = internal::makeLiteralConverters(intConv, realConv);
+		return CompilerApi<internal::grammarWithOutAssignment, decltype(literalsConverter), Ts...>(literalsConverter);
+	}
 
 	template<class... SupportedTypes>
 	auto makeDefaultSettings()
@@ -40,7 +63,7 @@ namespace metl
 		auto defaultIntConverter = makeDefaultIntConverter<SupportedTypes...>();
 		auto defaultRealConverter = makeDefaultRealConverter<SupportedTypes...>();
 
-		return internal::toTypeMap(defaultIntConverter, defaultRealConverter);
+		return internal::toTypeMap(defaultIntConverter, defaultRealConverter, enableAssignment());
 	}
 
 	template<class... SupportedTypes, class... SettingIDs, class... Settings>

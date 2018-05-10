@@ -21,11 +21,10 @@ limitations under the License.
 #pragma once
 
 #include "ConstexprBranching.h"
+#include "Exceptions.h"
 
 namespace metl
 {
-	struct BadLiteralException : public std::runtime_error { explicit BadLiteralException(const std::string& s) :runtime_error(s) {} };
-
 	namespace internal
 	{
 		// Type to carry functors f that convert strings representing literals. 
@@ -46,15 +45,18 @@ namespace metl
 			return Converter<From_t, To_t, F>{f};
 		}
 
-		template<class IntConverter, class RealConverter>
+		template<class IntConverter_, class RealConverter_>
 		struct LiteralConverters
 		{
+			using IntConverter = IntConverter_;
+			using RealConverter = RealConverter_;
+
 			IntConverter toInt;
 			RealConverter toReal;
 		};
 
 		template<class... Ts>
-		auto makeLiteralConverters(Ts&&...ts) { return LiteralConverters<Ts...>{ts...}; }
+		auto makeLiteralConverters(Ts...ts) { return LiteralConverters<Ts...>{ts...}; }
 	}
 
 	namespace settings

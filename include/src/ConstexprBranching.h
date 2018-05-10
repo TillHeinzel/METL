@@ -61,10 +61,17 @@ namespace metl
 {
 	namespace internal
 	{
-		template<class Condition, class TrueBranch>
-		decltype(auto) constexpr constexpr_if(const Condition&, const TrueBranch& trueBranch)
+		template<class Condition, class TrueBranch, class FalseBranch>
+		void constexpr constexpr_if_else(const Condition&, const TrueBranch& trueBranch, const FalseBranch& falseBranch)
 		{
-			return constexpr_ternary(Condition(), trueBranch, [](auto _) {return _(0); });
+			constexpr_ternary(Condition(), trueBranch, falseBranch);
 		}
+
+		template<class Condition, class TrueBranch>
+		void constexpr constexpr_if(const Condition&, const TrueBranch& trueBranch)
+		{
+			constexpr_if_else(Condition(), trueBranch, [](auto _) {return _(0); });
+		}
+
 	}
 }

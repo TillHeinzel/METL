@@ -1,7 +1,7 @@
 /*
 @file
-Compiler.fwd.h
-Declares template class Compiler, which is the public relations class of metl: The only class a user interacts with directly. Except maybe for expressions.
+Compiler.h
+Declares template class Compiler, which carries all the user-defined operators, functions, etc.
 
 Copyright 2017 Till Heinzel
 
@@ -21,57 +21,41 @@ limitations under the License.
 
 #include <map>
 
-#include "Compiler_Detail.h"
+#include "VarExpression.h"
+#include "Stack.h"
+#include "CompilerBits.h"
 
 namespace metl
 {
-	template<class Grammar, class LiteralsConverters, class... Ts>
-	class Compiler
+	namespace internal
 	{
-	public:
-		using Expression = VarExpression<Ts...>;
 
-	public:
+		template<class LiteralConverters, class... Ts>
+		class Compiler
+		{
 
-		Compiler(const LiteralsConverters& literalConverters);
+		public:
+			using Expression = VarExpression<Ts...>;
+			constexpr static auto getTypeList() { return TypeList<Ts...>(); }
 
-		Expression build(const std::string& expression);
+			Compiler(const LiteralConverters& literalConverters);
 
-		template<class T>
-		exprType<T> build(const std::string& expression);
 
-	public:
-		void setOperatorPrecedence(std::string op, unsigned int precedence, ASSOCIATIVITY associativity = ASSOCIATIVITY::LEFT);
-		void setUnaryOperatorPrecedence(std::string op, unsigned int precedence);
+			template<class T>
+			constexpr static TYPE type();
 
-		template<class Left, class Right, /*inferred*/ class F>
-		void setOperator(const std::string& token, const F& f);
+			Expression finish();
 
-		template<class T, /*inferred*/ class F>
-		void setUnaryOperator(const std::string& token, const F& f);
+			void startAssignment(const std::string& varName);
 
-		// Finds strings of the form token(ParamTypes...) and calls f on the params
-		template<class... ParamTypes, /*inferred*/ class F>
-		void setFunction(const std::string& token, const F& f);
+		public:
+			CompilerBits<Ts...> bits_;
+			LiteralConverters literalConverters_;
+			Stack<Ts...> stack_;
 
-		// tries to implicitly cast from type "From" to whatever type is returned by function f
-		template<class From, /*inferred*/ class F>
-		void setCast(const F& f);
+		private:
+			std::string assignToThis_;
+		};
 
-		// adds 'token' as a possible suffix for literals of type From, converting them to type To.
-		template<class From, class To, /*inferred*/class F>
-		void setSuffix(const std::string& token, const F& f);
-
-	public:
-		template<class T>
-		void setConstant(const std::string& token, T&& val);
-
-		template<class T>
-		void setVariable(const std::string& token, T* val);
-	public:
-		template<class T>
-		constexpr static TYPE type();
-
-		internal::Compiler_impl<LiteralsConverters, Ts...> impl_;
-	};
+	}
 }

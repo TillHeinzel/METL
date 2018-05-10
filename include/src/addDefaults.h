@@ -18,12 +18,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 #pragma once
-#include "Compiler.h"
+#include "CompilerApi.h"
 
 namespace metl
 {
 	template<class... Ts>
-	void setDefaultOperatorPrecedences(Compiler<Ts...>& c)
+	void setDefaultOperatorPrecedences(CompilerApi<Ts...>& c)
 	{
 
 		c.setOperatorPrecedence("!=", 10);
@@ -45,7 +45,7 @@ namespace metl
 
 	// sets default binary operators {+,-,*,/} with the corresponding call in C++ 
 	template<class T1, class T2, class... Ts>
-	void addDefaultOperators(Compiler<Ts...>& c)
+	void addDefaultOperators(CompilerApi<Ts...>& c)
 	{
 		setDefaultOperatorPrecedences(c);
 
@@ -62,7 +62,7 @@ namespace metl
 
 	// sets default unary operator {+,-} and binary operator {+,-,*,/} with the corresponding call in C++ 
 	template<class T, class... Ts>
-	void addDefaultOperators(Compiler<Ts...>& c)
+	void addDefaultOperators(CompilerApi<Ts...>& c)
 	{
 		setDefaultOperatorPrecedences(c);
 
@@ -77,7 +77,7 @@ namespace metl
 
 
 	template<class T, class... Ts>
-	void addBasicFunctions(Compiler<Ts...>& c)
+	void addBasicFunctions(CompilerApi<Ts...>& c)
 	{
 		c.template setFunction<T>("exp", [](auto a) {return exp(a); });
 		c.template setFunction<T>("sqrt", [](auto a) {return sqrt(a); });
@@ -89,7 +89,7 @@ namespace metl
 	}
 
 	template<class T, class... Ts>
-	void addTrigFunctions(Compiler<Ts...>& c)
+	void addTrigFunctions(CompilerApi<Ts...>& c)
 	{
 		c.template setFunction<T>("sin", [](auto a) {return sin(a); });
 		c.template setFunction<T>("cos", [](auto a) {return cos(a); });
@@ -124,12 +124,18 @@ namespace metl
 
 	// sets defaults for basic types (currently int, 
 	template<class Grammar, class Converter, class... Ts>
-	void setDefaults(Compiler<Grammar, Converter, Ts...>& c)
+	void setDefaults(CompilerApi<Grammar, Converter, Ts...>& c)
 	{
 		using namespace internal;
 
-		using intType = decltype(c.impl_.literalConverters_.toInt.f(std::declval<std::string>()));
-		using realType = decltype(c.impl_.literalConverters_.toReal.f(std::declval<std::string>()));
+		using CompilerApi_T = std::remove_reference_t<decltype(c)>;
+		using LiteralConverters = typename CompilerApi_T::LiteralsConverters;
+
+		using IntConverter = typename LiteralConverters::IntConverter;
+		using intType = typename IntConverter::To;
+
+		using RealConverter = typename LiteralConverters::RealConverter;
+		using realType = typename RealConverter::To;
 
 		// defaults with intType
 		constexpr_if(IsInList<intType, Ts...>(), [&c](auto _)

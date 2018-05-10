@@ -23,11 +23,11 @@ defines actions to be taken when finding specific patterns in the parsed string.
 #include "VarExpression.h"
 
 #include "bool_constant.h"
+#include "ConstexprBranching.h"
+#include "Exceptions.h"
 
 namespace metl
 {
-	struct BadLiteralException;
-
 	namespace internal
 	{
 		template< typename Rule >
@@ -38,16 +38,16 @@ namespace metl
 		template<class TargetType, class... Ts, class Compiler, class Converter>
 		void convertLiteral(Compiler& compiler, const std::string& input, Converter& converter, TypeList<Ts...>)
 		{
-			constexpr_ternary(nostd::bool_constant<isInList<TargetType, Ts...>()>(),
-				[&](auto _)
+			constexpr_if_else(nostd::bool_constant<isInList<TargetType, Ts...>()>(),
+				[&](auto _) ->void
 			{
-				compiler.impl_.stack_.push(makeConstExpression<typename Compiler::Expression>(converter.f(input)));
+				_(compiler).stack_.push(makeConstExpression<typename Compiler::Expression>(converter.f(input)));
 			},
-				[&](auto _)
+				[&](auto _)->void
 			{
 				try
 				{
-					converter.f(input);
+					_(converter).f(input);
 				}
 				catch (const BadLiteralException& e)
 				{
@@ -63,9 +63,9 @@ namespace metl
 			template< typename Input, class Compiler >
 			static void apply(const Input& in, Compiler& compiler)
 			{
-				auto& converter = compiler.impl_.literalConverters_.toInt;
+				auto& converter = compiler.literalConverters_.toInt;
 				using intType = decltype(converter.f(in.string()));
-				convertLiteral<intType>(compiler, in.string(), converter, compiler.impl_.getTypeList());
+				convertLiteral<intType>(compiler, in.string(), converter, compiler.getTypeList());
 			}
 		};
 
@@ -75,9 +75,9 @@ namespace metl
 			template< typename Input, class Compiler >
 			static void apply(const Input& in, Compiler& compiler)
 			{
-				auto& converter = compiler.impl_.literalConverters_.toReal;
+				auto& converter = compiler.literalConverters_.toReal;
 				using realType = decltype(converter.f(in.string()));
-				convertLiteral<realType>(compiler, in.string(), converter, compiler.impl_.getTypeList());
+				convertLiteral<realType>(compiler, in.string(), converter, compiler.getTypeList());
 			}
 		};
 
@@ -87,7 +87,7 @@ namespace metl
 			template< typename Input, class Compiler >
 			static void apply(const Input& in, Compiler& compiler)
 			{
-				compiler.impl_.stack_.pushFunction(in.string());
+				compiler.stack_.pushFunction(in.string());
 			}
 		};
 
@@ -97,7 +97,7 @@ namespace metl
 			template< typename Input, class Compiler >
 			static void apply(const Input&, Compiler& compiler)
 			{
-				compiler.impl_.stack_.open();
+				compiler.stack_.open();
 			}
 		};
 
@@ -107,27 +107,38 @@ namespace metl
 			template< typename Input, class Compiler >
 			static void apply(const Input&, Compiler& compiler)
 			{
-				compiler.impl_.stack_.close();
+				compiler.stack_.close();
 			}
 		};
+
 		template<>
 		struct action<one<','>>
 		{
 			template< typename Input, class Compiler >
 			static void apply(const Input&, Compiler& compiler)
 			{
-				compiler.impl_.stack_.close();
-				compiler.impl_.stack_.open();
+				compiler.stack_.close();
+				compiler.stack_.open();
 			}
 		};
 
-		template<class... Literals>
-		struct action<Function<Literals...>>
+		template<>
+		struct action<Function>
 		{
 			template< typename Input, class Compiler >
 			static void apply(const Input&, Compiler& compiler)
 			{
-				compiler.impl_.stack_.close();
+				compiler.stack_.close();
+			}
+		};
+
+		template<>
+		struct action<ValidVariableID>
+		{
+			template< typename Input, class Compiler >
+			static void apply(const Input& in, Compiler& compiler)
+			{
+				compiler.startAssignment(in.string());
 			}
 		};
 	}
