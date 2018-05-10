@@ -105,6 +105,30 @@ namespace metl
 {
 	namespace internal
 	{
+		template<typename Input, class T>
+		static auto match_any_recursive(Input& in, const std::map<std::string, T>& map, std::string t)
+			-> typename std::map<std::string, T>::const_iterator
+		{
+			// t starts out empty, and slowly becomes the same as in.current, adding one char on each recursion-step. t is then searched in the keys of map.
+			if (in.size() > t.size()) {
+				t += in.peek_char(t.size()); // append another char to teststring t
+				const auto i = map.lower_bound(t); // not sure why this works
+				if (i != map.end()) {
+					// recursion step. try the next one down the line with an additional char.
+					// This happend before the termination, because we are expected to be greedy.
+					auto i2 = match_any_recursive(in, map, t);
+					if (i2 != map.end())
+					{
+						return i2;
+					}
+					if (i->first == t)  // recursion stop: if we found a match, return.
+					{
+						return i;
+					}
+				}
+			}
+			return map.end();
+		}
 
 		template<class... Ts>
 		class CompilerBits
@@ -132,6 +156,36 @@ namespace metl
 			template<class T>
 			constexpr static TYPE type();
 
+			template<class Input>
+			auto matchVariable(Input& in)
+			{
+				return match(in, constantsAndVariables_);
+			}
+
+			template<class Input>
+			auto matchOperator(Input& in)
+			{
+				return match(in, opCarriers_);
+			}
+
+			template<class Input>
+			auto matchUnaryOperator(Input& in)
+			{
+				return match(in, unaryCarriers_);
+			}
+
+			template<class Input>
+			auto matchSuffix(Input& in)
+			{
+				return match(in, suffixes_);
+			}
+
+			template<class Input>
+			auto matchFunctionName(Input& in)
+			{
+				return match(in, functionNames_);
+			}
+
 			const auto& getOperators() { return operators_; }
 			const auto& getCandV() { return constantsAndVariables_; }
 			const auto& getCarriers() { return opCarriers_; }
@@ -143,9 +197,22 @@ namespace metl
 			const auto& getSuffixes() { return suffixes_; }
 			const auto& getSuffixImplementations() { return suffixes_; }
 			
+			std::map<std::string, CastImpl<Expression>> castImplementations_;
+			std::map<std::string, Expression> constantsAndVariables_; // maps identifiers for constants and variables to the expressions returning their values.
+
 		public:
 
-			std::map<std::string, CastImpl<Expression>> castImplementations_;
+			template<class Input, class Map>
+			auto match(Input& in, const Map& map)
+			{
+				auto it = match_any_recursive(in, map, std::string());
+
+				bool varMatched = (it == map.end()) ? false : true;
+
+				return std::make_tuple(varMatched, it);
+			}
+
+
 			std::map<std::string, CastImpl<Expression>> suffixImplementations_;
 			std::map<std::string, suffixCarrier> suffixes_;
 			std::map<TYPE, std::vector<TYPE>> castDeclarations_{ std::make_pair(type<Ts>(), std::vector<TYPE>{type<Ts>()})... };
@@ -155,8 +222,7 @@ namespace metl
 			std::map<std::string, FunctionImpl<Expression>> operators_; //maps mangled names to implementations for operators
 			std::map<std::string, FunctionImpl<Expression>> functions_; // maps mangled names to implementations for functions.
 			std::map<std::string, std::string> functionNames_; // dummy, just so we have the sorting.
-			std::map<std::string, Expression> constantsAndVariables_; // maps identifiers for constants and variables to the expressions returning their values.
-
+			
 		};
 	}
 }
