@@ -331,3 +331,17 @@ TEST_F(AssignmentFixture, assignExpressionToExistingVariable)
 	compiler.build<double>("a = 2");
 	EXPECT_EQ(2.0, compiler.getValue<double>("a"));
 }
+
+TEST_F(AssignmentFixture, disableAssignment)
+{
+	auto compiler = metl::makeCompiler<int, double, std::complex<double>>(metl::disableAssignment());
+
+	metl::setDefaults(compiler);
+
+
+
+	auto val = compiler.build<double>("42")();
+	EXPECT_EQ(42.0, val);
+
+	EXPECT_ANY_THROW(compiler.build("a = 42"));
+}

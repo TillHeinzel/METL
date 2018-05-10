@@ -84,8 +84,11 @@ namespace metl
 
 		////////////////// GRAMMAR //////////////////////
 
-		struct grammar
+		struct grammarWithAssignment
 			: must<if_then_else<at<AssignmentBit>, seq<AssignmentBit, Expr>, Expr>, padding, pegtl::eof> {};
+
+		struct grammarWithOutAssignment
+			: must<Expr, opt<padding>, pegtl::eof> {};
 	}
 }
 
