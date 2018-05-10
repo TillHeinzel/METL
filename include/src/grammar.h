@@ -3,7 +3,7 @@
 grammar.h
 Defines the grammar to be used by PEGTL for parsing strings
 
-Copyright 2017 Till Heinzel
+Copyright 2017-2018 Till Heinzel
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
