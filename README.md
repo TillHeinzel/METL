@@ -2,10 +2,20 @@
 
 A small, header-only c++14 library for parsing math expressions, built on top of [PEGTL](https://github.com/taocpp/PEGTL).
 
+METL is designed to be very flexible while being reasonably efficient. 
+Flexibility means that metl can be used with any reasonably well-behaved types (useful for e.g. vectors or matrices) and that adding or editing operators and functions is very easy. 
+It is also header-only, making it easy to integrate with other projects, and has only a single dependency, PEGTL. 
+METL is very young, but is now included in a [benchmarking project](https://github.com/ArashPartow/math-parser-benchmark-project) and does reasonably well for scalars. 
+However, if you don't need the flexibility of METL I would propose you consider [ExprTK](http://www.partow.net/programming/exprtk/), which is probably the fastest out there for standard operations on scalars.
+
 Current features:
-*  build once, call often: METL compiles your expression to a std::function that 
+*  build once, call often: METL compiles your expression to a std::function that you can call as often as you want
 *  Extremely flexible: You can create any operator or function you want and use it with any type you want. 
-*  
+*  builds with msvc, gcc, and clang
+*  supports literals with or without suffixes and arbitrarily named variables and constants
+*  a smart setup for defaults which recognizes standard types (integral and floating point)
+*  binary operators, unary operators, functions 
+*  built-in assignment operator to new or existing variables and constants
 
 ## Introduction
 
