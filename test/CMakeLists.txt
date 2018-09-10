@@ -5,13 +5,7 @@ if(MSVC)
 	add_definitions("/bigobj")
 endif()
 
-set(SOURCES
-	main.cpp
-	WriteTime.h
-	
-	T_ExpressionParser.cpp
-)
-
+file(GLOB SOURCES *.h *.cpp)
 
 add_executable(metl-testing ${SOURCES} )
 
