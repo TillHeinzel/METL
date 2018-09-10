@@ -140,24 +140,24 @@ namespace metl
 		// defaults with intType
 		constexpr_if(IsInList<intType, Ts...>(), [&c](auto _)
 		{
-			addDefaultOperators<intType>(c);
+			addDefaultOperators<intType>(_(c));
 			constexpr_if(std::is_integral<intType>{}, [&c](auto _)
 			{
-				c.template setFunction<intType>("abs", [](const auto& a) {return std::abs(a); });
+				_(c).template setFunction<intType>("abs", [](const auto& a) {return std::abs(a); });
 			});
 		});
 
 		// defaults with realType
 		constexpr_if(IsInList<realType, Ts...>(), [&c](auto _)
 		{
-			addDefaultOperators<realType>(c);
+			addDefaultOperators<realType>(_(c));
 			addBasicFunctions<realType>(c);
 			addTrigFunctions<realType>(c);
 			constexpr_if(std::is_floating_point<realType>{}, [&c](auto _)
 			{
-				c.template setFunction<realType>("abs", [](const auto& a) {return std::abs(a); });
+				_(c).template setFunction<realType>("abs", [](const auto& a) {return std::abs(a); });
 
-				c.template setOperator<realType, realType>("^", [](const auto& left, const auto& right)
+				_(c).template setOperator<realType, realType>("^", [](const auto& left, const auto& right)
 				{
 					return std::pow(left, right);
 				});

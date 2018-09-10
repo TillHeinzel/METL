@@ -84,7 +84,7 @@ namespace metl
 		},
 					[](auto _)
 		{
-			return _(internal::makeConverter<int>([](const auto& s) -> int
+			return _(internal::makeConverter<int>([](const auto&) -> int
 			{
 				throw BadLiteralException("");
 			}));
@@ -97,16 +97,16 @@ namespace metl
 		return internal::wrapSetting<settings::RealConverter>
 			(
 				internal::constexpr_ternary(std::integral_constant<bool, internal::isInList<double, SupportedTypes...>()>(),
-					[](auto _)
+					[](auto)
 		{
-			return _(internal::makeConverter<double>([](const std::string& s) {return std::stod(s); }));
+			return internal::makeConverter<double>([](const std::string& s) {return std::stod(s); });
 		},
-					[](auto _)
+					[](auto)
 		{
-			return _(internal::makeConverter<double>([](const auto& s) -> double
+			return internal::makeConverter<double>([](const auto&) -> double
 			{
 				throw BadLiteralException("");
-			}));
+			});
 		}));
 	}
 

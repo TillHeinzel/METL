@@ -16,7 +16,7 @@ set(SOURCES
 add_executable(metl-testing ${SOURCES} )
 
 target_link_libraries(metl-testing metl)
-target_link_libraries(metl-testing debug gtestd debug gtest_main)
+target_link_libraries(metl-testing debug gtestd debug gtest_maind)
 target_link_libraries(metl-testing optimized gtest optimized gtest_main)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
