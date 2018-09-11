@@ -38,7 +38,14 @@ namespace metl
 			TypeMap(std::tuple<ValueTypes...> values) : values_(values) {}
 
 			template<class T>
-			auto get() const
+			auto& get()
+			{
+				static_assert(isInList<T>(), "requested type is not in list");
+				return std::get<internal::findFirstIndex<T>(keys())>(values_);
+			}
+
+			template<class T>
+			const auto& get() const
 			{
 				static_assert(isInList<T>(), "requested type is not in list");
 				return std::get<internal::findFirstIndex<T>(keys())>(values_);
@@ -57,6 +64,11 @@ namespace metl
 			std::tuple<ValueTypes...> values_;
 		};
 
+		template<class T, class... Keys, class... ValueTypes>
+		auto& get(TypeMap<std::tuple<Keys...>, std::tuple<ValueTypes...>>& map)
+		{
+			return map.template get<T>();
+		}
 		template<class T, class... Keys, class... ValueTypes>
 		const auto& get(const TypeMap<std::tuple<Keys...>, std::tuple<ValueTypes...>>& map)
 		{
