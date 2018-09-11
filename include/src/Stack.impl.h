@@ -21,6 +21,7 @@ limitations under the License.
 
 #pragma once
 #include "Stack.h"
+#include "EvaluateConstexpr.h"
 
 #include <cassert>
 
@@ -28,29 +29,6 @@ namespace metl
 {
 	namespace internal
 	{
-		namespace
-		{
-			template<class Expression>
-			Expression evaluateConstExpr_impl(TypeList<>, const Expression&)
-			{
-				throw std::runtime_error("can't evaluate constexpr, because type is not in typelist. However that happened...");
-			}
-
-			template<class T, class... Ts, class Expression>
-			Expression evaluateConstExpr_impl(TypeList<T, Ts...>, const Expression& expression)
-			{
-				return expression.type() == Expression::template toType<T>() ?
-					makeConstExpression<Expression>(expression.template get<T>()()) :
-					evaluateConstExpr_impl(TypeList<Ts...>{}, expression);
-			}
-
-			template<class... Ts>
-			VarExpression<Ts...> evaluateConstExpr(const VarExpression<Ts...>& expression)
-			{
-				return evaluateConstExpr_impl(TypeList<Ts...>{}, expression);
-			}
-		}
-
 		template <class ExprT>
 		ExprT FunctionImpl<ExprT>::operator()(const std::vector<ExprT>& v) const
 		{
