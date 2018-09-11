@@ -1,7 +1,5 @@
 /*
 @file CategoryEnum.h
-Defines class VarExpression, which is a variant-type to contain std::functions returning different values.
-This is used to contain the results of parsing. 
 
 Copyright 2017-2018 Till Heinzel
 

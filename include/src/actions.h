@@ -20,7 +20,6 @@ defines actions to be taken when finding specific patterns in the parsed string.
 
 #pragma once
 #include "grammar.h"
-#include "VarExpression.h"
 
 #include "bool_constant.h"
 #include "ConstexprBranching.h"

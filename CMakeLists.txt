@@ -70,7 +70,7 @@ if(MSVC)
 elseif(GCC)
 	add_definitions("-Wall -Wno-long-long")
 elseif(CLANG)
-	add_definitions("-Weverything")
+	#add_definitions("-Weverything")
 endif()
 
 set(METL_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
