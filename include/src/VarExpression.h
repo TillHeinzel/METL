@@ -20,25 +20,16 @@ limitations under the License.
 
 #pragma once
 
-#include <functional>
-
 #include "DeepCopy.h"
 
 #include "TypeList.h"
 #include "TypeEnum.h"
 #include "DeepCopy.h"
+#include "CategoryEnum.h"
+#include "ExpressionType.h"
 
 namespace metl
 {
-
-	template<class T> using exprType = std::function<T()>;
-
-	enum class CATEGORY
-	{
-		CONSTEXPR, //an expression that does not change after "build"-time, when the string is read. Constexpressions allow for some optimizations.
-		DYNEXPR // an expression that DOES change after "build"-time. 
-	};
-
 	template<class... Ts>
 	class VarExpression
 	{
