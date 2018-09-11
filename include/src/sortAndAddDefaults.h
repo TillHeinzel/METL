@@ -31,42 +31,36 @@ namespace metl
 {
 	namespace internal
 	{
-		template<class CheckPolicy, class DefaultsMap, class InputMap>
-		auto sortAndAddDefaults_impl(const DefaultsMap defaults, const InputMap& inputs)
+		template<class Key, class Map>
+		constexpr auto contains(const Map&)
 		{
-			return internal::constexpr_ternary(nostd::bool_constant<InputMap::template isInList<CheckPolicy>()>(),
-				[&](auto _)
-			{
-				return 
-					std::make_tuple(_(inputs).template get<CheckPolicy>())
-					;
-			}, 
-				[&](auto _)
-			{
-				return 
-					std::make_tuple(_(defaults).template get<CheckPolicy>())
-				;
-			});
+			return nostd::bool_constant<Map::template contains<Key>()>();
 		}
 
-		template<class CheckPolicy, class NextCheck, class... RemainingPolicies, class DefaultsMap, class InputMap>
-		auto sortAndAddDefaults_impl(const DefaultsMap defaults, const InputMap& inputs)
+		template<class CurrentKey, class MapOfDefaults, class MapOfInputs>
+		auto getValuePreferInput(const MapOfDefaults& defaults, const MapOfInputs& inputs)
 		{
-			auto currentPolicy = internal::constexpr_ternary(nostd::bool_constant<InputMap::template isInList<CheckPolicy>()>(),
+			return internal::constexpr_ternary(contains<CurrentKey>(inputs),
 				[&](auto _)
 			{
-				return 
-					_(inputs).template get<CheckPolicy>()
-				;
+				return get<CurrentKey>(_(inputs));
 			},
 				[&](auto _)
 			{
-				return 
-					_(defaults).template get<CheckPolicy>()
-				;
+				return get<CurrentKey>(_(defaults));
 			});
+		}
 
-			return std::tuple_cat(std::make_tuple(currentPolicy), sortAndAddDefaults_impl<NextCheck, RemainingPolicies...>(defaults, inputs));
+		template<class CheckPolicy, class DefaultsMap, class InputMap>
+		auto sortAndAddDefaults_impl(const DefaultsMap defaults, const InputMap& inputs)
+		{
+			return std::make_tuple(getValuePreferInput<CheckPolicy>(defaults, inputs));
+		}
+
+		template<class... OrderedKeys, class DefaultsMap, class InputMap>
+		auto sortAndAddDefaults_impl(const DefaultsMap defaults, const InputMap& inputs)
+		{
+			return std::make_tuple(getValuePreferInput<OrderedKeys>(defaults, inputs)...);
 		}
 
 		template<class... DefaultIDs, class... DefaultPolicies, class... InputIDs, class... InputPolicies >

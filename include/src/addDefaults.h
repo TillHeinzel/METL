@@ -143,7 +143,8 @@ namespace metl
 			addDefaultOperators<intType>(_(c));
 			constexpr_if(std::is_integral<intType>{}, [&c](auto _)
 			{
-				_(c).template setFunction<intType>("abs", [](const auto& a) {return std::abs(a); });
+				using intType_t = intType; // hack for visual studio 15.8
+				_(c).template setFunction<intType_t>("abs", [](const auto& a) {return std::abs(a); });
 			});
 		});
 
@@ -155,7 +156,8 @@ namespace metl
 			addTrigFunctions<realType>(c);
 			constexpr_if(std::is_floating_point<realType>{}, [&c](auto _)
 			{
-				_(c).template setFunction<realType>("abs", [](const auto& a) {return std::abs(a); });
+				using realType_t = realType; // hack for visual studio 15.8
+				_(c).template setFunction<realType_t>("abs", [](const auto& a) {return std::abs(a); });
 
 				_(c).template setOperator<realType, realType>("^", [](const auto& left, const auto& right)
 				{
