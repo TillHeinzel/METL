@@ -47,12 +47,21 @@ namespace metl
 			template<class T>
 			static constexpr bool isInList() { return internal::isInList<T, Keys...>(); }
 
+			template<class Key>
+			static constexpr bool contains() { return internal::isInList<Key, Keys...>(); }
+
 			std::tuple<ValueTypes...> values() const { return values_; }
 			constexpr static TypeList<Keys...> keys() { return TypeList<Keys...>{}; }
 
 		private:
 			std::tuple<ValueTypes...> values_;
 		};
+
+		template<class T, class... Keys, class... ValueTypes>
+		const auto& get(const TypeMap<std::tuple<Keys...>, std::tuple<ValueTypes...>>& map)
+		{
+			return map.template get<T>();
+		}
 
 		template<class... Keys, class... ValueTypes>
 		TypeMap<std::tuple<Keys...>, std::tuple<ValueTypes...>> makeTypeMap(TypeList<Keys...>, std::tuple<ValueTypes...> values)
