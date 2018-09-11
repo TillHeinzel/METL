@@ -73,11 +73,12 @@ elseif(CLANG)
 	add_definitions("-Weverything")
 endif()
 
+set(METL_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
 ###################################################
 ##################### LIBRARY #####################
 ###################################################
 
-set(METL_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(include/src) #its a header-only template library, but this generates projects for IDEs
 
 ###########################################################

@@ -7,6 +7,8 @@ list(APPEND SOURCES
 	../metl.h
 )
 
+include_directories(${METL_ROOT_DIR}/include)
+
 # target for "linking" to
 add_library(metl INTERFACE)
 target_include_directories(metl INTERFACE "${PEGTL_INCLUDE_DIR}")
