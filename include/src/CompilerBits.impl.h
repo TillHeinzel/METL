@@ -30,25 +30,9 @@ limitations under the License.
 #include "Stack.impl.h"
 
 #include "CompilerHelpers.h"
+#include "insert_or_emplace.h"
 #include <locale>
 
-namespace metl
-{
-	namespace internal
-	{
-		template<class T>
-		void insert_or_emplace(std::map<std::string, T>& map, const std::string& key, const T& val)
-		{
-			auto it = map.find(key);
-			if (it == map.end())
-			{
-				map.emplace(key, val);
-				return;
-			}
-			it->second = val;
-		}
-	}
-}
 
 namespace metl
 {
