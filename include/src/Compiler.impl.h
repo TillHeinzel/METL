@@ -31,7 +31,6 @@ limitations under the License.
 
 #include "CompilerHelpers.h"
 #include "CompilerBits.impl.h"
-#include <locale>
 
 namespace metl
 {

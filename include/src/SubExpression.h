@@ -18,15 +18,17 @@ limitations under the License.
 
 #pragma once
 
-#include "DeepCopy.h"
+#include "ThirdParty/Variant/variant.hpp"
 
-#include "TypeList.h"
+#include "src/Utility/DeepCopy.h"
+
+#include "src/Utility/TypeList.h"
+#include "src/Utility/DeepCopy.h"
+
 #include "TypeEnum.h"
-#include "DeepCopy.h"
 #include "CategoryEnum.h"
 #include "ExpressionType.h"
 
-#include "ThirdParty/Variant/variant.hpp"
 
 namespace metl
 {

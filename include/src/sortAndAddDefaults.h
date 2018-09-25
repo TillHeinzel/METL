@@ -21,11 +21,13 @@ limitations under the License.
 #pragma once
 #include <tuple>
 
-#include "TypeList.h"
-#include "TypeMap.h"
-#include "ConstexprBranching.h"
-#include "bool_constant.h"
-#include "Apply.h"
+#include "src/Utility/TypeList.h"
+#include "src/Utility/TypeMap.h"
+#include "src/Utility/ConstexprBranching.h"
+
+#include "src/std17/bool_constant.h"
+
+#include "src/std17/apply.h"
 
 namespace metl
 {

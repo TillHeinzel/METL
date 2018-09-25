@@ -21,8 +21,8 @@ defines actions to be taken when finding specific patterns in the parsed string.
 #pragma once
 #include "grammar.h"
 
-#include "bool_constant.h"
-#include "ConstexprBranching.h"
+#include "src/std17/bool_constant.h"
+#include "src/Utility/ConstexprBranching.h"
 #include "Exceptions.h"
 
 namespace metl

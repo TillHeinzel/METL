@@ -23,27 +23,12 @@ limitations under the License.
 
 #include "VarExpression.h"
 #include "Associativity.h"
+#include "EvaluateConstexpr.h"
 
 namespace metl
 {
 	namespace internal
 	{
-		template<class T>
-		struct constexprFunction
-		{
-			T v;
-
-			T operator()() const { return v; }
-		};
-
-		template<class Expression, class T>
-		Expression makeConstExpression(const T& v)
-		{
-			auto f = constexprFunction<T>{ v };
-
-			return Expression(exprType<T>(f), CATEGORY::CONSTEXPR);
-		}
-
 		template<class ExprT>
 		class FunctionImpl
 		{
@@ -51,7 +36,22 @@ namespace metl
 		public:
 			FunctionImpl(FunctionType f) :f_(f) {}
 
-			ExprT operator()(const std::vector<ExprT>& v) const;
+			ExprT operator()(const std::vector<ExprT>& v) const {
+				auto resultExpression = f_(v);
+
+				bool shouldBeConst = true;
+				for (const auto& expr : v)
+				{
+					if (expr.category() == CATEGORY::DYNEXPR)
+					{
+						shouldBeConst = false;
+						break;
+					}
+				}
+				if (shouldBeConst) return evaluateConstExpr(resultExpression);
+
+				return resultExpression;
+			}
 
 			template<class T>
 			FunctionImpl& operator=(T&& t)
@@ -64,26 +64,7 @@ namespace metl
 
 			FunctionType f_;
 		};
-
-		template <class ExprT>
-		ExprT FunctionImpl<ExprT>::operator()(const std::vector<ExprT>& v) const
-		{
-			auto resultExpression = f_(v);
-
-			bool shouldBeConst = true;
-			for (const auto& expr : v)
-			{
-				if (expr.category() == CATEGORY::DYNEXPR)
-				{
-					shouldBeConst = false;
-					break;
-				}
-			}
-			if (shouldBeConst) return evaluateConstExpr(resultExpression);
-
-			return resultExpression;
-		}
-
+		
 		template<class ExprT>
 		class CastImpl
 		{
@@ -120,6 +101,7 @@ namespace metl
 		};
 	}
 }
+
 namespace metl
 {
 	namespace internal

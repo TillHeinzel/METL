@@ -20,11 +20,10 @@ limitations under the License.
 
 #pragma once
 
-#include "DeepCopy.h"
+#include "src/Utility/DeepCopy.h"
 
-#include "TypeList.h"
+#include "src/Utility/TypeList.h"
 #include "TypeEnum.h"
-#include "DeepCopy.h"
 #include "CategoryEnum.h"
 #include "ExpressionType.h"
 

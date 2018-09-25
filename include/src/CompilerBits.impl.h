@@ -23,6 +23,8 @@ limitations under the License.
 
 #include <tao/pegtl.hpp>
 
+#include "src/Utility/insert_or_emplace.h"
+
 #include "grammar.h"
 #include "actions.h"
 
@@ -30,8 +32,6 @@ limitations under the License.
 #include "Stack.impl.h"
 
 #include "CompilerHelpers.h"
-#include "insert_or_emplace.h"
-#include <locale>
 
 
 namespace metl
