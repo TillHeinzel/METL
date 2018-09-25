@@ -21,7 +21,7 @@ limitations under the License.
 
 #include <map>
 
-#include "Compiler.h"
+#include "src/Compiler.h"
 
 namespace metl
 {

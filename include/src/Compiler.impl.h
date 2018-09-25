@@ -19,7 +19,7 @@ limitations under the License.
 */
 
 #pragma once
-#include "Compiler.h"
+#include "src/Compiler.h"
 
 #include <tao/pegtl.hpp>
 
