@@ -65,6 +65,25 @@ namespace metl
 			FunctionType f_;
 		};
 
+		template <class ExprT>
+		ExprT FunctionImpl<ExprT>::operator()(const std::vector<ExprT>& v) const
+		{
+			auto resultExpression = f_(v);
+
+			bool shouldBeConst = true;
+			for (const auto& expr : v)
+			{
+				if (expr.category() == CATEGORY::DYNEXPR)
+				{
+					shouldBeConst = false;
+					break;
+				}
+			}
+			if (shouldBeConst) return evaluateConstExpr(resultExpression);
+
+			return resultExpression;
+		}
+
 		template<class ExprT>
 		class CastImpl
 		{
