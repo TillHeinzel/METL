@@ -20,12 +20,12 @@ TEST_F(VarExpressionFixture, category)
 	ASSERT_EQ(expression.category(), metl::CATEGORY::CONSTEXPR);
 }
 
-TEST_F(VarExpressionFixture, setGetCorrect)
+TEST_F(VarExpressionFixture, getCorrect)
 {
 	ASSERT_EQ(expression.get<int>()(), 0);
 }
 
-TEST_F(VarExpressionFixture, setGetWrong)
+TEST_F(VarExpressionFixture, getWrong)
 {
 	ASSERT_ANY_THROW(expression.get<bool>());
 }
