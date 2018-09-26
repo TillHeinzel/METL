@@ -74,12 +74,6 @@ namespace metl
 			return std::make_tuple(v.at(Ind).template get<Ts>()...);
 		}
 
-		template <class F, class Tuple, std::size_t... I>
-		constexpr decltype(auto) apply(F&& f, Tuple&& t, std::index_sequence<I...>)
-		{
-			return f(std::get<I>(std::forward<Tuple>(t))...);
-		}
-
 		template<class Tuple, std::size_t... I>
 		auto evaluate(Tuple&& funcs, std::index_sequence<I...>)
 		{
@@ -99,7 +93,7 @@ namespace metl
 				return Expression(TypedExpression<retType>([f, vv]()
 				{
 					auto vals = evaluate(vv, std::make_index_sequence<sizeof...(Ts)>{});
-					return apply(f, vals, std::make_index_sequence<sizeof...(Ts)>{});
+					return std17::apply(f, vals);
 				}));
 			}
 			);

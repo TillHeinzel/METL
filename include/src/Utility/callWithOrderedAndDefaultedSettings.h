@@ -36,7 +36,7 @@ namespace metl
 		template<class Key, class Map>
 		constexpr auto contains(const Map&)
 		{
-			return nostd::bool_constant<Map::template contains<Key>()>();
+			return std17::bool_constant<Map::template contains<Key>()>();
 		}
 
 		template<class CurrentKey, class MapOfDefaults, class MapOfInputs>
@@ -112,7 +112,7 @@ namespace metl
 		auto callWithOrderedAndDefaultedSettings(F f, M orderedDefaultMap, InputMap inputMap)
 		{
 			//static_assert(internal::areInputIDsValid(internal::getKeys(internal::Type<M>()), internal::getKeys(internal::Type<InputMap>())), "One of the passed-in settings is not allowed for this function");
-			return internal::apply(f, internal::sortAndAddDefaults(orderedDefaultMap, inputMap));
+			return std17::apply(f, internal::sortAndAddDefaults(orderedDefaultMap, inputMap));
 		}
 	}
 }

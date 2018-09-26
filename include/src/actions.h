@@ -37,7 +37,7 @@ namespace metl
 		template<class TargetType, class... Ts, class Compiler, class Converter>
 		void convertLiteral(Compiler& compiler, const std::string& input, Converter& converter, TypeList<Ts...>)
 		{
-			constexpr_if_else(nostd::bool_constant<isInList<TargetType, Ts...>()>(),
+			constexpr_if_else(std17::bool_constant<isInList<TargetType, Ts...>()>(),
 				[&](auto _) ->void
 			{
 				_(compiler).stack_.push(makeConstExpression<typename Compiler::Expression>(converter.f(input)));

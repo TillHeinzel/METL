@@ -20,7 +20,7 @@ limitations under the License.
 
 #pragma once
 
-namespace nostd
+namespace std17
 {
 	template<bool B> using bool_constant = std::integral_constant<bool, B>;
 }
