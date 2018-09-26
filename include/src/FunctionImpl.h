@@ -34,14 +34,14 @@ namespace metl
 {
 	namespace internal
 	{
-		template<class ExprT>
+		template<class Expression>
 		class FunctionImpl
 		{
-			using FunctionType = std::function<ExprT(const std::vector<ExprT>&)>;
+			using FunctionType = std::function<Expression(const std::vector<Expression>&)>;
 		public:
 			FunctionImpl(FunctionType f) :f_(f) {}
 
-			ExprT operator()(const std::vector<ExprT>& v) const 
+			Expression operator()(const std::vector<Expression>& v) const 
 			{
 				auto resultExpression = f_(v);
 
@@ -72,7 +72,7 @@ namespace metl
 		};
 
 		template<class... Ts, std::size_t... Ind, class Expression>
-		auto getTypedExpr(const std::vector<Expression>& v, std::index_sequence<Ind...>)
+		auto getTypedExpressions(const std::vector<Expression>& v, std::index_sequence<Ind...>)
 		{
 			return std::make_tuple(v.at(Ind).template get<Ts>()...);
 		}
@@ -80,11 +80,9 @@ namespace metl
 		template<class Expression, class... Ts, class F>
 		FunctionImpl<Expression> makeFunction(const F& f)
 		{
-			return FunctionImpl<Expression>
-				(
-					[f](const std::vector<Expression>& v)
+			return {[f](const std::vector<Expression>& v)
 			{
-				auto vv = getTypedExpr<Ts...>(v, std::make_index_sequence<sizeof...(Ts)>{});
+				auto vv = getTypedExpressions<Ts...>(v, std::make_index_sequence<sizeof...(Ts)>{});
 
 				using retType = std::result_of_t<F(Ts...)>;
 				return Expression(TypedExpression<retType>([f, vv]()
@@ -93,7 +91,7 @@ namespace metl
 					return std17::apply(f, vals);
 				}));
 			}
-			);
+			};
 		}
 	}
 }

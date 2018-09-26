@@ -28,14 +28,14 @@ namespace metl
 {
 	namespace internal
 	{
-		template<class ExprT>
+		template<class Expression>
 		class ConversionImpl
 		{
-			using FunctionType = std::function<ExprT(ExprT)>;
+			using FunctionType = std::function<Expression(Expression)>;
 		public:
 			ConversionImpl(FunctionType f) :f_(f) {}
 
-			ExprT operator()(ExprT v) const 
+			Expression operator()(Expression v) const 
 			{
 				auto resultExpression = f_(v);
 
@@ -56,26 +56,24 @@ namespace metl
 			FunctionType f_;
 		};
 
-		template<class ExprT, class From, class F>
-		ConversionImpl<ExprT> makeCastImpl(const F& f) 
+		template<class Expression, class From, class F>
+		ConversionImpl<Expression> makeCastImpl(const F& f) 
 		{
 			using To = std::result_of_t<F(From)>;
 
-			static_assert(internal::isInList<From>(internal::getTypeList(Type<ExprT>())), "Type casted from is not one of the types of this compiler");
-			static_assert(internal::isInList<To>(internal::getTypeList(Type<ExprT>())), "Type casted to is not one of the types of this compiler");
+			static_assert(internal::isInList<From>(internal::getTypeList(Type<Expression>())), "Type casted from is not one of the types of this compiler");
+			static_assert(internal::isInList<To>(internal::getTypeList(Type<Expression>())), "Type casted to is not one of the types of this compiler");
 
-			auto impl = [f](const ExprT& from)
+			return { [f](const Expression& from)
 			{
 				auto f_from = from.template get<From>();
-				return ExprT(TypedExpression<To>{
+				return Expression(TypedExpression<To>{
 					[f, f_from]()
 					{
 						return f(f_from());
 					}
 				});
-			};
-
-			return { impl };
+			} };
 		}
 
 	}
