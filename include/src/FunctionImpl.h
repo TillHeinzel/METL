@@ -22,6 +22,9 @@ limitations under the License.
 #include <functional>
 #include <vector>
 
+#include "src/std17/apply.h"
+#include "src/Utility/evaluate_each.h"
+
 #include "Associativity.h"
 #include "EvaluateConstexpr.h"
 
@@ -74,12 +77,6 @@ namespace metl
 			return std::make_tuple(v.at(Ind).template get<Ts>()...);
 		}
 
-		template<class Tuple, std::size_t... I>
-		auto evaluate(Tuple&& funcs, std::index_sequence<I...>)
-		{
-			return std::make_tuple(std::get<I>(funcs)()...);
-		}
-
 		template<class Expression, class... Ts, class F>
 		FunctionImpl<Expression> makeFunction(const F& f)
 		{
@@ -92,7 +89,7 @@ namespace metl
 				using retType = std::result_of_t<F(Ts...)>;
 				return Expression(TypedExpression<retType>([f, vv]()
 				{
-					auto vals = evaluate(vv, std::make_index_sequence<sizeof...(Ts)>{});
+					auto vals = evaluate_each(vv);
 					return std17::apply(f, vals);
 				}));
 			}
