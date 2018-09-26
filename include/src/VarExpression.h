@@ -1,7 +1,7 @@
 /*
 @file VarExpression.h
 Defines class VarExpression, which is a variant-type to contain std::functions returning different values.
-This is used to contain the results of parsing. 
+This is used to contain the results of parsing.
 
 Copyright 2017-2018 Till Heinzel
 
@@ -35,7 +35,13 @@ namespace metl
 	class VarExpression
 	{
 	public:
-		template<class T>
+		template<class T, std::enable_if_t<!internal::isInList<T, Ts...>(), int> = 0>
+		VarExpression(const exprType<T>& t, CATEGORY category = CATEGORY::DYNEXPR)
+		{
+			static_assert(false, "cannot construction Varexpression with this type");
+		}
+
+		template<class T, std::enable_if_t<internal::isInList<T, Ts...>(), int> = 0>
 		VarExpression(const exprType<T>& t, CATEGORY category = CATEGORY::DYNEXPR) :
 			type_(classToType2<T, Ts...>()),
 			category_(category),
@@ -51,7 +57,7 @@ namespace metl
 			if (mpark::holds_alternative<exprType<T>>(vals_)) return mpark::get<exprType<T>>(vals_);
 			throw std::runtime_error("this is not the correct type");
 		}
-		
+
 		template<class T>
 		bool isType() const { return type_ == toType<T>(); }
 
