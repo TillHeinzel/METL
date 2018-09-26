@@ -20,12 +20,14 @@ limitations under the License.
 
 #pragma once
 
-#include "src/Utility/DeepCopy.h"
+#include "ThirdParty/Variant/variant.hpp"
 
 #include "src/Utility/TypeList.h"
+
 #include "src/TypeEnum.h"
-#include "CategoryEnum.h"
 #include "src/ExpressionType.h"
+
+#include "CategoryEnum.h"
 
 namespace metl
 {
@@ -36,29 +38,9 @@ namespace metl
 		template<class T>
 		VarExpression(const exprType<T>& t, CATEGORY category = CATEGORY::DYNEXPR) :
 			type_(classToType2<T, Ts...>()),
-			category_(category)
+			category_(category),
+			vals_(t)
 		{
-			constexpr auto index = internal::findFirstIndex<T>(internal::TypeList<Ts...>{});
-			std::get<index>(vals_) = std::make_unique<exprType<T>>(t);
-		}
-
-		VarExpression(const VarExpression& other) :
-			type_(other.type_),
-			category_(other.category_)
-		{
-			vals_ = metl::internal::deep_copy(other.vals_, std::make_index_sequence<sizeof...(Ts)>{});
-		}
-
-		VarExpression& operator=(const VarExpression& other)
-		{
-			if (&other != this)
-			{
-				type_ = other.type_;
-				category_ = other.category_;
-				vals_ = internal::deep_copy(other.vals_, std::make_index_sequence<sizeof...(Ts)>{});
-			}
-
-			return *this;
 		}
 
 		template<class T> exprType<T> get() const
@@ -66,18 +48,10 @@ namespace metl
 			constexpr auto index = internal::findFirstIndex<T>(internal::TypeList<Ts...>{});
 			static_assert(index < sizeof...(Ts), "Error: Requested Type is not a valid type!");
 
-			if (std::get<index>(vals_)) return *std::get<index>(vals_);
+			if (mpark::holds_alternative<exprType<T>>(vals_)) return mpark::get<exprType<T>>(vals_);
 			throw std::runtime_error("this is not the correct type");
 		}
-
-		template<class T> void set(exprType<T> expr)
-		{
-			constexpr auto index = internal::findFirstIndex<T>(internal::TypeList<Ts...>{});
-			static_assert(index < sizeof...(Ts), "Error: Requested Type is not a valid type!");
-
-			std::get<index>(vals_) = std::make_unique<exprType<T>>(expr);
-		}
-
+		
 		TYPE type() const { return type_; }
 		CATEGORY category() const { return category_; }
 
@@ -87,7 +61,7 @@ namespace metl
 		TYPE type_;
 		CATEGORY category_;
 
-		std::tuple<std::unique_ptr<exprType<Ts>>...> vals_;
+		mpark::variant<exprType<Ts>...> vals_;
 	};
 
 	namespace internal

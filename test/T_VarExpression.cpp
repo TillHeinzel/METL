@@ -29,3 +29,18 @@ TEST_F(VarExpressionFixture, getWrong)
 {
 	ASSERT_ANY_THROW(expression.get<bool>());
 }
+
+TEST_F(VarExpressionFixture, copyConstruct)
+{
+	auto expression2 = expression;
+
+	ASSERT_EQ(expression2.get<int>()(), 0);
+}
+
+TEST_F(VarExpressionFixture, moveConstruct)
+{
+	auto expression2 = expression;
+	auto expression3 = std::move(expression2);
+
+	ASSERT_EQ(expression3.get<int>()(), 0);
+}
