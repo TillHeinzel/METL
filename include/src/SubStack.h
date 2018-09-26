@@ -51,14 +51,14 @@ namespace metl
 
 			Expression finish();
 
+			bool empty() const { return expressions_.empty(); }
+		private:
 			void evaluateFunction(const std::string& functionName);
 
 			void reduce();
 			void reduceBinary();
 			void reduceUnary();
 
-			bool empty() const { return expressions_.empty(); }
-		private:
 			bool plannedSignSwitch = false;
 
 			std::vector< Expression > expressions_;
