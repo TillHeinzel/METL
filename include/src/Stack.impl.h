@@ -22,7 +22,7 @@ limitations under the License.
 #pragma once
 #include "Stack.h"
 
-#include "StackHelpers.h"
+#include <cassert>
 
 namespace metl
 {

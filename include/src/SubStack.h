@@ -19,14 +19,14 @@ limitations under the License.
 */
 
 #pragma once
+
 #include <vector>
-#include <functional>
 #include <string>
 
+#include "opCarrier.h"
+#include "suffixCarrier.h"
 #include "src/VarExpression.h"
 #include "CompilerBits.h"
-#include "Associativity.h"
-
 
 namespace metl
 {
