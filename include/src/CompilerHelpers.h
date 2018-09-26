@@ -20,7 +20,7 @@ limitations under the License.
 #pragma once
 
 #include "nameMangling.h"
-#include "VarExpression.h"
+#include "src/VarExpression.h"
 
 namespace metl
 {

@@ -21,12 +21,13 @@ limitations under the License.
 #pragma once
 
 #include <map>
+#include <string>
 
-#include "VarExpression.h"
-#include "ExpressionType.h"
-#include "TypeEnum.h"
+#include "src/VarExpression.h"
+#include "src/ExpressionType.h"
+#include "src/TypeEnum.h"
 
-#include "src/API/CompilerAPI.impl.h"
+#include "src/CompilerBits.h"
 
 namespace metl
 {

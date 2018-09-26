@@ -2,7 +2,8 @@
 #include <gtest/gtest.h>
 #include <complex>
 
-#include "src/OutputExpression.h"
+#include "metl.h"
+#include "src/API/OutputExpression.h"
 
 using namespace metl;
 

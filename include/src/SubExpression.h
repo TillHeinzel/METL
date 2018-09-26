@@ -25,9 +25,9 @@ limitations under the License.
 #include "src/Utility/TypeList.h"
 #include "src/Utility/DeepCopy.h"
 
-#include "TypeEnum.h"
+#include "src/TypeEnum.h"
 #include "CategoryEnum.h"
-#include "ExpressionType.h"
+#include "src/ExpressionType.h"
 
 
 namespace metl
