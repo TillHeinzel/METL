@@ -62,9 +62,15 @@ namespace metl
 		const std::map<TYPE, Expression> expressions_; 
 		TYPE type_;
 
-		std::map<TYPE, Expression> castToAll(const Expression& expr, const std::map<std::string, internal::CastImpl<Expression>>&) 
+		std::map<TYPE, Expression> castToAll(const Expression& expr, const std::map<std::string, internal::CastImpl<Expression>>& casts) 
 		{
-			return { {expr.type(), expr}};
+			std::map<TYPE, Expression> castedExpressions { {expr.type(), expr}};
+			for (const auto& cast : casts) 
+			{
+				auto castedExpression = cast.second(expr);
+				castedExpressions.emplace(castedExpression.type(), std::move(castedExpression));
+			}
+			return castedExpressions;
 		}
 	};
 }

@@ -4,16 +4,24 @@
 
 #include "src/OutputExpression.h"
 
+using namespace metl;
+
 class OutExpressionFixture : public ::testing::Test
 {
 public:
-	using Expr = metl::VarExpression<bool, int, double>;
+	using Expr = VarExpression<bool, int, double>;
 
-	Expr varExpression{ metl::exprType<int>([]()->int {return 0; }), metl::CATEGORY::CONSTEXPR };
+	Expr varExpression{ exprType<int>([]()->int {return 0; }), CATEGORY::CONSTEXPR };
 
-	std::map<std::string, metl::internal::CastImpl<Expr>> casts{};
+	std::map<std::string, internal::CastImpl<Expr>> casts
+	{
+		{
+			internal::mangleCast(classToType2<int, bool, int, double>(), classToType2<double, bool, int, double>()),
+			internal::makeCastImpl<Expr, int>([](int i) {return static_cast<double>(i); })
+		}
+	};
 
-	metl::OutputExpression<bool, int, double> expr{ varExpression , casts};
+	OutputExpression<bool, int, double> expr{ varExpression , casts};
 };
 
 TEST_F(OutExpressionFixture, isType)
@@ -30,7 +38,7 @@ TEST_F(OutExpressionFixture, isType)
 TEST_F(OutExpressionFixture, get)
 {
 	ASSERT_EQ(0, expr.get<int>()());
+	ASSERT_EQ(0.0, expr.get<double>()());
 
-	ASSERT_ANY_THROW(expr.get<double>()());
 	ASSERT_ANY_THROW(expr.get<bool>()());
 }
