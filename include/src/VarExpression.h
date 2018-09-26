@@ -52,6 +52,9 @@ namespace metl
 			throw std::runtime_error("this is not the correct type");
 		}
 		
+		template<class T>
+		bool isType() const { return type_ == toType<T>(); }
+
 		TYPE type() const { return type_; }
 		CATEGORY category() const { return category_; }
 

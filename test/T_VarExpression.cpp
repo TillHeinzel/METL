@@ -15,6 +15,14 @@ TEST_F(VarExpressionFixture, type)
 	ASSERT_EQ(expression.type(), expression.toType<int>());
 }
 
+TEST_F(VarExpressionFixture, isType)
+{
+	ASSERT_TRUE(expression.isType<int>());
+
+	ASSERT_FALSE(expression.isType<double>());
+	ASSERT_FALSE(expression.isType<bool>());
+}
+
 TEST_F(VarExpressionFixture, category)
 {
 	ASSERT_EQ(expression.category(), metl::CATEGORY::CONSTEXPR);
