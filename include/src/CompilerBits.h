@@ -86,6 +86,27 @@ namespace metl
 			FunctionType f_;
 		};
 
+		template<class ExprT, class From, class F>
+		CastImpl<ExprT> makeCastImpl(const F& f) 
+		{
+			using To = std::result_of_t<F(From)>;
+
+			static_assert(internal::isInList<From>(internal::getTypeList(Type<ExprT>())), "Type casted from is not one of the types of this compiler");
+			static_assert(internal::isInList<To>(internal::getTypeList(Type<ExprT>())), "Type casted to is not one of the types of this compiler");
+
+			auto impl = [f](const ExprT& from)
+			{
+				auto f_from = from.template get<From>();
+				return ExprT(exprType<To>{
+					[f, f_from]()
+					{
+						return f(f_from());
+					}
+				});
+			};
+
+			return { impl };
+		}
 
 		struct opCarrier
 		{

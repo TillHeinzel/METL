@@ -93,6 +93,6 @@ namespace metl
 	namespace internal
 	{
 		template<class... Ts>
-		constexpr TypeList<Ts...> getTypeList(VarExpression<Ts...>) { return TypeList<Ts...>{}; }
+		constexpr TypeList<Ts...> getTypeList(Type<VarExpression<Ts...>>) { return TypeList<Ts...>{}; }
 	}
 }

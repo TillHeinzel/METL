@@ -63,7 +63,7 @@ namespace metl
 		}
 
 		template<class ToFind, class... Ts>
-		constexpr bool isInList(TypeList<Ts...> l)
+		constexpr bool isInList(TypeList<Ts...>)
 		{
 			return findFirstIndex<ToFind>(TypeList<Ts...>{}) < sizeof...(Ts);
 		}
