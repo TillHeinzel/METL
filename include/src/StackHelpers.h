@@ -21,6 +21,10 @@ limitations under the License.
 
 #pragma once
 
+#include <vector>
+
+#include "TypeEnum.h"
+
 namespace metl
 {
 	namespace internal
@@ -63,29 +67,26 @@ namespace metl
 
 namespace metl
 {
-	namespace internal 
+	namespace internal
 	{
-		namespace
+		template<class Expression>
+		Expression changeSign_impl(TypeList<>, const Expression&)
 		{
-			template<class Expression>
-			Expression changeSign_impl(TypeList<>, const Expression&)
-			{
-				throw std::runtime_error("can't change sign, because type is not in typelist. However that happened...");
-			}
+			throw std::runtime_error("can't change sign, because type is not in typelist. However that happened...");
+		}
 
-			template<class T, class... Ts, class Expression>
-			Expression changeSign_impl(TypeList<T, Ts...>, const Expression& expression)
-			{
-				return expression.type() == Expression::template toType<T>() ?
-					Expression(exprType<T>([f{ expression.template get<T>() }](){return -f(); })) :
-					changeSign_impl(TypeList<Ts...>{}, expression);
-			}
+		template<class T, class... Ts, class Expression>
+		Expression changeSign_impl(TypeList<T, Ts...>, const Expression& expression)
+		{
+			return expression.type() == Expression::template toType<T>() ?
+				Expression(exprType<T>([f{ expression.template get<T>() }](){return -f(); })) :
+				changeSign_impl(TypeList<Ts...>{}, expression);
+		}
 
-			template<class... Ts>
-			VarExpression<Ts...> changeSign(const VarExpression<Ts...>& expression)
-			{
-				return changeSign_impl(TypeList<Ts...>{}, expression);
-			}
+		template<class... Ts>
+		VarExpression<Ts...> changeSign(const VarExpression<Ts...>& expression)
+		{
+			return changeSign_impl(TypeList<Ts...>{}, expression);
 		}
 	}
 }

@@ -23,6 +23,8 @@ limitations under the License.
 #include <vector>
 #include <string>
 
+#include "ThirdParty/Optional/optional.hpp"
+
 #include "opCarrier.h"
 #include "suffixCarrier.h"
 #include "src/VarExpression.h"
@@ -49,7 +51,7 @@ namespace metl
 
 			Expression finish();
 
-			void evaluateFunction();
+			void evaluateFunction(const std::string& functionName);
 
 			void reduce();
 			void reduceBinary();
@@ -62,7 +64,7 @@ namespace metl
 			std::vector< Expression > expressions_;
 			std::vector< opCarrier > operators_;
 
-			std::unique_ptr<std::string> function_;
+			tl::optional<std::string> function_;
 
 			const CompilerBits<Ts...>& bits_;
 

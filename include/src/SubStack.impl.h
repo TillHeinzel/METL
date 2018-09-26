@@ -56,7 +56,7 @@ namespace metl
 		template <class ... Ts>
 		void SubStack<Ts...>::pushFunction(std::string FunctionName)
 		{
-			function_ = std::make_unique<std::string>(FunctionName);
+			function_ = FunctionName;
 		}
 
 		template <class ... Ts>
@@ -117,7 +117,7 @@ namespace metl
 		{
 			if (function_)
 			{
-				evaluateFunction();
+				evaluateFunction(*function_);
 			}
 			else
 			{
@@ -134,13 +134,13 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void SubStack<Ts...>::evaluateFunction()
+		void SubStack<Ts...>::evaluateFunction(const std::string& functionName)
 		{
 			assert(operators_.empty());
 
 			auto inTypes = getTypes(expressions_);
 
-			auto it = bits_.functions_.find(mangleName(*function_, inTypes));
+			auto it = bits_.functions_.find(mangleName(functionName, inTypes));
 			if (it == bits_.functions_.end())
 			{
 				std::vector<std::vector<TYPE>> castCombis{ {} };
@@ -153,7 +153,7 @@ namespace metl
 				std::vector<std::string> possibleFunctions;
 				for (auto c : castCombis)
 				{
-					auto it2 = bits_.functions_.find(mangleName(*function_, c));
+					auto it2 = bits_.functions_.find(mangleName(functionName, c));
 					if (it2 != bits_.functions_.end())
 					{
 						possibleFunctions.push_back(it2->first);
@@ -163,19 +163,19 @@ namespace metl
 				// if we found multiple possible overloads that we can get through casts, this is an error
 				if (possibleFunctions.size() > 1)
 				{
-					throw std::runtime_error("To many possible overloads for function " + *function_);
+					throw std::runtime_error("To many possible overloads for function " + functionName);
 				}
 
 				// if we found a single possible overload that can be achieved through casting, use it!
 				if (possibleFunctions.size() == 1)
 				{
 					castTo(validCasts.back());
-					evaluateFunction(); // call recursively
+					evaluateFunction(functionName); // call recursively
 					return;
 				}
 				else
 				{
-					throw std::runtime_error("could not find a matching function for " + *function_);
+					throw std::runtime_error("could not find a matching function for " + functionName);
 				}
 			}
 
