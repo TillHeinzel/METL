@@ -29,7 +29,6 @@ limitations under the License.
 #include "nameMangling.h"
 #include "Stack.impl.h"
 
-#include "CompilerHelpers.h"
 #include "CompilerBits.impl.h"
 
 namespace metl

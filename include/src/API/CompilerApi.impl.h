@@ -23,6 +23,7 @@ limitations under the License.
 
 #include "src/Compiler.impl.h"
 
+#include "src/VariableExpression.h"
 
 namespace metl
 {
