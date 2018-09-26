@@ -23,19 +23,6 @@ TEST_F(MetlFixture, SetReadConstants)
 
 }
 
-TEST_F(MetlFixture, VarExpressionSet)
-{
-	auto c = metl::makeCompiler<int, double>();
-
-	auto expr = c.build("1");
-
-	ASSERT_ANY_THROW(expr.get<double>());
-
-	expr.set<double>([]() {return 1.0; });
-
-	ASSERT_EQ(1.0, expr.get<double>()());
-}
-
 TEST_F(MetlFixture, buildCast)
 {
 	auto c = metl::makeCompiler<int, double>();
@@ -77,7 +64,7 @@ TEST_F(MetlFixture, suffix)
 	);
 
 	auto expr = c.build("2d");
-	EXPECT_EQ(expr.toType<double>(), expr.type());
+	EXPECT_TRUE(expr.isType<double>());
 	EXPECT_EQ(2.0, expr.get<double>()());
 }
 

@@ -1,7 +1,7 @@
 /*
 @file VarExpression.h
 Defines class VarExpression, which is a variant-type to contain std::functions returning different values.
-This is used to contain the results of parsing. 
+This is used to contain the results of parsing.
 
 Copyright 2017-2018 Till Heinzel
 
@@ -43,10 +43,10 @@ namespace metl
 		{}
 
 		template<class T>
-		exprType<T> get() const 
+		exprType<T> get() const
 		{
 			auto it = expressions_.find(classToType2<T, Ts...>());
-			if (it != expressions_.end()) 
+			if (it != expressions_.end())
 			{
 				return it->second.get<T>();
 			}
@@ -60,16 +60,23 @@ namespace metl
 		}
 
 	private:
-		const std::map<TYPE, Expression> expressions_; 
+		const std::map<TYPE, Expression> expressions_;
 		TYPE type_;
 
-		std::map<TYPE, Expression> castToAll(const Expression& expr, const std::map<std::string, internal::CastImpl<Expression>>& casts) 
+		std::map<TYPE, Expression> castToAll(const Expression& expr, const std::map<std::string, internal::CastImpl<Expression>>& casts)
 		{
-			std::map<TYPE, Expression> castedExpressions { {expr.type(), expr}};
-			for (const auto& cast : casts) 
+			std::map<TYPE, Expression> castedExpressions{ {expr.type(), expr} };
+			for (const auto& cast : casts)
 			{
-				auto castedExpression = cast.second(expr);
-				castedExpressions.emplace(castedExpression.type(), std::move(castedExpression));
+				try
+				{
+					auto castedExpression = cast.second(expr);
+					castedExpressions.emplace(castedExpression.type(), std::move(castedExpression));
+				}
+				catch (const std::runtime_error&)
+				{
+
+				}
 			}
 			return castedExpressions;
 		}

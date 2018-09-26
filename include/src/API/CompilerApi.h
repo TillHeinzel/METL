@@ -23,6 +23,8 @@ limitations under the License.
 
 #include "src/Compiler.h"
 
+#include "src/API/OutputExpression.h"
+
 namespace metl
 {
 	template<class Grammar, class LiteralsConverters_, class... Ts>
@@ -30,13 +32,14 @@ namespace metl
 	{
 	public:
 		using Expression = VarExpression<Ts...>;
+		using OutExpression = OutputExpression<Ts...>;
 		using LiteralsConverters = LiteralsConverters_;
 
 	public:
 
 		CompilerApi(const LiteralsConverters& literalConverters);
 
-		Expression build(const std::string& expression);
+		OutExpression build(const std::string& expression);
 
 		template<class T>
 		exprType<T> build(const std::string& expression);

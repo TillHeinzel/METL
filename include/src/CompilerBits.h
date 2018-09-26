@@ -72,7 +72,14 @@ namespace metl
 		public:
 			CastImpl(FunctionType f) :f_(f) {}
 
-			ExprT operator()(ExprT v) const;
+			ExprT operator()(ExprT v) const 
+			{
+				auto resultExpression = f_(v);
+
+				if (v.category() == CATEGORY::CONSTEXPR) return evaluateConstExpr(resultExpression);
+
+				return resultExpression;
+			}
 
 			template<class T>
 			CastImpl& operator=(T&& t)

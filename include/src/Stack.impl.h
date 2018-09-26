@@ -29,18 +29,6 @@ namespace metl
 {
 	namespace internal
 	{
-		
-
-		template <class ExprT>
-		ExprT CastImpl<ExprT>::operator()(ExprT v) const
-		{
-			auto resultExpression = f_(v);
-
-			if (v.category() == CATEGORY::CONSTEXPR) return evaluateConstExpr(resultExpression);
-
-			return resultExpression;
-		}
-
 		namespace
 		{
 			template<class Expression>

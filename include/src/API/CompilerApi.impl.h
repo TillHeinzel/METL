@@ -53,7 +53,7 @@ namespace metl
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
-	typename CompilerApi<Grammar, LiteralConverters, Ts...>::Expression CompilerApi<Grammar, LiteralConverters, Ts...>::build(const std::string& expression)
+	typename CompilerApi<Grammar, LiteralConverters, Ts...>::OutExpression CompilerApi<Grammar, LiteralConverters, Ts...>::build(const std::string& expression)
 	{
 		impl_.stack_.clear();
 		tao::pegtl::memory_input<> input(expression, std::string{});
@@ -61,9 +61,7 @@ namespace metl
 
 		auto expr =  impl_.finish();
 
-		detail::castToAll<Ts...>(expr, impl_.bits_.getcastImplementations());
-
-		return expr;
+		return {expr, impl_.bits_.castImplementations_};
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
