@@ -7,7 +7,7 @@
 class VarExpressionFixture : public ::testing::Test
 {
 public:
-	metl::exprType<int> function{ []()->int {return 0; } };
+	metl::TypedExpression<int> function{ []()->int {return 0; } };
 	metl::VarExpression<bool, int, double> expression{ function, metl::CATEGORY::CONSTEXPR };
 };
 
@@ -58,7 +58,7 @@ TEST_F(VarExpressionFixture, evaluatedExpression)
 {
 	int evaluationCount = 0;
 
-	metl::exprType<int> function2{ [&evaluationCount]()->int
+	metl::TypedExpression<int> function2{ [&evaluationCount]()->int
 	{
 		++evaluationCount;
 		return 0;

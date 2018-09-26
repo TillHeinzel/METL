@@ -42,7 +42,7 @@ namespace metl
 		OutExpression build(const std::string& expression);
 
 		template<class T>
-		exprType<T> build(const std::string& expression);
+		TypedExpression<T> build(const std::string& expression);
 
 	public:
 		void setOperatorPrecedence(std::string op, unsigned int precedence, ASSOCIATIVITY associativity = ASSOCIATIVITY::LEFT);

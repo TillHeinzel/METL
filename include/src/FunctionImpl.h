@@ -96,7 +96,7 @@ namespace metl
 				auto vv = getTypedExpr<Ts...>(v, std::make_index_sequence<sizeof...(Ts)>{});
 
 				using retType = std::result_of_t<F(Ts...)>;
-				return Expression(exprType<retType>([f, vv]()
+				return Expression(TypedExpression<retType>([f, vv]()
 				{
 					auto vals = evaluate(vv, std::make_index_sequence<sizeof...(Ts)>{});
 					return apply(f, vals, std::make_index_sequence<sizeof...(Ts)>{});

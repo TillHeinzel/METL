@@ -79,7 +79,7 @@ namespace metl
 		Expression changeSign_impl(TypeList<T, Ts...>, const Expression& expression)
 		{
 			return expression.type() == Expression::template toType<T>() ?
-				Expression(exprType<T>([f{ expression.template get<T>() }](){return -f(); })) :
+				Expression(TypedExpression<T>([f{ expression.template get<T>() }](){return -f(); })) :
 				changeSign_impl(TypeList<Ts...>{}, expression);
 		}
 

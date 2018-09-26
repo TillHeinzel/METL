@@ -26,7 +26,7 @@ limitations under the License.
 #include "src/std17/remove_cvref.h"
 
 #include "src/TypeEnum.h"
-#include "src/ExpressionType.h"
+#include "src/TypedExpression.h"
 
 #include "CategoryEnum.h"
 
@@ -37,25 +37,25 @@ namespace metl
 	{
 	public:
 		template<class T, std::enable_if_t<!internal::isInList<T, Ts...>(), int> = 0>
-		VarExpression(const exprType<T>& t, CATEGORY category = CATEGORY::DYNEXPR)
+		VarExpression(const TypedExpression<T>& t, CATEGORY category = CATEGORY::DYNEXPR)
 		{
 			static_assert(false, "cannot construction Varexpression with this type");
 		}
 
 		template<class T, std::enable_if_t<internal::isInList<T, Ts...>(), int> = 0>
-		VarExpression(const exprType<T>& t, CATEGORY category = CATEGORY::DYNEXPR) :
+		VarExpression(const TypedExpression<T>& t, CATEGORY category = CATEGORY::DYNEXPR) :
 			type_(classToType2<T, Ts...>()),
 			category_(category),
 			vals_(t)
 		{
 		}
 
-		template<class T> exprType<T> get() const
+		template<class T> TypedExpression<T> get() const
 		{
 			constexpr auto index = internal::findFirstIndex<T>(internal::TypeList<Ts...>{});
 			static_assert(index < sizeof...(Ts), "Error: Requested Type is not a valid type!");
 
-			if (mpark::holds_alternative<exprType<T>>(vals_)) return mpark::get<exprType<T>>(vals_);
+			if (mpark::holds_alternative<TypedExpression<T>>(vals_)) return mpark::get<TypedExpression<T>>(vals_);
 			throw std::runtime_error("this is not the correct type");
 		}
 
@@ -84,7 +84,7 @@ namespace metl
 		TYPE type_;
 		CATEGORY category_;
 
-		mpark::variant<exprType<Ts>...> vals_;
+		mpark::variant<TypedExpression<Ts>...> vals_;
 	};
 
 	namespace internal

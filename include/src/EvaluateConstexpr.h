@@ -40,7 +40,7 @@ namespace metl
 		{
 			auto f = constexprFunction<T>{ v };
 
-			return Expression(exprType<T>(f), CATEGORY::CONSTEXPR);
+			return Expression(TypedExpression<T>(f), CATEGORY::CONSTEXPR);
 		}
 	}
 }

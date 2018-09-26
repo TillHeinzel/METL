@@ -67,7 +67,7 @@ namespace metl
 			auto impl = [f](const ExprT& from)
 			{
 				auto f_from = from.template get<From>();
-				return ExprT(exprType<To>{
+				return ExprT(TypedExpression<To>{
 					[f, f_from]()
 					{
 						return f(f_from());

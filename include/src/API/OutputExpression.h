@@ -24,7 +24,7 @@ limitations under the License.
 #include <string>
 
 #include "src/VarExpression.h"
-#include "src/ExpressionType.h"
+#include "src/TypedExpression.h"
 #include "src/TypeEnum.h"
 
 #include "src/CompilerBits.h"
@@ -43,7 +43,7 @@ namespace metl
 		{}
 
 		template<class T>
-		exprType<T> get() const
+		TypedExpression<T> get() const
 		{
 			auto it = expressions_.find(classToType2<T, Ts...>());
 			if (it != expressions_.end())

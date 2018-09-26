@@ -22,5 +22,5 @@ limitations under the License.
 
 namespace metl
 {
-	template<class T> using exprType = std::function<T()>;
+	template<class T> using TypedExpression = std::function<T()>;
 }
