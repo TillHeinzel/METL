@@ -132,8 +132,6 @@ namespace metl
 	template <class T>
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setConstant(const std::string& token, T&& val)
 	{
-		/*
-					static_assert(isInList<T, Ts...>(), "T must be one of the types the compiler works with.");*/
 		impl_.bits_.addConstantOrVariable(token, internal::makeConstExpression<Expression>(std::forward<T>(val)));
 	}
 

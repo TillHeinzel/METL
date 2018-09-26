@@ -84,12 +84,6 @@ namespace metl
 						validCasts.push_back(c);
 					}
 				}
-				// if we found multiple possible overloads that we can get through casts, this is an error
-				if (possibleFunctions.size() > 1)
-				{
-					throw std::runtime_error("To many possible overloads for unary operator " + suffix.name);
-				}
-
 				// if we found a single possible overload that can be achieved through casting, use it!
 				if (possibleFunctions.size() == 1)
 				{
@@ -97,13 +91,18 @@ namespace metl
 					push(suffix); // call recursively
 					return;
 				}
+				// if we found multiple possible overloads that we can get through casts, this is an error
+				if (possibleFunctions.size() > 1)
+				{
+					throw std::runtime_error("To many possible overloads for unary operator " + suffix.name);
+				}
+
 				else
 				{
 					throw std::runtime_error("could not find a matching unary operator for " + suffix.name);
 				}
 			}
 
-			// get left and right expressions
 			const auto t = expressions_.back();
 			expressions_.pop_back();
 
@@ -222,12 +221,6 @@ namespace metl
 						validCasts.push_back(c);
 					}
 				}
-				// if we found multiple possible overloads that we can get through casts, this is an error
-				if (possibleFunctions.size() > 1)
-				{
-					throw std::runtime_error("To many possible overloads for operator " + opName);
-				}
-
 				// if we found a single possible overload that can be achieved through casting, use it!
 				if (possibleFunctions.size() == 1)
 				{
@@ -235,6 +228,12 @@ namespace metl
 					reduce(); // call recursively
 					return;
 				}
+				// if we found multiple possible overloads that we can get through casts, this is an error
+				if (possibleFunctions.size() > 1)
+				{
+					throw std::runtime_error("To many possible overloads for operator " + opName);
+				}
+
 				else
 				{
 					throw std::runtime_error("could not find a matching operator for " + opName);

@@ -32,7 +32,7 @@ limitations under the License.
 
 namespace metl
 {
-	namespace internal 
+	namespace internal
 	{
 		template<class... Ts>
 		class SubStack
@@ -61,8 +61,8 @@ namespace metl
 
 			bool plannedSignSwitch = false;
 
-			std::vector< Expression > expressions_;
-			std::vector< opCarrier > operators_;
+			std::vector<Expression> expressions_;
+			std::vector<opCarrier> operators_;
 
 			tl::optional<std::string> function_;
 
