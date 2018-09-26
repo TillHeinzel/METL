@@ -26,39 +26,51 @@ limitations under the License.
 #include "src/VarExpression.h"
 #include "CompilerBits.h"
 #include "Associativity.h"
-#include "SubStack.h"
+
 
 namespace metl
 {
-
-	namespace internal {
+	namespace internal 
+	{
 		template<class... Ts>
-		class Stack
+		class SubStack
 		{
 			using Expression = VarExpression<Ts...>;
 
 		public:
-			Stack(const CompilerBits<Ts...>& bits);
 
-			void push(const Expression& t);
+			explicit SubStack(const CompilerBits<Ts...>& bits);
 
-			void pushFunction(std::string functionName);
 
-			void push(const opCarrier& op);
-
+			void push(const Expression l);
+			void push(const opCarrier& b);
+			void pushFunction(std::string FunctionName);
 			void push(const suffixCarrier& suffix);
 
-			void open();
-
-			void close();
-
 			Expression finish();
-			void clear();
 
+			void evaluateFunction();
+
+			void reduce();
+			void reduceBinary();
+			void reduceUnary();
+
+			bool empty() const { return expressions_.empty(); }
 		private:
-			std::vector<SubStack<Ts...>> subStacks_;
+			bool plannedSignSwitch = false;
+
+			std::vector< Expression > expressions_;
+			std::vector< opCarrier > operators_;
+
+			std::unique_ptr<std::string> function_;
 
 			const CompilerBits<Ts...>& bits_;
+
+
+		private:
+			//void tryCast()
+			bool are_all_const(const std::vector<Expression>& expressions);
+			void castTo(const std::vector<TYPE>& targetTypes);
 		};
 	}
 }

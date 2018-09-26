@@ -22,3 +22,6 @@ limitations under the License.
 
 #include "src/API/MakeCompiler.h"
 #include "src/API/addDefaults.h"
+
+#include "src/Stack.impl.h"
+#include "src/SubStack.impl.h"
