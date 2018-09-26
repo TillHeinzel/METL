@@ -23,6 +23,7 @@ limitations under the License.
 #include "ThirdParty/Variant/variant.hpp"
 
 #include "src/Utility/TypeList.h"
+#include "src/std17/remove_cvref.h"
 
 #include "src/TypeEnum.h"
 #include "src/ExpressionType.h"
@@ -56,6 +57,19 @@ namespace metl
 
 			if (mpark::holds_alternative<exprType<T>>(vals_)) return mpark::get<exprType<T>>(vals_);
 			throw std::runtime_error("this is not the correct type");
+		}
+
+		VarExpression evaluatedExpression() const 
+		{
+			auto visitor = [](const auto& expr)
+			{
+				using exprType_T = std17::remove_cvref_t<decltype(expr)>;
+				auto value = expr();
+				auto constExpr = exprType_T([value]() {return value; });
+				return VarExpression<Ts...>(constExpr, CATEGORY::CONSTEXPR);
+			};
+
+			return mpark::visit(visitor, vals_);
 		}
 
 		template<class T>

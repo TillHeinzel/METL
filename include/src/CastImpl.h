@@ -39,7 +39,7 @@ namespace metl
 			{
 				auto resultExpression = f_(v);
 
-				if (v.category() == CATEGORY::CONSTEXPR) return evaluateConstExpr(resultExpression);
+				if (v.category() == CATEGORY::CONSTEXPR) return resultExpression.evaluatedExpression();
 
 				return resultExpression;
 			}

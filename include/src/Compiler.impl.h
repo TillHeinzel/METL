@@ -86,7 +86,7 @@ namespace metl
 
 			if(assignToThis_ != "")
 			{
-				auto evaluatedExpr = evaluateConstExpr(expr);
+				auto evaluatedExpr = expr.evaluatedExpression();
 
 				auto it = bits_.constantsAndVariables_.find(assignToThis_);
 				if(it == bits_.constantsAndVariables_.end())

@@ -50,7 +50,7 @@ namespace metl
 						break;
 					}
 				}
-				if (shouldBeConst) return evaluateConstExpr(resultExpression);
+				if (shouldBeConst) return resultExpression.evaluatedExpression();
 
 				return resultExpression;
 			}
