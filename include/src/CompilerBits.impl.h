@@ -92,7 +92,7 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void CompilerBits<Ts...>::setCast(const TYPE from, const TYPE to, const CastImpl<Expression>& fs)
+		void CompilerBits<Ts...>::setCast(const TYPE from, const TYPE to, const ConversionImpl<Expression>& fs)
 		{
 			auto it = castDeclarations_.find(from);
 			if (it == castDeclarations_.end())
@@ -108,7 +108,7 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void CompilerBits<Ts...>::setSuffix(const std::string& token, const TYPE from, const CastImpl<Expression>& conversion)
+		void CompilerBits<Ts...>::setSuffix(const std::string& token, const TYPE from, const ConversionImpl<Expression>& conversion)
 		{
 			insert_or_emplace(suffixes_, token, suffixCarrier{ token });
 			insert_or_emplace(suffixImplementations_, mangleSuffix(token, from), conversion);

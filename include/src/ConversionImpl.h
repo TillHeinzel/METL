@@ -29,11 +29,11 @@ namespace metl
 	namespace internal
 	{
 		template<class ExprT>
-		class CastImpl
+		class ConversionImpl
 		{
 			using FunctionType = std::function<ExprT(ExprT)>;
 		public:
-			CastImpl(FunctionType f) :f_(f) {}
+			ConversionImpl(FunctionType f) :f_(f) {}
 
 			ExprT operator()(ExprT v) const 
 			{
@@ -45,7 +45,7 @@ namespace metl
 			}
 
 			template<class T>
-			CastImpl& operator=(T&& t)
+			ConversionImpl& operator=(T&& t)
 			{
 				f_ = t;
 				return *this;
@@ -57,7 +57,7 @@ namespace metl
 		};
 
 		template<class ExprT, class From, class F>
-		CastImpl<ExprT> makeCastImpl(const F& f) 
+		ConversionImpl<ExprT> makeCastImpl(const F& f) 
 		{
 			using To = std::result_of_t<F(From)>;
 

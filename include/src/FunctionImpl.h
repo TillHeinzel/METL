@@ -38,7 +38,8 @@ namespace metl
 		public:
 			FunctionImpl(FunctionType f) :f_(f) {}
 
-			ExprT operator()(const std::vector<ExprT>& v) const {
+			ExprT operator()(const std::vector<ExprT>& v) const 
+			{
 				auto resultExpression = f_(v);
 
 				bool shouldBeConst = true;

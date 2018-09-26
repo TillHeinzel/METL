@@ -36,12 +36,12 @@ namespace metl
 	namespace detail 
 	{
 		template<class Expr>
-		void castToAll(Expr&, const std::map<std::string, internal::CastImpl<Expr>>&)
+		void castToAll(Expr&, const std::map<std::string, internal::ConversionImpl<Expr>>&)
 		{
 		}
 
 		template<class T, class... Ts, class Expr>
-		void castToAll(Expr& expr, const std::map<std::string, internal::CastImpl<Expr>>& castImpls)
+		void castToAll(Expr& expr, const std::map<std::string, internal::ConversionImpl<Expr>>& castImpls)
 		{
 			auto it = castImpls.find(internal::mangleCast(expr.type(), expr.template toType<T>()));
 			if(it != castImpls.end())

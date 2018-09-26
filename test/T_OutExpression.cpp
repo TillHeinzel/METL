@@ -14,7 +14,7 @@ public:
 
 	Expr varExpression{ exprType<int>([]()->int {return 0; }), CATEGORY::CONSTEXPR };
 
-	std::map<std::string, internal::CastImpl<Expr>> casts
+	std::map<std::string, internal::ConversionImpl<Expr>> casts
 	{
 		{
 			internal::mangleCast(classToType2<int, bool, int, double>(), classToType2<double, bool, int, double>()),

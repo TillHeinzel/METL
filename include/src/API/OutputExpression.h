@@ -37,7 +37,7 @@ namespace metl
 	public:
 		using Expression = VarExpression<Ts...>;
 
-		OutputExpression(const Expression& expr, const std::map<std::string, internal::CastImpl<Expression>>& casts) :
+		OutputExpression(const Expression& expr, const std::map<std::string, internal::ConversionImpl<Expression>>& casts) :
 			expressions_(castToAll(expr, casts)),
 			type_(expr.type())
 		{}
@@ -63,7 +63,7 @@ namespace metl
 		const std::map<TYPE, Expression> expressions_;
 		TYPE type_;
 
-		std::map<TYPE, Expression> castToAll(const Expression& expr, const std::map<std::string, internal::CastImpl<Expression>>& casts)
+		std::map<TYPE, Expression> castToAll(const Expression& expr, const std::map<std::string, internal::ConversionImpl<Expression>>& casts)
 		{
 			std::map<TYPE, Expression> castedExpressions{ {expr.type(), expr} };
 			for (const auto& cast : casts)

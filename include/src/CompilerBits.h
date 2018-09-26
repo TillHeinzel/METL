@@ -28,7 +28,7 @@ limitations under the License.
 #include "src/suffixCarrier.h"
 #include "src/opCarrier.h"
 #include "src/FunctionImpl.h"
-#include "src/CastImpl.h"
+#include "src/ConversionImpl.h"
 
 namespace metl
 {
@@ -76,9 +76,9 @@ namespace metl
 
 			void setFunction(const std::string& token, const std::vector<TYPE>& paramTypes, const FunctionImpl<Expression>& function);
 
-			void setCast(TYPE from, TYPE to, const CastImpl<Expression>& fs);
+			void setCast(TYPE from, TYPE to, const ConversionImpl<Expression>& fs);
 
-			void setSuffix(const std::string& token, TYPE from, const CastImpl<Expression>& conversion);
+			void setSuffix(const std::string& token, TYPE from, const ConversionImpl<Expression>& conversion);
 
 			void addConstantOrVariable(const std::string& token, const Expression& val);
 
@@ -126,7 +126,7 @@ namespace metl
 			const auto& getSuffixes() { return suffixes_; }
 			const auto& getSuffixImplementations() { return suffixes_; }
 			
-			std::map<std::string, CastImpl<Expression>> castImplementations_;
+			std::map<std::string, ConversionImpl<Expression>> castImplementations_;
 			std::map<std::string, Expression> constantsAndVariables_; // maps identifiers for constants and variables to the expressions returning their values.
 
 		public:
@@ -142,7 +142,7 @@ namespace metl
 			}
 
 
-			std::map<std::string, CastImpl<Expression>> suffixImplementations_;
+			std::map<std::string, ConversionImpl<Expression>> suffixImplementations_;
 			std::map<std::string, suffixCarrier> suffixes_;
 			std::map<TYPE, std::vector<TYPE>> castDeclarations_{ std::make_pair(type<Ts>(), std::vector<TYPE>{type<Ts>()})... };
 
