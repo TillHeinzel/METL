@@ -59,19 +59,32 @@ TEST_F(MetlFixture, constexprEval)
 
 	c.setOperator<int, int>("+", intplus);
 
-	auto f=c.build<int>("1+1");
+	auto f = c.build<int>("1+1");
 	EXPECT_TRUE(intPlusCalled);
 
 	EXPECT_EQ(2, f());
 	EXPECT_TRUE(intPlusCalled);
 }
 
-class LiteralsFixture: public MetlFixture{};
+TEST_F(MetlFixture, suffix)
+{
+	auto c = metl::makeCompiler<int, double>();
+
+	c.setSuffix<int, double>
+		(
+			"d",
+			[](int i) {return static_cast<double>(i); }
+	);
+
+	auto expr = c.build("2d");
+	EXPECT_EQ(expr.toType<double>(), expr.type());
+	EXPECT_EQ(2.0, expr.get<double>()());
+}
+
+class LiteralsFixture : public MetlFixture {};
 
 TEST_F(LiteralsFixture, intOnly)
 {
-	// test that an int-only compiler can be created.
-
 	auto compiler = metl::makeCompiler<int>();
 
 	ASSERT_EQ(compiler.build<int>("1")(), 1);
@@ -80,8 +93,6 @@ TEST_F(LiteralsFixture, intOnly)
 
 TEST_F(LiteralsFixture, withSpaces)
 {
-	// test that an int-only compiler can be created.
-
 	auto compiler = metl::makeCompiler<int, double>();
 	metl::setDefaults(compiler);
 
@@ -90,8 +101,6 @@ TEST_F(LiteralsFixture, withSpaces)
 
 TEST_F(LiteralsFixture, realOnly)
 {
-	// test that an int-only compiler can be created.
-
 	auto compiler = metl::makeCompiler<double>();
 
 	ASSERT_EQ(compiler.build<double>("1.0")(), 1.0);
@@ -100,14 +109,7 @@ TEST_F(LiteralsFixture, realOnly)
 
 TEST_F(LiteralsFixture, user_defined_converter)
 {
-	// test that an int-only compiler can be created.
-
 	auto ff = [](const std::string& s) ->double {return std::stod(s); };
-	//decltype(std::declval<decltype(ff)>() (std::declval<std::string>())) d;
-
-	//auto conv = metl::makeRealConverter(ff);
-
-	//auto compiler = metl::makeCompiler<double>();
 	auto compiler = metl::makeCompiler<double>(metl::makeIntConverter(ff));
 
 	ASSERT_EQ(compiler.build<double>("1")(), 1.0);
@@ -116,7 +118,7 @@ TEST_F(LiteralsFixture, user_defined_converter)
 
 
 
-class DefaultsFixture:public MetlFixture{};
+class DefaultsFixture :public MetlFixture {};
 
 TEST_F(DefaultsFixture, defaultIntOperators)
 {
@@ -129,11 +131,11 @@ TEST_F(DefaultsFixture, defaultIntOperators)
 	ASSERT_EQ(compiler.build<int>("-1")(), -1);
 
 
-	ASSERT_EQ(compiler.build<int>("1+1")(), 2); 
-	ASSERT_EQ(compiler.build<int>("3-2")(), 1); 
+	ASSERT_EQ(compiler.build<int>("1+1")(), 2);
+	ASSERT_EQ(compiler.build<int>("3-2")(), 1);
 	ASSERT_EQ(compiler.build<int>("2*3")(), 6);
-	ASSERT_EQ(compiler.build<int>("4/2")(), 2); 
-	ASSERT_EQ(compiler.build<int>("5/2")(), 2); 
+	ASSERT_EQ(compiler.build<int>("4/2")(), 2);
+	ASSERT_EQ(compiler.build<int>("5/2")(), 2);
 }
 
 TEST_F(DefaultsFixture, defaultDoubleOperators)
@@ -180,7 +182,7 @@ TEST_F(DefaultsFixture, setDefaultsInt)
 
 }
 
-class operationsFixture: public MetlFixture{};
+class operationsFixture : public MetlFixture {};
 
 TEST_F(operationsFixture, unaryOperators)
 {
@@ -216,7 +218,7 @@ TEST_F(operationsFixture, binaryOperatorsAndSuffix)
 
 	ASSERT_EQ(compiler.build<int>("1+1")(), 2);
 	ASSERT_EQ(compiler.build<double>("1+1.0")(), 2);
-	ASSERT_EQ(compiler.build<std::complex<double>>("1.0+(1.0+1.0i)")(), std::complex<double>(2,1));
+	ASSERT_EQ(compiler.build<std::complex<double>>("1.0+(1.0+1.0i)")(), std::complex<double>(2, 1));
 }
 
 class UserDefinedLiteralsFixture : public MetlFixture {};
@@ -226,7 +228,7 @@ TEST_F(UserDefinedLiteralsFixture, binaryOperatorsAndSuffix)
 	auto compiler = metl::makeCompiler<int, double, std::complex<double>>(metl::makeIntConverter([](std::string str) {return std::complex<double>{0, std::stod(str)}; }));
 
 	auto ff = compiler.build("2");
-	
+
 	auto checkAgainst = std::complex<double>{ 0, 2 };
 	auto result = ff.get<std::complex<double>>()();
 
@@ -286,7 +288,7 @@ TEST_F(AssignmentFixture, assignExpressionToNewConstant)
 	auto ff = compiler.build<double>("a = 2*x+b");
 
 	x = 4;
-	ASSERT_EQ(2*3+45.0, compiler.getValue<double>("a"));
+	ASSERT_EQ(2 * 3 + 45.0, compiler.getValue<double>("a"));
 }
 
 TEST_F(AssignmentFixture, assignExpressionToExistingConstant)
