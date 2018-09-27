@@ -33,31 +33,39 @@ namespace metl
 		{
 			using FunctionType = std::function<Expression(Expression)>;
 		public:
-			ConversionImpl(FunctionType f) :f_(f) {}
+			ConversionImpl(FunctionType f) :f_(f)
+			{}
 
-			Expression operator()(Expression v) const 
+			Expression operator()(Expression v) const
 			{
 				auto resultExpression = f_(v);
 
-				if (v.category() == CATEGORY::CONSTEXPR) return resultExpression.evaluatedExpression();
+				if(resultShouldBeConstexpr(v))
+				{
+					return resultExpression.evaluatedExpression();
+				}
 
 				return resultExpression;
 			}
 
 		private:
-
 			FunctionType f_;
+
+			bool resultShouldBeConstexpr(const Expression& v)
+			{
+				return v.category() == CATEGORY::CONSTEXPR;
+			}
 		};
 
 		template<class Expression, class From, class F>
-		ConversionImpl<Expression> makeCastImpl(const F& f) 
+		ConversionImpl<Expression> makeCastImpl(const F& f)
 		{
 			using To = std::result_of_t<F(From)>;
 
 			static_assert(internal::isInList<From>(internal::getTypeList(Type<Expression>())), "Type casted from is not one of the types of this compiler");
 			static_assert(internal::isInList<To>(internal::getTypeList(Type<Expression>())), "Type casted to is not one of the types of this compiler");
 
-			return { [f](const Expression& from)
+			return {[f](const Expression& from)
 			{
 				auto f_from = from.template get<From>();
 				return Expression(TypedExpression<To>{
@@ -66,7 +74,7 @@ namespace metl
 						return f(f_from());
 					}
 				});
-			} };
+			}};
 		}
 
 	}

@@ -1,7 +1,8 @@
 /*
 @file
 Compiler.h
-Declares template class Compiler, which carries all the user-defined operators, functions, etc.
+Declares template class Compiler, which carries all the user-defined operators,
+functions, etc.
 
 Copyright 2017-2018 Till Heinzel
 
@@ -22,8 +23,8 @@ limitations under the License.
 #include <functional>
 #include <vector>
 
-#include "src/std17/apply.h"
 #include "src/Utility/evaluate_each.h"
+#include "src/std17/apply.h"
 
 #include "Associativity.h"
 #include "EvaluateConstexpr.h"
@@ -34,57 +35,66 @@ namespace metl
 {
 	namespace internal
 	{
-		template<class Expression>
+		template <class Expression>
 		class FunctionImpl
 		{
 			using FunctionType = std::function<Expression(const std::vector<Expression>&)>;
-		public:
-			FunctionImpl(FunctionType f) :f_(f) {}
 
-			Expression operator()(const std::vector<Expression>& v) const 
+		public:
+			FunctionImpl(FunctionType f) : f_(f)
+			{}
+
+			Expression operator()(const std::vector<Expression>& v) const
 			{
 				auto resultExpression = f_(v);
 
-				bool shouldBeConst = true;
-				for (const auto& expr : v)
+				if(resultShouldBeConstexpr(v))
 				{
-					if (expr.category() == CATEGORY::DYNEXPR)
-					{
-						shouldBeConst = false;
-						break;
-					}
+					return resultExpression.evaluatedExpression();
 				}
-				if (shouldBeConst) return resultExpression.evaluatedExpression();
 
 				return resultExpression;
 			}
 
 		private:
+			bool resultShouldBeConstexpr(const std::vector<Expression>& v)
+			{
+				bool shouldBeConst = true;
+				for(const auto &expr : v)
+				{
+					if(expr.category() == CATEGORY::DYNEXPR)
+					{
+						shouldBeConst = false;
+						break;
+					}
+				}
+				return shouldBeConst;
+			}
 
 			FunctionType f_;
 		};
 
-		template<class... Ts, std::size_t... Ind, class Expression>
+		template <class... Ts, std::size_t... Ind, class Expression>
 		auto getTypedExpressions(const std::vector<Expression>& v, std::index_sequence<Ind...>)
 		{
 			return std::make_tuple(v.at(Ind).template get<Ts>()...);
 		}
 
-		template<class Expression, class... Ts, class F>
-		FunctionImpl<Expression> makeFunction(const F& f)
+		template <class Expression, class... Ts, class F>
+		FunctionImpl<Expression> makeFunction(const F &f)
 		{
-			return {[f](const std::vector<Expression>& v)
+			return {[f](const std::vector<Expression> &v)
 			{
 				auto vv = getTypedExpressions<Ts...>(v, std::make_index_sequence<sizeof...(Ts)>{});
 
 				using retType = std::result_of_t<F(Ts...)>;
+
 				return Expression(TypedExpression<retType>([f, vv]()
 				{
 					auto vals = evaluate_each(vv);
 					return std17::apply(f, vals);
-				}));
-			}
-			};
+				};)
+			}};
 		}
 	}
 }
