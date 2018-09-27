@@ -51,7 +51,7 @@ namespace metl
 		private:
 			FunctionType f_;
 
-			bool resultShouldBeConstexpr(const Expression& v)
+			bool resultShouldBeConstexpr(const Expression& v) const
 			{
 				return v.category() == CATEGORY::CONSTEXPR;
 			}

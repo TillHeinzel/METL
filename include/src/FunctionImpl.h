@@ -57,7 +57,7 @@ namespace metl
 			}
 
 		private:
-			bool resultShouldBeConstexpr(const std::vector<Expression>& v)
+			bool resultShouldBeConstexpr(const std::vector<Expression>& v) const
 			{
 				bool shouldBeConst = true;
 				for(const auto &expr : v)
@@ -93,7 +93,7 @@ namespace metl
 				{
 					auto vals = evaluate_each(vv);
 					return std17::apply(f, vals);
-				};)
+				}));
 			}};
 		}
 	}
