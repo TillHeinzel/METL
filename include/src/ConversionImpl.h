@@ -44,13 +44,6 @@ namespace metl
 				return resultExpression;
 			}
 
-			template<class T>
-			ConversionImpl& operator=(T&& t)
-			{
-				f_ = t;
-				return *this;
-			}
-
 		private:
 
 			FunctionType f_;
