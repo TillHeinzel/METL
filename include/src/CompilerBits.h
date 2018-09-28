@@ -27,8 +27,8 @@ limitations under the License.
 
 #include "src/suffixCarrier.h"
 #include "src/opCarrier.h"
-#include "src/FunctionImpl.h"
-#include "src/ConversionImpl.h"
+#include "src/DynamicFunction.h"
+#include "src/DynamicConversion.h"
 
 namespace metl
 {
@@ -70,15 +70,15 @@ namespace metl
 			void setOperatorPrecedence(const std::string& op, unsigned int precedence, ASSOCIATIVITY associativity = ASSOCIATIVITY::LEFT);
 			void setUnaryOperatorPrecedence(const std::string& op, unsigned int precedence);
 
-			void setOperator(const std::string& token, const std::vector<TYPE>& paramTypes, const FunctionImpl<Expression>& op);
+			void setOperator(const std::string& token, const std::vector<TYPE>& paramTypes, const DynamicFunction<Expression>& op);
 
-			void setUnaryOperator(const std::string& token, TYPE paramType, const FunctionImpl<Expression>& op);
+			void setUnaryOperator(const std::string& token, TYPE paramType, const DynamicFunction<Expression>& op);
 
-			void setFunction(const std::string& token, const std::vector<TYPE>& paramTypes, const FunctionImpl<Expression>& function);
+			void setFunction(const std::string& token, const std::vector<TYPE>& paramTypes, const DynamicFunction<Expression>& function);
 
-			void setCast(TYPE from, TYPE to, const ConversionImpl<Expression>& fs);
+			void setCast(TYPE from, TYPE to, const DynamicConversion<Expression>& fs);
 
-			void setSuffix(const std::string& token, TYPE from, const ConversionImpl<Expression>& conversion);
+			void setSuffix(const std::string& token, TYPE from, const DynamicConversion<Expression>& conversion);
 
 			void addConstantOrVariable(const std::string& token, const Expression& val);
 
@@ -126,7 +126,7 @@ namespace metl
 			const auto& getSuffixes() { return suffixes_; }
 			const auto& getSuffixImplementations() { return suffixes_; }
 			
-			std::map<std::string, ConversionImpl<Expression>> castImplementations_;
+			std::map<std::string, DynamicConversion<Expression>> castImplementations_;
 			std::map<std::string, Expression> constantsAndVariables_; // maps identifiers for constants and variables to the expressions returning their values.
 
 		public:
@@ -142,14 +142,14 @@ namespace metl
 			}
 
 
-			std::map<std::string, ConversionImpl<Expression>> suffixImplementations_;
+			std::map<std::string, DynamicConversion<Expression>> suffixImplementations_;
 			std::map<std::string, suffixCarrier> suffixes_;
 			std::map<TYPE, std::vector<TYPE>> castDeclarations_{ std::make_pair(type<Ts>(), std::vector<TYPE>{type<Ts>()})... };
 
 			std::map<std::string, opCarrier> opCarriers_; // maps unmangled operators to their precedence
 			std::map<std::string, opCarrier> unaryCarriers_; // maps unmangled operators to their precedence
-			std::map<std::string, FunctionImpl<Expression>> operators_; //maps mangled names to implementations for operators
-			std::map<std::string, FunctionImpl<Expression>> functions_; // maps mangled names to implementations for functions.
+			std::map<std::string, DynamicFunction<Expression>> operators_; //maps mangled names to implementations for operators
+			std::map<std::string, DynamicFunction<Expression>> functions_; // maps mangled names to implementations for functions.
 			std::map<std::string, std::string> functionNames_; // dummy, just so we have the sorting.
 			
 		};

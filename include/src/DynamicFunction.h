@@ -38,11 +38,11 @@ namespace metl
 	namespace internal
 	{
 		template <class Expression>
-		class FunctionImpl
+		class DynamicFunction
 		{
 			using FunctionType = std::function<Expression(const std::vector<Expression>&)>;
 		public:
-			FunctionImpl(FunctionType f) : f_(f)
+			DynamicFunction(FunctionType f) : f_(f)
 			{}
 
 			Expression operator()(const std::vector<Expression>& v) const
@@ -92,7 +92,7 @@ namespace metl
 
 
 		template <class Expression, class... ArgumentTypes, class TypedFunction>
-		FunctionImpl<Expression> makeFunction(const TypedFunction& typedFunction)
+		DynamicFunction<Expression> makeDynamicFunction(const TypedFunction& typedFunction)
 		{
 			return {[typedFunction](const std::vector<Expression>& v)
 			{

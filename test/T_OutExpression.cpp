@@ -14,11 +14,11 @@ public:
 
 	Expr varExpression{ StaticExpression<int>([]()->int {return 0; }), CATEGORY::CONSTEXPR };
 
-	std::map<std::string, internal::ConversionImpl<Expr>> casts
+	std::map<std::string, internal::DynamicConversion<Expr>> casts
 	{
 		{
 			internal::mangleCast(classToType2<int, bool, int, double>(), classToType2<double, bool, int, double>()),
-			internal::makeConversionImpl<Expr, int>([](int i) {return static_cast<double>(i); })
+			internal::makeDynamicConversion<Expr, int>([](int i) {return static_cast<double>(i); })
 		}
 	};
 

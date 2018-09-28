@@ -31,11 +31,11 @@ namespace metl
 	namespace internal
 	{
 		template <class Expression>
-		class ConversionImpl
+		class DynamicConversion
 		{
 			using FunctionType = std::function<Expression(Expression)>;
 		public:
-			ConversionImpl(FunctionType f) :f_(f)
+			DynamicConversion(FunctionType f) :f_(f)
 			{}
 
 			Expression operator()(Expression v) const
@@ -60,7 +60,7 @@ namespace metl
 		};
 
 		template<class Expression, class From, class F>
-		ConversionImpl<Expression> makeConversionImpl(const F& f)
+		DynamicConversion<Expression> makeDynamicConversion(const F& f)
 		{
 			using To = std::result_of_t<F(From)>;
 

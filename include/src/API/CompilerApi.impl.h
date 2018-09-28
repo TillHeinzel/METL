@@ -37,12 +37,12 @@ namespace metl
 	namespace detail 
 	{
 		template<class Expr>
-		void castToAll(Expr&, const std::map<std::string, internal::ConversionImpl<Expr>>&)
+		void castToAll(Expr&, const std::map<std::string, internal::DynamicConversion<Expr>>&)
 		{
 		}
 
 		template<class T, class... Ts, class Expr>
-		void castToAll(Expr& expr, const std::map<std::string, internal::ConversionImpl<Expr>>& castImpls)
+		void castToAll(Expr& expr, const std::map<std::string, internal::DynamicConversion<Expr>>& castImpls)
 		{
 			auto it = castImpls.find(internal::mangleCast(expr.type(), expr.template toType<T>()));
 			if(it != castImpls.end())
@@ -88,21 +88,21 @@ namespace metl
 	template <class Left, class Right, class F>
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setOperator(const std::string& token, const F& f)
 	{
-		impl_.bits_.setOperator(token, { type<Left>(), type<Right>() }, metl::internal::makeFunction<Expression, Left, Right>(f));
+		impl_.bits_.setOperator(token, { type<Left>(), type<Right>() }, metl::internal::makeDynamicFunction<Expression, Left, Right>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
 	template <class T, class F>
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setUnaryOperator(const std::string& token, const F& f)
 	{
-		impl_.bits_.setUnaryOperator(token, type<T>(), metl::internal::makeFunction<Expression, T>(f));
+		impl_.bits_.setUnaryOperator(token, type<T>(), metl::internal::makeDynamicFunction<Expression, T>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
 	template <class ... ParamTypes, class F>
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setFunction(const std::string& token, const F& f)
 	{
-		impl_.bits_.setFunction(token, std::vector<TYPE>{type<ParamTypes>()...}, metl::internal::makeFunction<Expression, ParamTypes...>(f));
+		impl_.bits_.setFunction(token, std::vector<TYPE>{type<ParamTypes>()...}, metl::internal::makeDynamicFunction<Expression, ParamTypes...>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
@@ -114,7 +114,7 @@ namespace metl
 		static_assert(internal::isInList<From, Ts...>(), "Type casted from is not one of the types of this compiler!");
 		static_assert(internal::isInList<To, Ts...>(), "Type casted to is not one of the types of this compiler!");
 
-		impl_.bits_.setCast(type<From>(), type<To>(), internal::makeConversionImpl<Expression, From>(f));
+		impl_.bits_.setCast(type<From>(), type<To>(), internal::makeDynamicConversion<Expression, From>(f));
 	}
 
 	template <class Grammar, class LiteralsConverters, class ... Ts>
@@ -126,7 +126,7 @@ namespace metl
 		static_assert(isInList<From, Ts...>(), "Type the suffix converts from is not one of the types of this compiler!");
 		static_assert(isInList<To, Ts...>(), "Type the suffix converts to is not one of the types of this compiler!");
 		
-		impl_.bits_.setSuffix(token, type<From>(),internal::makeConversionImpl<Expression, From>(f));
+		impl_.bits_.setSuffix(token, type<From>(),internal::makeDynamicConversion<Expression, From>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
