@@ -25,6 +25,7 @@ limitations under the License.
 
 #include "src/Utility/evaluate_each.h"
 #include "src/std17/apply.h"
+#include "src/std17/is_same_v.h"
 
 #include "Associativity.h"
 #include "EvaluateConstexpr.h"
@@ -32,31 +33,67 @@ limitations under the License.
 #include "CategoryEnum.h"
 
 #include "src/UntypedExpression.h"
+#include "src/getTypedExpressions.h"
 
 namespace metl
 {
 	namespace internal
 	{
-		template <class Expression, class Input>
+		template <class UntypedExpression_t, class Input>
 		class UntypedOperation
 		{
+			static_assert(std17::is_same_v<Input, UntypedExpression_t> || std17::is_same_v<Input, std::vector<UntypedExpression_t>>, "");
+
+			using FunctionType = std::function<UntypedExpression_t(const Input&)>;
+		public:
+			UntypedOperation(FunctionType f) : f_(f)
+			{}
+
+			UntypedExpression_t operator()(const Input& v) const
+			{
+				auto resultExpression = f_(v);
+
+				if(resultShouldBeConstexpr(v))
+				{
+					return resultExpression.evaluatedExpression();
+				}
+
+				return resultExpression;
+			}
+
+		protected:
+			FunctionType f_;
+
+			bool resultShouldBeConstexpr(const UntypedExpression_t& v) const
+			{
+				return v.category() == CATEGORY::CONSTEXPR;
+			}
+
+			bool resultShouldBeConstexpr(const std::vector<UntypedExpression_t>& v) const
+			{
+				bool shouldBeConst = true;
+				for(const auto &expr : v)
+				{
+					if(expr.category() == CATEGORY::DYNEXPR)
+					{
+						shouldBeConst = false;
+						break;
+					}
+				}
+				return shouldBeConst;
+			}
 		};
 
-		template<class UntypedExpression_t, class StaticFunction, class StaticArgumentExpressions>
-		UntypedExpression_t makeUntypedExpression(StaticFunction staticFunction, StaticArgumentExpressions staticArgumentExpressions)
+		template<class UntypedExpression_t, class Input, class... ArgumentTypes, class F>
+		UntypedOperation<UntypedExpression_t, Input> makeUntypedOperation(const F& typedFunction)
 		{
-			auto staticExpressionLambda = [
-				staticFunction = std::move(staticFunction),
-				staticArgumentExpressions = std::move(staticArgumentExpressions)]
-				()
+			auto untypedOperationLambda = [typedFunction](const Input& untypedArgumentExpressions)
 			{
-				auto staticArguments = evaluate_each(staticArgumentExpressions);
-				return std17::apply(staticFunction, std::move(staticArguments));
+				auto typedArgumentExpressions = getTypedExpressions<ArgumentTypes...>(untypedArgumentExpressions);
+				return UntypedExpression_t(makeTypedExpression(typedFunction, typedArgumentExpressions));
 			};
 
-			using RetType = decltype(staticExpressionLambda());
-
-			return UntypedExpression_t(TypedExpression<RetType>(staticExpressionLambda));
+			return {std::move(untypedOperationLambda)};
 		}
 	}
 }

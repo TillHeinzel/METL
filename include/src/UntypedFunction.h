@@ -20,87 +20,22 @@ limitations under the License.
 */
 #pragma once
 
-#include <functional>
 #include <vector>
 
-#include "src/Utility/evaluate_each.h"
-#include "src/std17/apply.h"
-
-#include "Associativity.h"
-#include "EvaluateConstexpr.h"
-
-#include "CategoryEnum.h"
-
-#include "src/UntypedExpression.h"
 #include "src/UntypedOperation.h"
 
 namespace metl
 {
 	namespace internal
 	{
-		template <class Expression>
-		class UntypedFunction
+		template<class UntypedExpression_t>
+		using UntypedFunction = UntypedOperation<UntypedExpression_t, std::vector<UntypedExpression_t>>;
+
+
+		template <class UntypedExpression_t, class... ArgumentTypes, class TypedFunction>
+		UntypedFunction<UntypedExpression_t> makeDynamicFunction(const TypedFunction& typedFunction)
 		{
-			using FunctionType = std::function<Expression(const std::vector<Expression>&)>;
-		public:
-			UntypedFunction(FunctionType f) : f_(f)
-			{}
-
-			Expression operator()(const std::vector<Expression>& v) const
-			{
-				auto resultExpression = f_(v);
-
-				if(resultShouldBeConstexpr(v))
-				{
-					return resultExpression.evaluatedExpression();
-				}
-
-				return resultExpression;
-			}
-
-		private:
-			FunctionType f_;
-
-			bool resultShouldBeConstexpr(const std::vector<Expression>& v) const
-			{
-				bool shouldBeConst = true;
-				for(const auto &expr : v)
-				{
-					if(expr.category() == CATEGORY::DYNEXPR)
-					{
-						shouldBeConst = false;
-						break;
-					}
-				}
-				return shouldBeConst;
-			}
-
-		};
-
-
-
-		template <class... Ts, std::size_t... Ind, class Expression>
-		auto getTypedExpressions_impl(const std::vector<Expression>& v, std::index_sequence<Ind...>)
-		{
-			return std::make_tuple(v.at(Ind).template get<Ts>()...);
-		}
-
-		template <class... Ts, class Expression>
-		auto getTypedExpressions(const std::vector<Expression>& v)
-		{
-			return getTypedExpressions_impl<Ts...>(v, std::make_index_sequence<sizeof...(Ts)>{});
-		}
-
-
-		template <class Expression, class... ArgumentTypes, class TypedFunction>
-		UntypedFunction<Expression> makeDynamicFunction(const TypedFunction& typedFunction)
-		{
-			return {[typedFunction](const std::vector<Expression>& v)
-			{
-				auto typedArgumentExpressions = getTypedExpressions<ArgumentTypes...>(v);
-
-				return makeUntypedExpression<Expression>(typedFunction, typedArgumentExpressions);
-			}};
+			return makeUntypedOperation<UntypedExpression_t, std::vector<UntypedExpression_t>, ArgumentTypes...>(typedFunction);
 		}
 	}
 }

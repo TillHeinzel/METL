@@ -47,25 +47,27 @@ namespace metl
 			type_(classToType2<T, Ts...>()),
 			category_(category),
 			vals_(t)
-		{
-		}
+		{}
 
 		template<class T> TypedExpression<T> get() const
 		{
 			constexpr auto index = internal::findFirstIndex<T>(internal::TypeList<Ts...>{});
 			static_assert(index < sizeof...(Ts), "Error: Requested Type is not a valid type!");
 
-			if (mpark::holds_alternative<TypedExpression<T>>(vals_)) return mpark::get<TypedExpression<T>>(vals_);
+			if(mpark::holds_alternative<TypedExpression<T>>(vals_)) return mpark::get<TypedExpression<T>>(vals_);
 			throw std::runtime_error("this is not the correct type");
 		}
 
-		UntypedExpression evaluatedExpression() const 
+		UntypedExpression evaluatedExpression() const
 		{
 			auto visitor = [](const auto& expr)
 			{
 				using exprType_T = std17::remove_cvref_t<decltype(expr)>;
 				auto value = expr();
-				auto constExpr = exprType_T([value]() {return value; });
+				auto constExpr = exprType_T([value]()
+				{
+					return value;
+				});
 				return UntypedExpression<Ts...>(constExpr, CATEGORY::CONSTEXPR);
 			};
 
@@ -73,9 +75,9 @@ namespace metl
 		}
 
 		template<class T>
-		bool isType() const 
-		{ 
-			return type_ == toType<T>(); 
+		bool isType() const
+		{
+			return type_ == toType<T>();
 		}
 
 		bool isConstexpr() const
@@ -83,11 +85,20 @@ namespace metl
 			return category_ == CATEGORY::CONSTEXPR;
 		}
 
-		TYPE type() const { return type_; }
-		CATEGORY category() const { return category_; }
+		TYPE type() const
+		{
+			return type_;
+		}
+		CATEGORY category() const
+		{
+			return category_;
+		}
 
 		template<class T>
-		constexpr static TYPE toType() { return classToType2<T, Ts...>(); }
+		constexpr static TYPE toType()
+		{
+			return classToType2<T, Ts...>();
+		}
 	private:
 		TYPE type_;
 		CATEGORY category_;
@@ -98,6 +109,9 @@ namespace metl
 	namespace internal
 	{
 		template<class... Ts>
-		constexpr TypeList<Ts...> getTypeList(Type<UntypedExpression<Ts...>>) { return TypeList<Ts...>{}; }
+		constexpr TypeList<Ts...> getTypeList(Type<UntypedExpression<Ts...>>)
+		{
+			return TypeList<Ts...>{};
+		}
 	}
 }

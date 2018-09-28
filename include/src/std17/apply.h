@@ -19,6 +19,8 @@ limitations under the License.
 
 #pragma once
 
+#include <tuple>
+
 namespace std17
 {
 	namespace detail {

@@ -19,65 +19,19 @@ limitations under the License.
 */
 #pragma once
 
-#include <functional>
-#include <type_traits>
-
-#include "src/Utility/Typelist.h"
-
-#include "src/UntypedExpression.h"
 #include "src/UntypedOperation.h"
 
 namespace metl
 {
 	namespace internal
 	{
-		template <class Expression>
-		class UntypedConversion
+		template<class Expression_t>
+		using UntypedConversion = UntypedOperation<Expression_t, Expression_t>;
+
+		template<class UntypedExpression_t, class ArgumentType, class F>
+		UntypedConversion<UntypedExpression_t> makeDynamicConversion(const F& typedFunction)
 		{
-			using FunctionType = std::function<Expression(Expression)>;
-		public:
-			UntypedConversion(FunctionType f) :f_(f)
-			{}
-
-			Expression operator()(Expression v) const
-			{
-				auto resultExpression = f_(v);
-
-				if(resultShouldBeConstexpr(v))
-				{
-					return resultExpression.evaluatedExpression();
-				}
-
-				return resultExpression;
-			}
-
-		private:
-			FunctionType f_;
-
-			bool resultShouldBeConstexpr(const Expression& v) const
-			{
-				return v.category() == CATEGORY::CONSTEXPR;
-			}
-		};
-
-		template<class Expression, class From, class F>
-		UntypedConversion<Expression> makeDynamicConversion(const F& f)
-		{
-			using To = std::result_of_t<F(From)>;
-
-			static_assert(internal::isInList<From>(internal::getTypeList(Type<Expression>())), "Type casted from is not one of the types of this compiler");
-			static_assert(internal::isInList<To>(internal::getTypeList(Type<Expression>())), "Type casted to is not one of the types of this compiler");
-
-			return {[f](const Expression& from)
-			{
-				auto typedArgumentExpressions = std::make_tuple(from.template get<From>());
-				return Expression(TypedExpression<To>{[f, typedArgumentExpressions]()
-				{
-					auto typedArguments = evaluate_each(typedArgumentExpressions);
-					return std17::apply(f, std::move(typedArguments));
-				}
-				});
-			}};
+			return makeUntypedOperation<UntypedExpression_t, UntypedExpression_t, ArgumentType>(typedFunction);
 		}
 	}
 }

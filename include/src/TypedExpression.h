@@ -20,9 +20,41 @@ limitations under the License.
 
 #include <functional>
 
+#include "src/std17/apply.h"
+
+#include "src/Utility/evaluate_each.h"
+
 namespace metl
 {
 	template<class T> using TypedExpression = std::function<T()>;
+
+	namespace internal
+	{
+		template<class TypedFunction, class TypedArgumentExpressions>
+		auto makeTypedExpressionLambda(TypedFunction&& typedFunction, TypedArgumentExpressions&& typedArgumentExpressions)
+		{
+			return
+				[typedFunction = std::forward<TypedFunction>(typedFunction),
+				typedArgumentExpressions = std::forward<TypedArgumentExpressions>(typedArgumentExpressions)]
+			()
+			{
+				auto typedArguments = evaluate_each(typedArgumentExpressions);
+				return std17::apply(typedFunction, std::move(typedArguments));
+			};
+		}
+
+		template<class TypedFunction, class TypedArgumentExpressions>
+		auto makeTypedExpression(TypedFunction&& typedFunction, TypedArgumentExpressions&& typedArgumentExpressions)
+		{
+			auto typedExpressionLambda = makeTypedExpressionLambda(
+				std::forward<TypedFunction>(typedFunction),
+				std::forward<TypedArgumentExpressions>(typedArgumentExpressions)
+				);
+
+			using RetType = decltype(typedExpressionLambda());
+			return TypedExpression<RetType>(typedExpressionLambda);
+		}
+	}
 }
 
 //#include <type_traits>
