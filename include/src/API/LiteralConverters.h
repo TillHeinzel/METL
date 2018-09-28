@@ -20,8 +20,8 @@ limitations under the License.
 
 #pragma once
 
-#include "src/Utility/ConstexprBranching.h"
-#include "src/Exceptions.h"
+#include "../Utility/ConstexprBranching.h"
+#include "../Exceptions.h"
 
 namespace metl
 {

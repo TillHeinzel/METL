@@ -21,8 +21,8 @@ limitations under the License.
 #pragma once
 
 #include "CompilerApi.impl.h"
-#include "src/Utility/callWithOrderedAndDefaultedSettings.h"
-#include "src/API/LiteralConverters.h"
+#include "../Utility/callWithOrderedAndDefaultedSettings.h"
+#include "../API/LiteralConverters.h"
 
 namespace metl
 {
