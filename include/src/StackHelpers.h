@@ -64,29 +64,3 @@ namespace metl
 		}
 	}
 }
-
-namespace metl
-{
-	namespace internal
-	{
-		template<class Expression>
-		Expression changeSign_impl(TypeList<>, const Expression&)
-		{
-			throw std::runtime_error("can't change sign, because type is not in typelist. However that happened...");
-		}
-
-		template<class T, class... Ts, class Expression>
-		Expression changeSign_impl(TypeList<T, Ts...>, const Expression& expression)
-		{
-			return expression.type() == Expression::template toType<T>() ?
-				Expression(TypedExpression<T>([f{ expression.template get<T>() }](){return -f(); })) :
-				changeSign_impl(TypeList<Ts...>{}, expression);
-		}
-
-		template<class... Ts>
-		UntypedExpression<Ts...> changeSign(const UntypedExpression<Ts...>& expression)
-		{
-			return changeSign_impl(TypeList<Ts...>{}, expression);
-		}
-	}
-}

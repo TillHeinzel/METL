@@ -54,8 +54,7 @@ namespace metl
 
 		template<class T> TypedExpression<T> get() const
 		{
-			constexpr auto index = internal::findFirstIndex<T>(internal::TypeList<Ts...>{});
-			static_assert(index < sizeof...(Ts), "Error: Requested Type is not a valid type!");
+			static_assert(internal::isInList<T, Ts...>(), "Error: Requested Type is not a valid type!");
 
 			if(mpark::holds_alternative<TypedExpression<T>>(vals_)) return mpark::get<TypedExpression<T>>(vals_);
 			throw std::runtime_error("this is not the correct type");
