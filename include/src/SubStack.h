@@ -23,11 +23,11 @@ limitations under the License.
 #include <vector>
 #include <string>
 
-#include "ThirdParty/Optional/optional.hpp"
+#include "../ThirdParty/Optional/optional.hpp"
 
 #include "opCarrier.h"
 #include "suffixCarrier.h"
-#include "src/TypeErasure/UntypedExpression.h"
+#include "TypeErasure/UntypedExpression.h"
 #include "CompilerBits.h"
 
 namespace metl

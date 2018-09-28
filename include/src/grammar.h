@@ -22,7 +22,7 @@ limitations under the License.
 
 #include <tao/pegtl.hpp>
 
-#include "src/Utility/ConstexprBranching.h"
+#include "Utility/ConstexprBranching.h"
 
 namespace metl
 {

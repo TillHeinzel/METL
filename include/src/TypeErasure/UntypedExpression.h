@@ -20,13 +20,13 @@ limitations under the License.
 
 #pragma once
 
-#include "ThirdParty/Variant/variant.hpp"
+#include "../../ThirdParty/Variant/variant.hpp"
 
-#include "src/Utility/TypeList.h"
-#include "src/std17/remove_cvref.h"
+#include "../Utility/TypeList.h"
+#include "../std17/remove_cvref.h"
 
-#include "src/TypeErasure/TypeEnum.h"
-#include "src/TypeErasure/TypedExpression.h"
+#include "../TypeErasure/TypeEnum.h"
+#include "../TypeErasure/TypedExpression.h"
 
 namespace metl
 {

@@ -20,7 +20,7 @@ limitations under the License.
 #pragma once
 
 #include "nameMangling.h"
-#include "src/TypeErasure/UntypedExpression.h"
+#include "TypeErasure/UntypedExpression.h"
 
 namespace metl
 {

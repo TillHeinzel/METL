@@ -21,13 +21,13 @@ limitations under the License.
 
 #include <map>
 
-#include "src/TypeErasure/UntypedExpression.h"
+#include "TypeErasure/UntypedExpression.h"
 #include "Associativity.h"
 
-#include "src/suffixCarrier.h"
-#include "src/opCarrier.h"
-#include "src/TypeErasure/UntypedFunction.h"
-#include "src/TypeErasure/UntypedConversion.h"
+#include "suffixCarrier.h"
+#include "opCarrier.h"
+#include "TypeErasure/UntypedFunction.h"
+#include "TypeErasure/UntypedConversion.h"
 
 namespace metl
 {

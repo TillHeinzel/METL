@@ -19,7 +19,7 @@ limitations under the License.
 */
 
 #pragma once
-#include "src/Compiler.h"
+#include "Compiler.h"
 
 #include <tao/pegtl.hpp>
 
@@ -30,7 +30,7 @@ limitations under the License.
 #include "Stack.impl.h"
 
 #include "CompilerBits.impl.h"
-#include "src/VariableExpression.h"
+#include "VariableExpression.h"
 
 namespace metl
 {

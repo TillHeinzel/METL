@@ -23,13 +23,13 @@ limitations under the License.
 #include <functional>
 #include <vector>
 
-#include "src/Utility/evaluate_each.h"
-#include "src/std17/apply.h"
-#include "src/std17/is_same_v.h"
+#include "../Utility/evaluate_each.h"
+#include "../std17/apply.h"
+#include "../std17/is_same_v.h"
 
-#include "src/TypeErasure/UntypedExpression.h"
-#include "src/TypeErasure/getTypedExpressions.h"
-#include "src/TypeErasure/areAllConstexpr.h"
+#include "UntypedExpression.h"
+#include "getTypedExpressions.h"
+#include "areAllConstexpr.h"
 
 namespace metl
 {
