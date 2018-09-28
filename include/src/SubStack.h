@@ -27,7 +27,7 @@ limitations under the License.
 
 #include "opCarrier.h"
 #include "suffixCarrier.h"
-#include "src/VarExpression.h"
+#include "src/DynamicExpression.h"
 #include "CompilerBits.h"
 
 namespace metl
@@ -37,7 +37,7 @@ namespace metl
 		template<class... Ts>
 		class SubStack
 		{
-			using Expression = VarExpression<Ts...>;
+			using Expression = DynamicExpression<Ts...>;
 
 		public:
 

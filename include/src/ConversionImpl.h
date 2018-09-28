@@ -24,7 +24,7 @@ limitations under the License.
 
 #include "src/Utility/Typelist.h"
 
-#include "src/VarExpression.h"
+#include "src/DynamicExpression.h"
 
 namespace metl
 {
@@ -70,7 +70,7 @@ namespace metl
 			return {[f](const Expression& from)
 			{
 				auto typedArgumentExpressions = std::make_tuple(from.template get<From>());
-				return Expression(TypedExpression<To>{[f, typedArgumentExpressions]()
+				return Expression(StaticExpression<To>{[f, typedArgumentExpressions]()
 				{
 					auto typedArguments = evaluate_each(typedArgumentExpressions);
 					return std17::apply(f, std::move(typedArguments));

@@ -21,7 +21,7 @@ limitations under the License.
 
 #include <map>
 
-#include "src/VarExpression.h"
+#include "src/DynamicExpression.h"
 #include "Associativity.h"
 #include "EvaluateConstexpr.h"
 
@@ -64,7 +64,7 @@ namespace metl
 		{
 
 		public:
-			using Expression = VarExpression<Ts...>;
+			using Expression = DynamicExpression<Ts...>;
 			constexpr static auto getTypeList() { return TypeList<Ts...>(); }
 			
 			void setOperatorPrecedence(const std::string& op, unsigned int precedence, ASSOCIATIVITY associativity = ASSOCIATIVITY::LEFT);

@@ -20,7 +20,7 @@ limitations under the License.
 
 
 #pragma once
-#include "src/VarExpression.h"
+#include "src/DynamicExpression.h"
 
 namespace metl
 {
@@ -40,7 +40,7 @@ namespace metl
 		{
 			auto f = constexprFunction<T>{ v };
 
-			return Expression(TypedExpression<T>(f), CATEGORY::CONSTEXPR);
+			return Expression(StaticExpression<T>(f), CATEGORY::CONSTEXPR);
 		}
 	}
 }

@@ -31,7 +31,7 @@ limitations under the License.
 
 #include "CategoryEnum.h"
 
-#include "src/VarExpression.h"
+#include "src/DynamicExpression.h"
 
 namespace metl
 {
@@ -100,7 +100,7 @@ namespace metl
 
 				using retType = std::result_of_t<TypedFunction(ArgumentTypes...)>;
 
-				return Expression(TypedExpression<retType>([typedFunction, typedArgumentExpressions]()
+				return Expression(StaticExpression<retType>([typedFunction, typedArgumentExpressions]()
 				{
 					auto typedArguments = evaluate_each(typedArgumentExpressions);
 					return std17::apply(typedFunction, typedArguments);

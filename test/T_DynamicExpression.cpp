@@ -4,19 +4,19 @@
 
 #include "metl.h"
 
-class VarExpressionFixture : public ::testing::Test
+class DynamicExpressionFixture : public ::testing::Test
 {
 public:
-	metl::TypedExpression<int> function{ []()->int {return 0; } };
-	metl::VarExpression<bool, int, double> expression{ function, metl::CATEGORY::CONSTEXPR };
+	metl::StaticExpression<int> function{ []()->int {return 0; } };
+	metl::DynamicExpression<bool, int, double> expression{ function, metl::CATEGORY::CONSTEXPR };
 };
 
-TEST_F(VarExpressionFixture, type)
+TEST_F(DynamicExpressionFixture, type)
 {
 	EXPECT_EQ(expression.type(), expression.toType<int>());
 }
 
-TEST_F(VarExpressionFixture, isType)
+TEST_F(DynamicExpressionFixture, isType)
 {
 	EXPECT_TRUE(expression.isType<int>());
 
@@ -24,29 +24,29 @@ TEST_F(VarExpressionFixture, isType)
 	EXPECT_FALSE(expression.isType<bool>());
 }
 
-TEST_F(VarExpressionFixture, category)
+TEST_F(DynamicExpressionFixture, category)
 {
 	EXPECT_EQ(expression.category(), metl::CATEGORY::CONSTEXPR);
 }
 
-TEST_F(VarExpressionFixture, getCorrect)
+TEST_F(DynamicExpressionFixture, getCorrect)
 {
 	EXPECT_EQ(expression.get<int>()(), 0);
 }
 
-TEST_F(VarExpressionFixture, getWrong)
+TEST_F(DynamicExpressionFixture, getWrong)
 {
 	EXPECT_ANY_THROW(expression.get<bool>());
 }
 
-TEST_F(VarExpressionFixture, copyConstruct)
+TEST_F(DynamicExpressionFixture, copyConstruct)
 {
 	auto expression2 = expression;
 
 	EXPECT_EQ(expression2.get<int>()(), 0);
 }
 
-TEST_F(VarExpressionFixture, moveConstruct)
+TEST_F(DynamicExpressionFixture, moveConstruct)
 {
 	auto expression2 = expression;
 	auto expression3 = std::move(expression2);
@@ -54,16 +54,16 @@ TEST_F(VarExpressionFixture, moveConstruct)
 	EXPECT_EQ(expression3.get<int>()(), 0);
 }
 
-TEST_F(VarExpressionFixture, evaluatedExpression)
+TEST_F(DynamicExpressionFixture, evaluatedExpression)
 {
 	int evaluationCount = 0;
 
-	metl::TypedExpression<int> function2{ [&evaluationCount]()->int
+	metl::StaticExpression<int> function2{ [&evaluationCount]()->int
 	{
 		++evaluationCount;
 		return 0;
 	} };
-	metl::VarExpression<bool, int, double> expression2{ function2, metl::CATEGORY::CONSTEXPR };
+	metl::DynamicExpression<bool, int, double> expression2{ function2, metl::CATEGORY::CONSTEXPR };
 
 	EXPECT_EQ(0, evaluationCount);
 

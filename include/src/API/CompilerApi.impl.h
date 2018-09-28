@@ -67,7 +67,7 @@ namespace metl
 
 	template <class Grammar, class LiteralConverters, class... Ts>
 	template <class T>
-	TypedExpression<T> CompilerApi<Grammar, LiteralConverters, Ts...>::build(const std::string& expression)
+	StaticExpression<T> CompilerApi<Grammar, LiteralConverters, Ts...>::build(const std::string& expression)
 	{
 		return build(expression).template get<T>();
 	}

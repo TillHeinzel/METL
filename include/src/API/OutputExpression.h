@@ -1,6 +1,6 @@
 /*
-@file VarExpression.h
-Defines class VarExpression, which is a variant-type to contain std::functions returning different values.
+@file DynamicExpression.h
+Defines class DynamicExpression, which is a variant-type to contain std::functions returning different values.
 This is used to contain the results of parsing.
 
 Copyright 2017-2018 Till Heinzel
@@ -23,8 +23,8 @@ limitations under the License.
 #include <map>
 #include <string>
 
-#include "src/VarExpression.h"
-#include "src/TypedExpression.h"
+#include "src/DynamicExpression.h"
+#include "src/StaticExpression.h"
 #include "src/TypeEnum.h"
 
 #include "src/CompilerBits.h"
@@ -35,7 +35,7 @@ namespace metl
 	class OutputExpression
 	{
 	public:
-		using Expression = VarExpression<Ts...>;
+		using Expression = DynamicExpression<Ts...>;
 
 		OutputExpression(const Expression& expr, const std::map<std::string, internal::ConversionImpl<Expression>>& casts) :
 			expressions_(castToAll(expr, casts)),
@@ -43,7 +43,7 @@ namespace metl
 		{}
 
 		template<class T>
-		TypedExpression<T> get() const
+		StaticExpression<T> get() const
 		{
 			auto it = expressions_.find(classToType2<T, Ts...>());
 			if (it != expressions_.end())

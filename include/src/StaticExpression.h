@@ -22,7 +22,7 @@ limitations under the License.
 
 namespace metl
 {
-	template<class T> using TypedExpression = std::function<T()>;
+	template<class T> using StaticExpression = std::function<T()>;
 }
 
 //#include <type_traits>
@@ -30,17 +30,17 @@ namespace metl
 //namespace metl
 //{
 //	template<class T>
-//	class TypedExpression
+//	class StaticExpression
 //	{
 //		using FunctionType = std::function<T()>;
 //	public:
 //
 //		template<class F, typename = std::enable_if_t<!std::is_constructible<FunctionType, const F&>::value>>
-//		TypedExpression(const F& f, ...)
+//		StaticExpression(const F& f, ...)
 //		{}
 //
 //		template<class F, typename = std::enable_if_t<std::is_constructible<FunctionType, const F&>::value>>
-//		TypedExpression(const F& f) :
+//		StaticExpression(const F& f) :
 //			f_(f)
 //		{}
 //

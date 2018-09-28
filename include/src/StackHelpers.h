@@ -79,12 +79,12 @@ namespace metl
 		Expression changeSign_impl(TypeList<T, Ts...>, const Expression& expression)
 		{
 			return expression.type() == Expression::template toType<T>() ?
-				Expression(TypedExpression<T>([f{ expression.template get<T>() }](){return -f(); })) :
+				Expression(StaticExpression<T>([f{ expression.template get<T>() }](){return -f(); })) :
 				changeSign_impl(TypeList<Ts...>{}, expression);
 		}
 
 		template<class... Ts>
-		VarExpression<Ts...> changeSign(const VarExpression<Ts...>& expression)
+		DynamicExpression<Ts...> changeSign(const DynamicExpression<Ts...>& expression)
 		{
 			return changeSign_impl(TypeList<Ts...>{}, expression);
 		}
