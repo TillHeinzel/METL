@@ -28,10 +28,10 @@ namespace metl
 		template<class UntypedExpression_t>
 		using UntypedConversion = UntypedOperation<UntypedExpression_t, UntypedExpression_t>;
 
-		template<class UntypedExpression_t, class ArgumentType, class F>
-		UntypedConversion<UntypedExpression_t> makeDynamicConversion(const F& typedFunction)
+		template<class UntypedExpression_t, class ArgumentType, class TypedValueFunction>
+		UntypedConversion<UntypedExpression_t> makeDynamicConversion(const TypedValueFunction& typedValueFunction)
 		{
-			return makeUntypedOperation<UntypedExpression_t, UntypedExpression_t, ArgumentType>(typedFunction);
+			return UntypedConversion<UntypedExpression_t>::template fromTypedValueFunction<ArgumentType>(typedValueFunction);
 		}
 	}
 }

@@ -32,10 +32,10 @@ namespace metl
 		using UntypedFunction = UntypedOperation<UntypedExpression_t, std::vector<UntypedExpression_t>>;
 
 
-		template <class UntypedExpression_t, class... ArgumentTypes, class TypedFunction>
-		UntypedFunction<UntypedExpression_t> makeDynamicFunction(const TypedFunction& typedFunction)
+		template <class UntypedExpression_t, class... ArgumentTypes, class TypedValueFunction>
+		UntypedFunction<UntypedExpression_t> makeDynamicFunction(const TypedValueFunction& typedValueFunction)
 		{
-			return makeUntypedOperation<UntypedExpression_t, std::vector<UntypedExpression_t>, ArgumentTypes...>(typedFunction);
+			return UntypedFunction<UntypedExpression_t>::template fromTypedValueFunction<ArgumentTypes...>(typedValueFunction);
 		}
 	}
 }

@@ -30,6 +30,7 @@ limitations under the License.
 #include "src/TypeErasure/CategoryEnum.h"
 #include "src/TypeErasure/UntypedExpression.h"
 #include "src/TypeErasure/getTypedExpressions.h"
+#include "src/TypeErasure/areAllConstexpr.h"
 
 namespace metl
 {
@@ -42,14 +43,25 @@ namespace metl
 
 			using UntypedExpressionFunction = std::function<UntypedExpression_t(const Input&)>;
 		public:
-			UntypedOperation(UntypedExpressionFunction untypedExpressionFunction) : untypedExpressionFunction_(std::move(untypedExpressionFunction))
-			{}
 
-			UntypedExpression_t operator()(const Input& v) const
+			template<class... ArgumentTypes, class TypedValueFunction>
+			static UntypedOperation fromTypedValueFunction(const TypedValueFunction& typedValueFunction)
 			{
-				auto resultExpression = untypedExpressionFunction_(v);
+				auto untypedOperationLambda = [typedValueFunction](const Input& untypedArgumentExpressions)
+				{
+					auto typedArgumentExpressions = getTypedExpressions<ArgumentTypes...>(untypedArgumentExpressions);
+					auto typedResultExpression = makeTypedExpression(typedValueFunction, typedArgumentExpressions);
+					return UntypedExpression_t(std::move(typedResultExpression));
+				};
 
-				if(resultShouldBeConstexpr(v))
+				return {std::move(untypedOperationLambda)};
+			}
+
+			UntypedExpression_t operator()(const Input& inputExpressions) const
+			{
+				auto resultExpression = untypedExpressionFunction_(inputExpressions);
+
+				if(areAllConstexpr(inputExpressions))
 				{
 					return resultExpression.evaluatedExpression();
 				}
@@ -57,39 +69,11 @@ namespace metl
 				return resultExpression;
 			}
 
-		protected:
+		private:
+			UntypedOperation(UntypedExpressionFunction untypedExpressionFunction) : untypedExpressionFunction_(std::move(untypedExpressionFunction))
+			{}
+
 			UntypedExpressionFunction untypedExpressionFunction_;
-
-			static bool resultShouldBeConstexpr(const UntypedExpression_t& v)
-			{
-				return v.isConstexpr();
-			}
-
-			static bool resultShouldBeConstexpr(const std::vector<UntypedExpression_t>& v)
-			{
-				bool shouldBeConst = true;
-				for(const auto &expr : v)
-				{
-					if(!expr.isConstexpr())
-					{
-						shouldBeConst = false;
-						break;
-					}
-				}
-				return shouldBeConst;
-			}
 		};
-
-		template<class UntypedExpression_t, class Input, class... ArgumentTypes, class TypedValueFunction>
-		UntypedOperation<UntypedExpression_t, Input> makeUntypedOperation(const TypedValueFunction& typedValueFunction)
-		{
-			auto untypedOperationLambda = [typedValueFunction](const Input& untypedArgumentExpressions)
-			{
-				auto typedArgumentExpressions = getTypedExpressions<ArgumentTypes...>(untypedArgumentExpressions);
-				return UntypedExpression_t(makeTypedExpression(typedValueFunction, typedArgumentExpressions));
-			};
-
-			return {std::move(untypedOperationLambda)};
-		}
 	}
 }

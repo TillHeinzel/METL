@@ -36,10 +36,26 @@ namespace metl
 	class UntypedExpression
 	{
 	public:
+		template<class T>
+		static UntypedExpression makeConstexpr(T&& t)
+		{
+			auto ExpressionLambda = [t = std::forward<T>(t)]()
+			{
+				return t;
+			};
+			return UntypedExpression(std::move(ExpressionLambda), CATEGORY::CONSTEXPR);
+		}
+
+		template<class T>
+		static UntypedExpression makeNonConstexpr(const TypedExpression<T>& t)
+		{
+			return UntypedExpression(t, CATEGORY::DYNEXPR);
+		}
+
 		template<class T, std::enable_if_t<!internal::isInList<T, Ts...>(), int> = 0>
 		UntypedExpression(const TypedExpression<T>& t, CATEGORY category = CATEGORY::DYNEXPR)
 		{
-			static_assert(!internal::isInList<T, Ts...>(), "cannot construct Varexpression with this type");
+			static_assert(!internal::isInList<T, Ts...>(), "cannot construct UntypedExpression with this type");
 		}
 
 		template<class T, std::enable_if_t<internal::isInList<T, Ts...>(), int> = 0>
