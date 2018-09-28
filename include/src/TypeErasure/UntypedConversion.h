@@ -25,8 +25,8 @@ namespace metl
 {
 	namespace internal
 	{
-		template<class Expression_t>
-		using UntypedConversion = UntypedOperation<Expression_t, Expression_t>;
+		template<class UntypedExpression_t>
+		using UntypedConversion = UntypedOperation<UntypedExpression_t, UntypedExpression_t>;
 
 		template<class UntypedExpression_t, class ArgumentType, class F>
 		UntypedConversion<UntypedExpression_t> makeDynamicConversion(const F& typedFunction)

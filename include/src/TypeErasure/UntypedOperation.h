@@ -40,14 +40,14 @@ namespace metl
 		{
 			static_assert(std17::is_same_v<Input, UntypedExpression_t> || std17::is_same_v<Input, std::vector<UntypedExpression_t>>, "");
 
-			using FunctionType = std::function<UntypedExpression_t(const Input&)>;
+			using UntypedExpressionFunction = std::function<UntypedExpression_t(const Input&)>;
 		public:
-			UntypedOperation(FunctionType f) : f_(f)
+			UntypedOperation(UntypedExpressionFunction untypedExpressionFunction) : untypedExpressionFunction_(std::move(untypedExpressionFunction))
 			{}
 
 			UntypedExpression_t operator()(const Input& v) const
 			{
-				auto resultExpression = f_(v);
+				auto resultExpression = untypedExpressionFunction_(v);
 
 				if(resultShouldBeConstexpr(v))
 				{
@@ -58,19 +58,19 @@ namespace metl
 			}
 
 		protected:
-			FunctionType f_;
+			UntypedExpressionFunction untypedExpressionFunction_;
 
-			bool resultShouldBeConstexpr(const UntypedExpression_t& v) const
+			static bool resultShouldBeConstexpr(const UntypedExpression_t& v)
 			{
-				return v.category() == CATEGORY::CONSTEXPR;
+				return v.isConstexpr();
 			}
 
-			bool resultShouldBeConstexpr(const std::vector<UntypedExpression_t>& v) const
+			static bool resultShouldBeConstexpr(const std::vector<UntypedExpression_t>& v)
 			{
 				bool shouldBeConst = true;
 				for(const auto &expr : v)
 				{
-					if(expr.category() == CATEGORY::DYNEXPR)
+					if(!expr.isConstexpr())
 					{
 						shouldBeConst = false;
 						break;
@@ -80,13 +80,13 @@ namespace metl
 			}
 		};
 
-		template<class UntypedExpression_t, class Input, class... ArgumentTypes, class F>
-		UntypedOperation<UntypedExpression_t, Input> makeUntypedOperation(const F& typedFunction)
+		template<class UntypedExpression_t, class Input, class... ArgumentTypes, class TypedValueFunction>
+		UntypedOperation<UntypedExpression_t, Input> makeUntypedOperation(const TypedValueFunction& typedValueFunction)
 		{
-			auto untypedOperationLambda = [typedFunction](const Input& untypedArgumentExpressions)
+			auto untypedOperationLambda = [typedValueFunction](const Input& untypedArgumentExpressions)
 			{
 				auto typedArgumentExpressions = getTypedExpressions<ArgumentTypes...>(untypedArgumentExpressions);
-				return UntypedExpression_t(makeTypedExpression(typedFunction, typedArgumentExpressions));
+				return UntypedExpression_t(makeTypedExpression(typedValueFunction, typedArgumentExpressions));
 			};
 
 			return {std::move(untypedOperationLambda)};
