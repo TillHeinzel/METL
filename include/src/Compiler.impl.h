@@ -30,6 +30,7 @@ limitations under the License.
 #include "Stack.impl.h"
 
 #include "CompilerBits.impl.h"
+#include "src/VariableExpression.h"
 
 namespace metl
 {

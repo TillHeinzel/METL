@@ -39,7 +39,7 @@ namespace metl
 		template<class T, std::enable_if_t<!internal::isInList<T, Ts...>(), int> = 0>
 		VarExpression(const TypedExpression<T>& t, CATEGORY category = CATEGORY::DYNEXPR)
 		{
-			static_assert(false, "cannot construction Varexpression with this type");
+			static_assert(!internal::isInList<T, Ts...>(), "cannot construct Varexpression with this type");
 		}
 
 		template<class T, std::enable_if_t<internal::isInList<T, Ts...>(), int> = 0>

@@ -24,11 +24,13 @@ limitations under the License.
 
 #include "src/Utility/Typelist.h"
 
+#include "src/VarExpression.h"
+
 namespace metl
 {
 	namespace internal
 	{
-		template<class Expression>
+		template <class Expression>
 		class ConversionImpl
 		{
 			using FunctionType = std::function<Expression(Expression)>;
@@ -58,7 +60,7 @@ namespace metl
 		};
 
 		template<class Expression, class From, class F>
-		ConversionImpl<Expression> makeCastImpl(const F& f)
+		ConversionImpl<Expression> makeConversionImpl(const F& f)
 		{
 			using To = std::result_of_t<F(From)>;
 
@@ -67,15 +69,14 @@ namespace metl
 
 			return {[f](const Expression& from)
 			{
-				auto f_from = from.template get<From>();
-				return Expression(TypedExpression<To>{
-					[f, f_from]()
-					{
-						return f(f_from());
-					}
+				auto typedArgumentExpressions = std::make_tuple(from.template get<From>());
+				return Expression(TypedExpression<To>{[f, typedArgumentExpressions]()
+				{
+					auto typedArguments = evaluate_each(typedArgumentExpressions);
+					return std17::apply(f, std::move(typedArguments));
+				}
 				});
 			}};
 		}
-
 	}
 }

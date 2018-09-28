@@ -18,7 +18,7 @@ public:
 	{
 		{
 			internal::mangleCast(classToType2<int, bool, int, double>(), classToType2<double, bool, int, double>()),
-			internal::makeCastImpl<Expr, int>([](int i) {return static_cast<double>(i); })
+			internal::makeConversionImpl<Expr, int>([](int i) {return static_cast<double>(i); })
 		}
 	};
 

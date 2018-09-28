@@ -114,7 +114,7 @@ namespace metl
 		static_assert(internal::isInList<From, Ts...>(), "Type casted from is not one of the types of this compiler!");
 		static_assert(internal::isInList<To, Ts...>(), "Type casted to is not one of the types of this compiler!");
 
-		impl_.bits_.setCast(type<From>(), type<To>(), internal::makeCastImpl<Expression, From>(f));
+		impl_.bits_.setCast(type<From>(), type<To>(), internal::makeConversionImpl<Expression, From>(f));
 	}
 
 	template <class Grammar, class LiteralsConverters, class ... Ts>
@@ -126,7 +126,7 @@ namespace metl
 		static_assert(isInList<From, Ts...>(), "Type the suffix converts from is not one of the types of this compiler!");
 		static_assert(isInList<To, Ts...>(), "Type the suffix converts to is not one of the types of this compiler!");
 		
-		impl_.bits_.setSuffix(token, type<From>(),internal::makeCastImpl<Expression, From>(f));
+		impl_.bits_.setSuffix(token, type<From>(),internal::makeConversionImpl<Expression, From>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>

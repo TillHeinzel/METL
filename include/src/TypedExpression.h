@@ -24,3 +24,38 @@ namespace metl
 {
 	template<class T> using TypedExpression = std::function<T()>;
 }
+
+//#include <type_traits>
+//
+//namespace metl
+//{
+//	template<class T>
+//	class TypedExpression
+//	{
+//		using FunctionType = std::function<T()>;
+//	public:
+//
+//		template<class F, typename = std::enable_if_t<!std::is_constructible<FunctionType, const F&>::value>>
+//		TypedExpression(const F& f, ...)
+//		{}
+//
+//		template<class F, typename = std::enable_if_t<std::is_constructible<FunctionType, const F&>::value>>
+//		TypedExpression(const F& f) :
+//			f_(f)
+//		{}
+//
+//		T operator() () const
+//		{
+//			return f_();
+//		}
+//
+//		template<class... TT>
+//		auto* target()
+//		{
+//			return f_.target<TT...>();
+//		}
+//	private:
+//		FunctionType f_;
+//	};
+//}
+//

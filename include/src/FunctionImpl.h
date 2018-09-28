@@ -31,6 +31,8 @@ limitations under the License.
 
 #include "CategoryEnum.h"
 
+#include "src/VarExpression.h"
+
 namespace metl
 {
 	namespace internal
@@ -39,7 +41,6 @@ namespace metl
 		class FunctionImpl
 		{
 			using FunctionType = std::function<Expression(const std::vector<Expression>&)>;
-
 		public:
 			FunctionImpl(FunctionType f) : f_(f)
 			{}
@@ -57,6 +58,8 @@ namespace metl
 			}
 
 		private:
+			FunctionType f_;
+
 			bool resultShouldBeConstexpr(const std::vector<Expression>& v) const
 			{
 				bool shouldBeConst = true;
@@ -71,28 +74,36 @@ namespace metl
 				return shouldBeConst;
 			}
 
-			FunctionType f_;
 		};
 
+
+
 		template <class... Ts, std::size_t... Ind, class Expression>
-		auto getTypedExpressions(const std::vector<Expression>& v, std::index_sequence<Ind...>)
+		auto getTypedExpressions_impl(const std::vector<Expression>& v, std::index_sequence<Ind...>)
 		{
 			return std::make_tuple(v.at(Ind).template get<Ts>()...);
 		}
 
-		template <class Expression, class... Ts, class F>
-		FunctionImpl<Expression> makeFunction(const F &f)
+		template <class... Ts, class Expression>
+		auto getTypedExpressions(const std::vector<Expression>& v)
 		{
-			return {[f](const std::vector<Expression> &v)
+			return getTypedExpressions_impl<Ts...>(v, std::make_index_sequence<sizeof...(Ts)>{});
+		}
+
+
+		template <class Expression, class... ArgumentTypes, class TypedFunction>
+		FunctionImpl<Expression> makeFunction(const TypedFunction& typedFunction)
+		{
+			return {[typedFunction](const std::vector<Expression>& v)
 			{
-				auto vv = getTypedExpressions<Ts...>(v, std::make_index_sequence<sizeof...(Ts)>{});
+				auto typedArgumentExpressions = getTypedExpressions<ArgumentTypes...>(v);
 
-				using retType = std::result_of_t<F(Ts...)>;
+				using retType = std::result_of_t<TypedFunction(ArgumentTypes...)>;
 
-				return Expression(TypedExpression<retType>([f, vv]()
+				return Expression(TypedExpression<retType>([typedFunction, typedArgumentExpressions]()
 				{
-					auto vals = evaluate_each(vv);
-					return std17::apply(f, vals);
+					auto typedArguments = evaluate_each(typedArgumentExpressions);
+					return std17::apply(typedFunction, typedArguments);
 				}));
 			}};
 		}
