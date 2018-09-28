@@ -22,7 +22,7 @@ namespace metl
 		template <class T, class Expression>
 		auto getTypedExpressions(const Expression& e)
 		{
-			return std::make_tuple(e.get<T>());
+			return std::make_tuple(e.template get<T>());
 		}
 	}
 }

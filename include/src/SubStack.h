@@ -27,7 +27,7 @@ limitations under the License.
 
 #include "opCarrier.h"
 #include "suffixCarrier.h"
-#include "src/UntypedExpression.h"
+#include "src/TypeErasure/UntypedExpression.h"
 #include "CompilerBits.h"
 
 namespace metl

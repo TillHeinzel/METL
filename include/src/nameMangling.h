@@ -23,7 +23,7 @@ limitations under the License.
 #include <functional>
 #include <string>
 
-#include "src/TypeEnum.h"
+#include "src/TypeErasure/TypeEnum.h"
 
 namespace metl
 {

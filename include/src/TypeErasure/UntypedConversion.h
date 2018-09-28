@@ -19,7 +19,7 @@ limitations under the License.
 */
 #pragma once
 
-#include "src/UntypedOperation.h"
+#include "src/TypeErasure/UntypedOperation.h"
 
 namespace metl
 {

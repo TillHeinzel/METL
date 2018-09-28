@@ -25,10 +25,10 @@ limitations under the License.
 #include "src/Utility/TypeList.h"
 #include "src/std17/remove_cvref.h"
 
-#include "src/TypeEnum.h"
-#include "src/TypedExpression.h"
+#include "src/TypeErasure/TypeEnum.h"
+#include "src/TypeErasure/TypedExpression.h"
 
-#include "CategoryEnum.h"
+#include "src/TypeErasure/CategoryEnum.h"
 
 namespace metl
 {

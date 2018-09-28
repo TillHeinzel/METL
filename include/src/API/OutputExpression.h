@@ -23,9 +23,9 @@ limitations under the License.
 #include <map>
 #include <string>
 
-#include "src/UntypedExpression.h"
-#include "src/TypedExpression.h"
-#include "src/TypeEnum.h"
+#include "src/TypeErasure/UntypedExpression.h"
+#include "src/TypeErasure/TypedExpression.h"
+#include "src/TypeErasure/TypeEnum.h"
 
 #include "src/CompilerBits.h"
 

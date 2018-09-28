@@ -27,13 +27,9 @@ limitations under the License.
 #include "src/std17/apply.h"
 #include "src/std17/is_same_v.h"
 
-#include "Associativity.h"
-#include "EvaluateConstexpr.h"
-
-#include "CategoryEnum.h"
-
-#include "src/UntypedExpression.h"
-#include "src/getTypedExpressions.h"
+#include "src/TypeErasure/CategoryEnum.h"
+#include "src/TypeErasure/UntypedExpression.h"
+#include "src/TypeErasure/getTypedExpressions.h"
 
 namespace metl
 {

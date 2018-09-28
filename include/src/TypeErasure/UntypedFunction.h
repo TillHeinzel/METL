@@ -22,7 +22,7 @@ limitations under the License.
 
 #include <vector>
 
-#include "src/UntypedOperation.h"
+#include "src/TypeErasure/UntypedOperation.h"
 
 namespace metl
 {
