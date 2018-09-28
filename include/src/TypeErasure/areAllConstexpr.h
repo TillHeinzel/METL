@@ -13,16 +13,14 @@ namespace metl
 		template<class UntypedExpression_t>
 		bool areAllConstexpr(const std::vector<UntypedExpression_t>& v)
 		{
-			bool areAll = true;
 			for(const auto &expr : v)
 			{
 				if(!expr.isConstexpr())
 				{
-					areAll = false;
-					break;
+					return false;
 				}
 			}
-			return areAll;
+			return true;
 		}
 	}
 }

@@ -8,7 +8,9 @@ class UntypedExpressionFixture : public ::testing::Test
 {
 public:
 	metl::TypedExpression<int> function{ []()->int {return 0; } };
-	metl::UntypedExpression<bool, int, double> expression{ function, metl::CATEGORY::CONSTEXPR };
+
+	using Expression = metl::UntypedExpression<bool, int, double>;
+	Expression expression = Expression::makeConstexpr( function());
 };
 
 TEST_F(UntypedExpressionFixture, type)
@@ -63,7 +65,8 @@ TEST_F(UntypedExpressionFixture, evaluatedExpression)
 		++evaluationCount;
 		return 0;
 	} };
-	metl::UntypedExpression<bool, int, double> expression2{ function2, metl::CATEGORY::CONSTEXPR };
+	
+	auto expression2 = Expression::makeNonConstexpr(function2);
 
 	EXPECT_EQ(0, evaluationCount);
 

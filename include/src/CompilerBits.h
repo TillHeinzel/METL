@@ -23,7 +23,6 @@ limitations under the License.
 
 #include "src/TypeErasure/UntypedExpression.h"
 #include "Associativity.h"
-#include "EvaluateConstexpr.h"
 
 #include "src/suffixCarrier.h"
 #include "src/opCarrier.h"

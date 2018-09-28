@@ -10,5 +10,5 @@ public:
 	}};
 
 	using Expression = metl::UntypedExpression<bool, int, double>;
-	Expression intExpression{intFunction, metl::CATEGORY::CONSTEXPR};
+	Expression intExpression = Expression::makeConstexpr(intFunction());
 };

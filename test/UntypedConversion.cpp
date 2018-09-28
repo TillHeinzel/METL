@@ -55,7 +55,7 @@ TEST_F(DynamicConversionFixture, withNonConstexpr)
 	{
 		return i;
 	});
-	auto dynamicIntExpression = Expression{dynamicIntFunction, metl::CATEGORY::DYNEXPR};
+	auto dynamicIntExpression = Expression::makeNonConstexpr(dynamicIntFunction);
 
 	auto dynamicConversion = internal::makeDynamicConversion<Expression, int>(f);
 

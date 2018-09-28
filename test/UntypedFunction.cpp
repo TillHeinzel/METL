@@ -41,7 +41,7 @@ TEST_F(DynamicFunctionFixture, withConstexpr)
 	{
 		return true;
 	});
-	auto boolExpression = Expression{boolFunction, metl::CATEGORY::CONSTEXPR};
+	auto boolExpression = Expression::makeConstexpr(boolFunction());
 
 	auto dynamicFunction = internal::makeDynamicFunction<Expression, bool, int>(f);
 
@@ -61,7 +61,7 @@ TEST_F(DynamicFunctionFixture, withNonConstexpr)
 	{
 		return b;
 	});
-	auto boolExpression = Expression{boolFunction, metl::CATEGORY::DYNEXPR};
+	auto boolExpression = Expression::makeNonConstexpr(boolFunction);
 
 	auto dynamicFunction = internal::makeDynamicFunction<Expression, bool, int>(f);
 

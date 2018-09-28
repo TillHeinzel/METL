@@ -37,13 +37,15 @@ namespace metl
 	{
 	public:
 		template<class T>
-		static UntypedExpression makeConstexpr(T&& t)
+		static UntypedExpression makeConstexpr(T t)
 		{
-			auto ExpressionLambda = [t = std::forward<T>(t)]()
+			static_assert(internal::isInList<T, Ts...>(), "cannot construct UntypedExpression with this type");
+			auto ExpressionLambda = [t]()
 			{
 				return t;
 			};
-			return UntypedExpression(std::move(ExpressionLambda), CATEGORY::CONSTEXPR);
+			auto typedExpression = TypedExpression<T>{ExpressionLambda};
+			return UntypedExpression(typedExpression, CATEGORY::CONSTEXPR);
 		}
 
 		template<class T>
@@ -51,19 +53,6 @@ namespace metl
 		{
 			return UntypedExpression(t, CATEGORY::DYNEXPR);
 		}
-
-		template<class T, std::enable_if_t<!internal::isInList<T, Ts...>(), int> = 0>
-		UntypedExpression(const TypedExpression<T>& t, CATEGORY category = CATEGORY::DYNEXPR)
-		{
-			static_assert(!internal::isInList<T, Ts...>(), "cannot construct UntypedExpression with this type");
-		}
-
-		template<class T, std::enable_if_t<internal::isInList<T, Ts...>(), int> = 0>
-		UntypedExpression(const TypedExpression<T>& t, CATEGORY category = CATEGORY::DYNEXPR) :
-			type_(classToType2<T, Ts...>()),
-			category_(category),
-			vals_(t)
-		{}
 
 		template<class T> TypedExpression<T> get() const
 		{
@@ -116,6 +105,21 @@ namespace metl
 			return classToType2<T, Ts...>();
 		}
 	private:
+
+		template<class T, std::enable_if_t<!internal::isInList<T, Ts...>(), int> = 0>
+		UntypedExpression(const TypedExpression<T>&, CATEGORY = CATEGORY::DYNEXPR)
+		{
+			static_assert(internal::isInList<T, Ts...>(), "cannot construct UntypedExpression with this type");
+		}
+
+		template<class T, std::enable_if_t<internal::isInList<T, Ts...>(), int> = 0>
+		UntypedExpression(const TypedExpression<T>& t, CATEGORY category = CATEGORY::DYNEXPR) :
+			type_(classToType2<T, Ts...>()),
+			category_(category),
+			vals_(t)
+		{}
+
+
 		TYPE type_;
 		CATEGORY category_;
 

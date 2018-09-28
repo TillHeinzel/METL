@@ -133,7 +133,7 @@ namespace metl
 	template <class T>
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setConstant(const std::string& token, T&& val)
 	{
-		impl_.bits_.addConstantOrVariable(token, internal::makeConstExpression<Expression>(std::forward<T>(val)));
+		impl_.bits_.addConstantOrVariable(token, Expression::makeConstexpr(std::forward<T>(val)));
 	}
 
 	template <class Grammar, class LiteralsConverters, class ... Ts>

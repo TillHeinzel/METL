@@ -51,7 +51,12 @@ namespace metl
 				{
 					auto typedArgumentExpressions = getTypedExpressions<ArgumentTypes...>(untypedArgumentExpressions);
 					auto typedResultExpression = makeTypedExpression(typedValueFunction, typedArgumentExpressions);
-					return UntypedExpression_t(std::move(typedResultExpression));
+
+					if(areAllConstexpr(untypedArgumentExpressions))
+					{
+						return UntypedExpression_t::makeConstexpr(typedResultExpression());
+					}
+					return UntypedExpression_t::makeNonConstexpr(std::move(typedResultExpression));
 				};
 
 				return {std::move(untypedOperationLambda)};
@@ -59,14 +64,7 @@ namespace metl
 
 			UntypedExpression_t operator()(const Input& inputExpressions) const
 			{
-				auto resultExpression = untypedExpressionFunction_(inputExpressions);
-
-				if(areAllConstexpr(inputExpressions))
-				{
-					return resultExpression.evaluatedExpression();
-				}
-
-				return resultExpression;
+				return untypedExpressionFunction_(inputExpressions);
 			}
 
 		private:

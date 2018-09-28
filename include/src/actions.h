@@ -40,7 +40,7 @@ namespace metl
 			constexpr_if_else(std17::bool_constant<isInList<TargetType, Ts...>()>(),
 				[&](auto _) ->void
 			{
-				_(compiler).stack_.push(makeConstExpression<typename Compiler::Expression>(converter.f(input)));
+				_(compiler).stack_.push(Compiler::Expression::makeConstexpr(converter.f(input)));
 			},
 				[&](auto _)->void
 			{

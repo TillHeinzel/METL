@@ -39,7 +39,7 @@ namespace metl
 		{
 			auto f = VariableExpression<T>{ v };
 
-			return Expression(TypedExpression<T>(f), CATEGORY::DYNEXPR);
+			return Expression::makeNonConstexpr(TypedExpression<T>(f));
 		}
 	}
 }

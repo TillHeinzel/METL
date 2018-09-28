@@ -12,7 +12,7 @@ class OutExpressionFixture : public ::testing::Test
 public:
 	using Expr = UntypedExpression<bool, int, double>;
 
-	Expr varExpression{ TypedExpression<int>([]()->int {return 0; }), CATEGORY::CONSTEXPR };
+	Expr varExpression = Expr::makeConstexpr(0);
 
 	std::map<std::string, internal::UntypedConversion<Expr>> casts
 	{
