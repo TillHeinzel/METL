@@ -24,18 +24,19 @@ limitations under the License.
 
 #include "src/Utility/Typelist.h"
 
-#include "src/DynamicExpression.h"
+#include "src/UntypedExpression.h"
+#include "src/UntypedOperation.h"
 
 namespace metl
 {
 	namespace internal
 	{
 		template <class Expression>
-		class DynamicConversion
+		class UntypedConversion
 		{
 			using FunctionType = std::function<Expression(Expression)>;
 		public:
-			DynamicConversion(FunctionType f) :f_(f)
+			UntypedConversion(FunctionType f) :f_(f)
 			{}
 
 			Expression operator()(Expression v) const
@@ -60,7 +61,7 @@ namespace metl
 		};
 
 		template<class Expression, class From, class F>
-		DynamicConversion<Expression> makeDynamicConversion(const F& f)
+		UntypedConversion<Expression> makeDynamicConversion(const F& f)
 		{
 			using To = std::result_of_t<F(From)>;
 
@@ -70,7 +71,7 @@ namespace metl
 			return {[f](const Expression& from)
 			{
 				auto typedArgumentExpressions = std::make_tuple(from.template get<From>());
-				return Expression(StaticExpression<To>{[f, typedArgumentExpressions]()
+				return Expression(TypedExpression<To>{[f, typedArgumentExpressions]()
 				{
 					auto typedArguments = evaluate_each(typedArgumentExpressions);
 					return std17::apply(f, std::move(typedArguments));

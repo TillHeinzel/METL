@@ -21,7 +21,7 @@ limitations under the License.
 
 #include <map>
 
-#include "src/DynamicExpression.h"
+#include "src/UntypedExpression.h"
 #include "Stack.h"
 #include "CompilerBits.h"
 
@@ -35,7 +35,7 @@ namespace metl
 		{
 
 		public:
-			using Expression = DynamicExpression<Ts...>;
+			using Expression = UntypedExpression<Ts...>;
 			constexpr static auto getTypeList() { return TypeList<Ts...>(); }
 
 			Compiler(const LiteralConverters& literalConverters);

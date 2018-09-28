@@ -37,12 +37,12 @@ namespace metl
 	namespace detail 
 	{
 		template<class Expr>
-		void castToAll(Expr&, const std::map<std::string, internal::DynamicConversion<Expr>>&)
+		void castToAll(Expr&, const std::map<std::string, internal::UntypedConversion<Expr>>&)
 		{
 		}
 
 		template<class T, class... Ts, class Expr>
-		void castToAll(Expr& expr, const std::map<std::string, internal::DynamicConversion<Expr>>& castImpls)
+		void castToAll(Expr& expr, const std::map<std::string, internal::UntypedConversion<Expr>>& castImpls)
 		{
 			auto it = castImpls.find(internal::mangleCast(expr.type(), expr.template toType<T>()));
 			if(it != castImpls.end())
@@ -67,7 +67,7 @@ namespace metl
 
 	template <class Grammar, class LiteralConverters, class... Ts>
 	template <class T>
-	StaticExpression<T> CompilerApi<Grammar, LiteralConverters, Ts...>::build(const std::string& expression)
+	TypedExpression<T> CompilerApi<Grammar, LiteralConverters, Ts...>::build(const std::string& expression)
 	{
 		return build(expression).template get<T>();
 	}

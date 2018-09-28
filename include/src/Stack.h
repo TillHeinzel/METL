@@ -24,7 +24,7 @@ limitations under the License.
 
 #include "opCarrier.h"
 #include "suffixCarrier.h"
-#include "src/DynamicExpression.h"
+#include "src/UntypedExpression.h"
 #include "CompilerBits.h"
 #include "SubStack.h"
 
@@ -36,7 +36,7 @@ namespace metl
 		template<class... Ts>
 		class Stack
 		{
-			using Expression = DynamicExpression<Ts...>;
+			using Expression = UntypedExpression<Ts...>;
 
 		public:
 			Stack(const CompilerBits<Ts...>& bits);

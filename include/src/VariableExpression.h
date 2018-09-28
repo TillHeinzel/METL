@@ -20,7 +20,7 @@ limitations under the License.
 #pragma once
 
 #include "nameMangling.h"
-#include "src/DynamicExpression.h"
+#include "src/UntypedExpression.h"
 
 namespace metl
 {
@@ -39,7 +39,7 @@ namespace metl
 		{
 			auto f = VariableExpression<T>{ v };
 
-			return Expression(StaticExpression<T>(f), CATEGORY::DYNEXPR);
+			return Expression(TypedExpression<T>(f), CATEGORY::DYNEXPR);
 		}
 	}
 }

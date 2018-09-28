@@ -54,7 +54,7 @@ namespace metl
 
 		template <class ... Ts>
 		void CompilerBits<Ts...>::setOperator(const std::string& token,
-			const std::vector<TYPE>& paramTypes, const DynamicFunction<Expression>& op)
+			const std::vector<TYPE>& paramTypes, const UntypedFunction<Expression>& op)
 		{
 			// check, if operator is in the list of precedences. 
 			auto it = opCarriers_.find(token);
@@ -69,7 +69,7 @@ namespace metl
 
 		template <class ... Ts>
 		void CompilerBits<Ts...>::setUnaryOperator(const std::string& token, TYPE paramType,
-			const DynamicFunction<Expression>& op)
+			const UntypedFunction<Expression>& op)
 		{
 			auto it = unaryCarriers_.find(token);
 			if (it == unaryCarriers_.end())
@@ -83,14 +83,14 @@ namespace metl
 
 		template <class ... Ts>
 		void CompilerBits<Ts...>::setFunction(const std::string& token,
-			const std::vector<TYPE>& paramTypes, const DynamicFunction<Expression>& function)
+			const std::vector<TYPE>& paramTypes, const UntypedFunction<Expression>& function)
 		{
 			insert_or_emplace(functionNames_, token, token);
 			insert_or_emplace(functions_, mangleName(token, paramTypes), function);
 		}
 
 		template <class ... Ts>
-		void CompilerBits<Ts...>::setCast(const TYPE from, const TYPE to, const DynamicConversion<Expression>& fs)
+		void CompilerBits<Ts...>::setCast(const TYPE from, const TYPE to, const UntypedConversion<Expression>& fs)
 		{
 			auto it = castDeclarations_.find(from);
 			if (it == castDeclarations_.end())
@@ -106,7 +106,7 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void CompilerBits<Ts...>::setSuffix(const std::string& token, const TYPE from, const DynamicConversion<Expression>& conversion)
+		void CompilerBits<Ts...>::setSuffix(const std::string& token, const TYPE from, const UntypedConversion<Expression>& conversion)
 		{
 			insert_or_emplace(suffixes_, token, suffixCarrier{ token });
 			insert_or_emplace(suffixImplementations_, mangleSuffix(token, from), conversion);

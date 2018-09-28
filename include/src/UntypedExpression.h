@@ -1,6 +1,6 @@
 /*
-@file DynamicExpression.h
-Defines class DynamicExpression, which is a variant-type to contain std::functions returning different values.
+@file UntypedExpression.h
+Defines class UntypedExpression, which is a variant-type to contain std::functions returning different values.
 This is used to contain the results of parsing.
 
 Copyright 2017-2018 Till Heinzel
@@ -26,54 +26,62 @@ limitations under the License.
 #include "src/std17/remove_cvref.h"
 
 #include "src/TypeEnum.h"
-#include "src/StaticExpression.h"
+#include "src/TypedExpression.h"
 
 #include "CategoryEnum.h"
 
 namespace metl
 {
 	template<class... Ts>
-	class DynamicExpression
+	class UntypedExpression
 	{
 	public:
 		template<class T, std::enable_if_t<!internal::isInList<T, Ts...>(), int> = 0>
-		DynamicExpression(const StaticExpression<T>& t, CATEGORY category = CATEGORY::DYNEXPR)
+		UntypedExpression(const TypedExpression<T>& t, CATEGORY category = CATEGORY::DYNEXPR)
 		{
 			static_assert(!internal::isInList<T, Ts...>(), "cannot construct Varexpression with this type");
 		}
 
 		template<class T, std::enable_if_t<internal::isInList<T, Ts...>(), int> = 0>
-		DynamicExpression(const StaticExpression<T>& t, CATEGORY category = CATEGORY::DYNEXPR) :
+		UntypedExpression(const TypedExpression<T>& t, CATEGORY category = CATEGORY::DYNEXPR) :
 			type_(classToType2<T, Ts...>()),
 			category_(category),
 			vals_(t)
 		{
 		}
 
-		template<class T> StaticExpression<T> get() const
+		template<class T> TypedExpression<T> get() const
 		{
 			constexpr auto index = internal::findFirstIndex<T>(internal::TypeList<Ts...>{});
 			static_assert(index < sizeof...(Ts), "Error: Requested Type is not a valid type!");
 
-			if (mpark::holds_alternative<StaticExpression<T>>(vals_)) return mpark::get<StaticExpression<T>>(vals_);
+			if (mpark::holds_alternative<TypedExpression<T>>(vals_)) return mpark::get<TypedExpression<T>>(vals_);
 			throw std::runtime_error("this is not the correct type");
 		}
 
-		DynamicExpression evaluatedExpression() const 
+		UntypedExpression evaluatedExpression() const 
 		{
 			auto visitor = [](const auto& expr)
 			{
 				using exprType_T = std17::remove_cvref_t<decltype(expr)>;
 				auto value = expr();
 				auto constExpr = exprType_T([value]() {return value; });
-				return DynamicExpression<Ts...>(constExpr, CATEGORY::CONSTEXPR);
+				return UntypedExpression<Ts...>(constExpr, CATEGORY::CONSTEXPR);
 			};
 
 			return mpark::visit(visitor, vals_);
 		}
 
 		template<class T>
-		bool isType() const { return type_ == toType<T>(); }
+		bool isType() const 
+		{ 
+			return type_ == toType<T>(); 
+		}
+
+		bool isConstexpr() const
+		{
+			return category_ == CATEGORY::CONSTEXPR;
+		}
 
 		TYPE type() const { return type_; }
 		CATEGORY category() const { return category_; }
@@ -84,12 +92,12 @@ namespace metl
 		TYPE type_;
 		CATEGORY category_;
 
-		mpark::variant<StaticExpression<Ts>...> vals_;
+		mpark::variant<TypedExpression<Ts>...> vals_;
 	};
 
 	namespace internal
 	{
 		template<class... Ts>
-		constexpr TypeList<Ts...> getTypeList(Type<DynamicExpression<Ts...>>) { return TypeList<Ts...>{}; }
+		constexpr TypeList<Ts...> getTypeList(Type<UntypedExpression<Ts...>>) { return TypeList<Ts...>{}; }
 	}
 }

@@ -73,7 +73,7 @@ namespace metl
 			}
 			
 			template<class... Ts>
-			void assignToVar(DynamicExpression<Ts...>& existingVarExpression, const DynamicExpression<Ts...>& evaluatedExpr)// assumes the two expression have the same type
+			void assignToVar(UntypedExpression<Ts...>& existingVarExpression, const UntypedExpression<Ts...>& evaluatedExpr)// assumes the two expression have the same type
 			{
 				assignToVar_impl<Ts...>(existingVarExpression, evaluatedExpr);
 			}

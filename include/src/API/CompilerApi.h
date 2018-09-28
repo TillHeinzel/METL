@@ -31,7 +31,7 @@ namespace metl
 	class CompilerApi
 	{
 	public:
-		using Expression = DynamicExpression<Ts...>;
+		using Expression = UntypedExpression<Ts...>;
 		using OutExpression = OutputExpression<Ts...>;
 		using LiteralsConverters = LiteralsConverters_;
 
@@ -42,7 +42,7 @@ namespace metl
 		OutExpression build(const std::string& expression);
 
 		template<class T>
-		StaticExpression<T> build(const std::string& expression);
+		TypedExpression<T> build(const std::string& expression);
 
 	public:
 		void setOperatorPrecedence(std::string op, unsigned int precedence, ASSOCIATIVITY associativity = ASSOCIATIVITY::LEFT);

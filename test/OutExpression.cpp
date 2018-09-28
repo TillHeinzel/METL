@@ -10,11 +10,11 @@ using namespace metl;
 class OutExpressionFixture : public ::testing::Test
 {
 public:
-	using Expr = DynamicExpression<bool, int, double>;
+	using Expr = UntypedExpression<bool, int, double>;
 
-	Expr varExpression{ StaticExpression<int>([]()->int {return 0; }), CATEGORY::CONSTEXPR };
+	Expr varExpression{ TypedExpression<int>([]()->int {return 0; }), CATEGORY::CONSTEXPR };
 
-	std::map<std::string, internal::DynamicConversion<Expr>> casts
+	std::map<std::string, internal::UntypedConversion<Expr>> casts
 	{
 		{
 			internal::mangleCast(classToType2<int, bool, int, double>(), classToType2<double, bool, int, double>()),

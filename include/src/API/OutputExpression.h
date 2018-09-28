@@ -1,6 +1,6 @@
 /*
-@file DynamicExpression.h
-Defines class DynamicExpression, which is a variant-type to contain std::functions returning different values.
+@file UntypedExpression.h
+Defines class UntypedExpression, which is a variant-type to contain std::functions returning different values.
 This is used to contain the results of parsing.
 
 Copyright 2017-2018 Till Heinzel
@@ -23,8 +23,8 @@ limitations under the License.
 #include <map>
 #include <string>
 
-#include "src/DynamicExpression.h"
-#include "src/StaticExpression.h"
+#include "src/UntypedExpression.h"
+#include "src/TypedExpression.h"
 #include "src/TypeEnum.h"
 
 #include "src/CompilerBits.h"
@@ -35,15 +35,15 @@ namespace metl
 	class OutputExpression
 	{
 	public:
-		using Expression = DynamicExpression<Ts...>;
+		using Expression = UntypedExpression<Ts...>;
 
-		OutputExpression(const Expression& expr, const std::map<std::string, internal::DynamicConversion<Expression>>& casts) :
+		OutputExpression(const Expression& expr, const std::map<std::string, internal::UntypedConversion<Expression>>& casts) :
 			expressions_(castToAll(expr, casts)),
 			type_(expr.type())
 		{}
 
 		template<class T>
-		StaticExpression<T> get() const
+		TypedExpression<T> get() const
 		{
 			auto it = expressions_.find(classToType2<T, Ts...>());
 			if (it != expressions_.end())
@@ -63,7 +63,7 @@ namespace metl
 		const std::map<TYPE, Expression> expressions_;
 		TYPE type_;
 
-		std::map<TYPE, Expression> castToAll(const Expression& expr, const std::map<std::string, internal::DynamicConversion<Expression>>& casts)
+		std::map<TYPE, Expression> castToAll(const Expression& expr, const std::map<std::string, internal::UntypedConversion<Expression>>& casts)
 		{
 			std::map<TYPE, Expression> castedExpressions{ {expr.type(), expr} };
 			for (const auto& cast : casts)

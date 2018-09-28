@@ -31,18 +31,19 @@ limitations under the License.
 
 #include "CategoryEnum.h"
 
-#include "src/DynamicExpression.h"
+#include "src/UntypedExpression.h"
+#include "src/UntypedOperation.h"
 
 namespace metl
 {
 	namespace internal
 	{
 		template <class Expression>
-		class DynamicFunction
+		class UntypedFunction
 		{
 			using FunctionType = std::function<Expression(const std::vector<Expression>&)>;
 		public:
-			DynamicFunction(FunctionType f) : f_(f)
+			UntypedFunction(FunctionType f) : f_(f)
 			{}
 
 			Expression operator()(const std::vector<Expression>& v) const
@@ -92,19 +93,13 @@ namespace metl
 
 
 		template <class Expression, class... ArgumentTypes, class TypedFunction>
-		DynamicFunction<Expression> makeDynamicFunction(const TypedFunction& typedFunction)
+		UntypedFunction<Expression> makeDynamicFunction(const TypedFunction& typedFunction)
 		{
 			return {[typedFunction](const std::vector<Expression>& v)
 			{
 				auto typedArgumentExpressions = getTypedExpressions<ArgumentTypes...>(v);
 
-				using retType = std::result_of_t<TypedFunction(ArgumentTypes...)>;
-
-				return Expression(StaticExpression<retType>([typedFunction, typedArgumentExpressions]()
-				{
-					auto typedArguments = evaluate_each(typedArgumentExpressions);
-					return std17::apply(typedFunction, typedArguments);
-				}));
+				return makeUntypedExpression<Expression>(typedFunction, typedArgumentExpressions);
 			}};
 		}
 	}
