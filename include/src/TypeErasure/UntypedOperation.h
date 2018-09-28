@@ -27,7 +27,6 @@ limitations under the License.
 #include "src/std17/apply.h"
 #include "src/std17/is_same_v.h"
 
-#include "src/TypeErasure/CategoryEnum.h"
 #include "src/TypeErasure/UntypedExpression.h"
 #include "src/TypeErasure/getTypedExpressions.h"
 #include "src/TypeErasure/areAllConstexpr.h"

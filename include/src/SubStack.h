@@ -70,8 +70,6 @@ namespace metl
 
 
 		private:
-			//void tryCast()
-			bool are_all_const(const std::vector<Expression>& expressions);
 			void castTo(const std::vector<TYPE>& targetTypes);
 		};
 	}

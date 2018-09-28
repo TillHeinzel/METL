@@ -26,9 +26,9 @@ TEST_F(UntypedExpressionFixture, isType)
 	EXPECT_FALSE(expression.isType<bool>());
 }
 
-TEST_F(UntypedExpressionFixture, category)
+TEST_F(UntypedExpressionFixture, isConstexpr)
 {
-	EXPECT_EQ(expression.category(), metl::CATEGORY::CONSTEXPR);
+	EXPECT_TRUE(expression.isConstexpr());
 }
 
 TEST_F(UntypedExpressionFixture, getCorrect)

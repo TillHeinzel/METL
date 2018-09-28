@@ -63,7 +63,7 @@ namespace metl
 		void SubStack<Ts...>::push(const suffixCarrier& suffix)
 		{
 			assert(!expressions_.empty());
-			assert(expressions_.back().category() == CATEGORY::CONSTEXPR);
+			assert(expressions_.back().isConstexpr());
 
 			const auto inType = expressions_.back().type();
 			auto it = bits_.suffixImplementations_.find(mangleSuffix(suffix.name, { inType }));
@@ -308,16 +308,6 @@ namespace metl
 			auto resultExpression = it->second({ t });
 
 			expressions_.push_back(resultExpression);
-		}
-
-		template <class ... Ts>
-		bool SubStack<Ts...>::are_all_const(const std::vector<Expression>& expressions)
-		{
-			for (const auto& e : expressions)
-			{
-				if (e.category() != CATEGORY::CONSTEXPR) return false;
-			}
-			return true;
 		}
 
 		template <class ... Ts>

@@ -93,7 +93,7 @@ namespace metl
 				{
 					bits_.constantsAndVariables_.emplace(assignToThis_, evaluatedExpr);
 				}
-				else if(it->second.category() == CATEGORY::CONSTEXPR)
+				else if(it->second.isConstexpr())
 				{
 					it->second = evaluatedExpr;
 				}

@@ -28,8 +28,6 @@ limitations under the License.
 #include "src/TypeErasure/TypeEnum.h"
 #include "src/TypeErasure/TypedExpression.h"
 
-#include "src/TypeErasure/CategoryEnum.h"
-
 namespace metl
 {
 	template<class... Ts>
@@ -45,13 +43,13 @@ namespace metl
 				return t;
 			};
 			auto typedExpression = TypedExpression<T>{ExpressionLambda};
-			return UntypedExpression(typedExpression, CATEGORY::CONSTEXPR);
+			return UntypedExpression(typedExpression, true);
 		}
 
 		template<class T>
 		static UntypedExpression makeNonConstexpr(const TypedExpression<T>& t)
 		{
-			return UntypedExpression(t, CATEGORY::DYNEXPR);
+			return UntypedExpression(t, false);
 		}
 
 		template<class T> TypedExpression<T> get() const
@@ -67,13 +65,7 @@ namespace metl
 		{
 			auto visitor = [](const auto& expr)
 			{
-				using exprType_T = std17::remove_cvref_t<decltype(expr)>;
-				auto value = expr();
-				auto constExpr = exprType_T([value]()
-				{
-					return value;
-				});
-				return UntypedExpression<Ts...>(constExpr, CATEGORY::CONSTEXPR);
+				return UntypedExpression::makeConstexpr(expr());
 			};
 
 			return mpark::visit(visitor, vals_);
@@ -87,16 +79,12 @@ namespace metl
 
 		bool isConstexpr() const
 		{
-			return category_ == CATEGORY::CONSTEXPR;
+			return isConstexpr_;
 		}
 
 		TYPE type() const
 		{
 			return type_;
-		}
-		CATEGORY category() const
-		{
-			return category_;
 		}
 
 		template<class T>
@@ -107,21 +95,21 @@ namespace metl
 	private:
 
 		template<class T, std::enable_if_t<!internal::isInList<T, Ts...>(), int> = 0>
-		UntypedExpression(const TypedExpression<T>&, CATEGORY = CATEGORY::DYNEXPR)
+		UntypedExpression(const TypedExpression<T>&, bool)
 		{
 			static_assert(internal::isInList<T, Ts...>(), "cannot construct UntypedExpression with this type");
 		}
 
 		template<class T, std::enable_if_t<internal::isInList<T, Ts...>(), int> = 0>
-		UntypedExpression(const TypedExpression<T>& t, CATEGORY category = CATEGORY::DYNEXPR) :
+		UntypedExpression(const TypedExpression<T>& t, bool isConstexpr) :
 			type_(classToType2<T, Ts...>()),
-			category_(category),
+			isConstexpr_(isConstexpr),
 			vals_(t)
 		{}
 
 
 		TYPE type_;
-		CATEGORY category_;
+		bool isConstexpr_;
 
 		mpark::variant<TypedExpression<Ts>...> vals_;
 	};
