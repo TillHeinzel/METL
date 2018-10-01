@@ -51,7 +51,7 @@ namespace metl
 		}
 
 		template <class UntypedExpression_t, class Input>
-		UntypedExpression_t	UntypedOperation<UntypedExpression_t, Input>::operator() (const Input &inputExpressions) const
+		UntypedExpression_t UntypedOperation<UntypedExpression_t, Input>::apply(const Input& inputExpressions) const
 		{
 			return untypedExpressionFunction_(inputExpressions);
 		}

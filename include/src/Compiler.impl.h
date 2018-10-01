@@ -105,7 +105,7 @@ namespace metl
 
 						auto castIt = bits_.castImplementations_.find(mangleCast(fromType, toType));
 						if (castIt == bits_.castImplementations_.end()) throw std::runtime_error("cannot assign to incompatible type");
-						evaluatedExpr = castIt->second(evaluatedExpr);
+						evaluatedExpr = castIt->second.apply(evaluatedExpr);
 					}
 					assignToVar(it->second, evaluatedExpr);
 				}

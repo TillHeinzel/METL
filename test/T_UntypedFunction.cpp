@@ -46,7 +46,7 @@ TEST_F(DynamicFunctionFixture, withConstexpr)
 
 	auto dynamicFunction = internal::makeUntypedFunction<Expression, bool, int>(f);
 
-	auto result = dynamicFunction({boolExpression, intExpression});
+	auto result = dynamicFunction.apply({boolExpression, intExpression});
 
 	EXPECT_TRUE(result.isConstexpr());
 
@@ -66,7 +66,7 @@ TEST_F(DynamicFunctionFixture, withNonConstexpr)
 
 	auto dynamicFunction = internal::makeUntypedFunction<Expression, bool, int>(f);
 
-	auto result = dynamicFunction({boolExpression, intExpression});
+	auto result = dynamicFunction.apply({boolExpression, intExpression});
 
 	EXPECT_FALSE(result.isConstexpr());
 

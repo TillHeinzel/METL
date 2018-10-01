@@ -45,7 +45,7 @@ namespace metl
 			template<class... ArgumentTypes, class TypedValueFunction>
 			static UntypedOperation fromTypedValueFunction(const TypedValueFunction& typedValueFunction);
 
-			UntypedExpression_t operator()(const Input &inputExpressions) const;
+			UntypedExpression_t apply(const Input& inputExpressions) const;
 
 		private:
 			UntypedOperation(UntypedExpressionFunction untypedExpressionFunction);

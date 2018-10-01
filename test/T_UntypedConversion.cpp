@@ -40,7 +40,7 @@ TEST_F(DynamicConversionFixture, withConstexpr)
 {
 	auto dynamicConversion = internal::makeDynamicConversion<Expression, int>(f);
 
-	auto result = dynamicConversion(intExpression);
+	auto result = dynamicConversion.apply(intExpression);
 
 	EXPECT_TRUE(result.isConstexpr());
 
@@ -60,7 +60,7 @@ TEST_F(DynamicConversionFixture, withNonConstexpr)
 
 	auto dynamicConversion = internal::makeDynamicConversion<Expression, int>(f);
 
-	auto result = dynamicConversion(dynamicIntExpression);
+	auto result = dynamicConversion.apply(dynamicIntExpression);
 
 	EXPECT_FALSE(result.isConstexpr());
 

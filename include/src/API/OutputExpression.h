@@ -70,7 +70,7 @@ namespace metl
 			{
 				try
 				{
-					auto castedExpression = cast.second(expr);
+					auto castedExpression = cast.second.apply(expr);
 					castedExpressions.emplace(castedExpression.type(), std::move(castedExpression));
 				}
 				catch (const std::runtime_error&)

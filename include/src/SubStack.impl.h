@@ -106,7 +106,7 @@ namespace metl
 			const auto t = expressions_.back();
 			expressions_.pop_back();
 
-			auto resultExpression = it->second({ t });
+			auto resultExpression = it->second.apply({ t });
 
 			expressions_.push_back(resultExpression);
 		}
@@ -178,7 +178,7 @@ namespace metl
 				}
 			}
 
-			auto resultExpression = (*functionOpt)(expressions_);
+			auto resultExpression = functionOpt->apply(expressions_);
 
 			expressions_.clear();
 			expressions_.push_back(resultExpression);
@@ -248,7 +248,7 @@ namespace metl
 
 			operators_.pop_back();
 
-			auto resultExpression = it->second({ l, r });
+			auto resultExpression = it->second.apply({ l, r });
 
 
 			expressions_.push_back(resultExpression);
@@ -305,7 +305,7 @@ namespace metl
 
 			operators_.pop_back();
 
-			auto resultExpression = it->second({ t });
+			auto resultExpression = it->second.apply({ t });
 
 			expressions_.push_back(resultExpression);
 		}
@@ -322,7 +322,7 @@ namespace metl
 				const auto toType = targetTypes.at(i_target);
 				if (fromType != toType)
 				{
-					expr = bits_.castImplementations_.at(mangleCast(fromType, toType))(expr);
+					expr = bits_.castImplementations_.at(mangleCast(fromType, toType)).apply(expr);
 				}
 				++i_target;
 			}
