@@ -42,18 +42,20 @@ namespace metl
 			-> typename std::map<std::string, T>::const_iterator
 		{
 			// t starts out empty, and slowly becomes the same as in.current, adding one char on each recursion-step. t is then searched in the keys of map.
-			if (in.size() > t.size()) {
+			if(in.size() > t.size())
+			{
 				t += in.peek_char(t.size()); // append another char to teststring t
 				const auto i = map.lower_bound(t); // not sure why this works
-				if (i != map.end()) {
+				if(i != map.end())
+				{
 					// recursion step. try the next one down the line with an additional char.
 					// This happend before the termination, because we are expected to be greedy.
 					auto i2 = match_any_recursive(in, map, t);
-					if (i2 != map.end())
+					if(i2 != map.end())
 					{
 						return i2;
 					}
-					if (i->first == t)  // recursion stop: if we found a match, return.
+					if(i->first == t)  // recursion stop: if we found a match, return.
 					{
 						return i;
 					}
@@ -68,8 +70,11 @@ namespace metl
 
 		public:
 			using Expression = UntypedExpression<Ts...>;
-			constexpr static auto getTypeList() { return TypeList<Ts...>(); }
-			
+			constexpr static auto getTypeList()
+			{
+				return TypeList<Ts...>();
+			}
+
 			void setOperatorPrecedence(const std::string& op, unsigned int precedence, ASSOCIATIVITY associativity = ASSOCIATIVITY::LEFT);
 			void setUnaryOperatorPrecedence(const std::string& op, unsigned int precedence);
 
@@ -127,18 +132,55 @@ namespace metl
 				}
 				return {};
 			}
+			
+			tl::optional<UntypedFunction<Expression>> findOperator(const std::string& mangledName) const
+			{
+				auto it = operators_.find(mangledName);
+				if(it != operators_.end())
+				{
+					return {it->second};
+				}
+				return {};
+			}
 
 			//const auto& getOperators() { return operators_; }
-			const auto& getCandV() { return constantsAndVariables_; }
-			const auto& getCarriers() { return opCarriers_; }
-			const auto& getUnaryCarriers() { return unaryCarriers_; }
-			const auto& getFunctionNames() { return functionNames_; }
-			const auto& getFunctions() { return functions_; }
-			const auto& getcastImplementations() { return castImplementations_; }
-			const auto& getcastDeclarations() { return castDeclarations_; }
-			const auto& getSuffixes() { return suffixes_; }
-			const auto& getSuffixImplementations() { return suffixes_; }
-			
+			const auto& getCandV()
+			{
+				return constantsAndVariables_;
+			}
+			const auto& getCarriers()
+			{
+				return opCarriers_;
+			}
+			const auto& getUnaryCarriers()
+			{
+				return unaryCarriers_;
+			}
+			const auto& getFunctionNames()
+			{
+				return functionNames_;
+			}
+			const auto& getFunctions()
+			{
+				return functions_;
+			}
+			const auto& getcastImplementations()
+			{
+				return castImplementations_;
+			}
+			const auto& getcastDeclarations()
+			{
+				return castDeclarations_;
+			}
+			const auto& getSuffixes()
+			{
+				return suffixes_;
+			}
+			const auto& getSuffixImplementations()
+			{
+				return suffixes_;
+			}
+
 			std::map<std::string, UntypedConversion<Expression>> castImplementations_;
 			std::map<std::string, Expression> constantsAndVariables_; // maps identifiers for constants and variables to the expressions returning their values.
 
@@ -157,14 +199,16 @@ namespace metl
 
 			std::map<std::string, UntypedConversion<Expression>> suffixImplementations_;
 			std::map<std::string, suffixCarrier> suffixes_;
-			std::map<TYPE, std::vector<TYPE>> castDeclarations_{ std::make_pair(type<Ts>(), std::vector<TYPE>{type<Ts>()})... };
+			std::map<TYPE, std::vector<TYPE>> castDeclarations_{std::make_pair(type<Ts>(), std::vector<TYPE>{type<Ts>()})...};
 
 			std::map<std::string, opCarrier> opCarriers_; // maps unmangled operators to their precedence
 			std::map<std::string, opCarrier> unaryCarriers_; // maps unmangled operators to their precedence
+
+		private:
 			std::map<std::string, UntypedFunction<Expression>> operators_; //maps mangled names to implementations for operators
 			std::map<std::string, UntypedFunction<Expression>> functions_; // maps mangled names to implementations for functions.
 			std::map<std::string, std::string> functionNames_; // dummy, just so we have the sorting.
-			
+
 		};
 	}
 }

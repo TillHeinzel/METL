@@ -152,10 +152,12 @@ namespace metl
 				std::vector<std::string> possibleFunctions;
 				for (auto c : castCombis)
 				{
-					auto it2 = bits_.functions_.find(mangleName(functionName, c));
-					if (it2 != bits_.functions_.end())
+					auto mangledName = mangleName(functionName, c);
+					auto castedFunctionOpt = bits_.findFunction(mangledName);
+
+					if (castedFunctionOpt)
 					{
-						possibleFunctions.push_back(it2->first);
+						possibleFunctions.push_back(mangledName);
 						validCasts.push_back(c);
 					}
 				}
@@ -201,8 +203,9 @@ namespace metl
 			const auto opName = operators_.back().name;
 
 			auto inTypes = std::vector<TYPE>{ (expressions_.rbegin() + 1)->type(), expressions_.rbegin()->type() };
-			auto it = bits_.operators_.find(mangleName(opName, inTypes));
-			if (it == bits_.operators_.end())
+			auto operatorImplOpt = bits_.findOperator(mangleName(opName, inTypes));
+
+			if (!operatorImplOpt)
 			{
 				std::vector<std::vector<TYPE>> castCombis{ {} };
 				for (auto t : inTypes)
@@ -214,10 +217,12 @@ namespace metl
 				std::vector<std::string> possibleFunctions;
 				for (auto c : castCombis)
 				{
-					auto it2 = bits_.operators_.find(mangleName(opName, c));
-					if (it2 != bits_.operators_.end())
+					auto castedOperatorName = mangleName(opName, c);
+					auto castedOperatorImplOpt = bits_.findOperator(castedOperatorName);
+
+					if (castedOperatorImplOpt)
 					{
-						possibleFunctions.push_back(it2->first);
+						possibleFunctions.push_back(castedOperatorName);
 						validCasts.push_back(c);
 					}
 				}
@@ -248,7 +253,7 @@ namespace metl
 
 			operators_.pop_back();
 
-			auto resultExpression = it->second.apply({ l, r });
+			auto resultExpression = operatorImplOpt->apply({ l, r });
 
 
 			expressions_.push_back(resultExpression);
@@ -263,8 +268,8 @@ namespace metl
 			const auto opName = operators_.back().name;
 
 			auto inType = expressions_.back().type();
-			auto it = bits_.operators_.find(mangleName(opName, { inType }));
-			if (it == bits_.operators_.end())
+			auto operatorImplOpt = bits_.findOperator(mangleName(opName, {inType}));
+			if (!operatorImplOpt)
 			{
 				std::vector<TYPE> allowedCasts = bits_.castDeclarations_.at(inType);
 
@@ -273,10 +278,11 @@ namespace metl
 				std::vector<std::string> possibleFunctions;
 				for (auto c : allowedCasts)
 				{
-					auto it2 = bits_.operators_.find(mangleName(opName, { c }));
-					if (it2 != bits_.operators_.end())
+					auto castedOperatorName = mangleName(opName, {c});
+					auto castedoperatorImplOpt = bits_.findOperator(castedOperatorName);
+					if (castedoperatorImplOpt)
 					{
-						possibleFunctions.push_back(it2->first);
+						possibleFunctions.push_back(castedOperatorName);
 						validCasts.push_back(c);
 					}
 				}
@@ -305,7 +311,7 @@ namespace metl
 
 			operators_.pop_back();
 
-			auto resultExpression = it->second.apply({ t });
+			auto resultExpression = operatorImplOpt->apply({ t });
 
 			expressions_.push_back(resultExpression);
 		}
