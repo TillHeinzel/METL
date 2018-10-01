@@ -142,6 +142,22 @@ namespace metl
 				}
 				return {};
 			}
+			
+			tl::optional<UntypedConversion<Expression>> findSuffix(const std::string& mangledName) const
+			{
+				auto it = suffixImplementations_.find(mangledName);
+				if(it != suffixImplementations_.end())
+				{
+					return {it->second};
+				}
+				return {};
+			}
+
+			std::vector<TYPE> getAllTypesThatCanBeConvertedTo(const TYPE& type) const
+			{
+				assert(!castDeclarations_.at(type).empty());
+				return castDeclarations_.at(type);
+			}
 
 			//const auto& getOperators() { return operators_; }
 			const auto& getCandV()
@@ -184,8 +200,7 @@ namespace metl
 			std::map<std::string, UntypedConversion<Expression>> castImplementations_;
 			std::map<std::string, Expression> constantsAndVariables_; // maps identifiers for constants and variables to the expressions returning their values.
 
-		public:
-
+		private:
 			template<class Input, class Map>
 			auto match(Input& in, const Map& map)
 			{
@@ -196,15 +211,14 @@ namespace metl
 				return std::make_tuple(varMatched, it);
 			}
 
-
 			std::map<std::string, UntypedConversion<Expression>> suffixImplementations_;
 			std::map<std::string, suffixCarrier> suffixes_;
+
 			std::map<TYPE, std::vector<TYPE>> castDeclarations_{std::make_pair(type<Ts>(), std::vector<TYPE>{type<Ts>()})...};
 
 			std::map<std::string, opCarrier> opCarriers_; // maps unmangled operators to their precedence
 			std::map<std::string, opCarrier> unaryCarriers_; // maps unmangled operators to their precedence
 
-		private:
 			std::map<std::string, UntypedFunction<Expression>> operators_; //maps mangled names to implementations for operators
 			std::map<std::string, UntypedFunction<Expression>> functions_; // maps mangled names to implementations for functions.
 			std::map<std::string, std::string> functionNames_; // dummy, just so we have the sorting.

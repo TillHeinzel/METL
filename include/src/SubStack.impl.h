@@ -66,21 +66,22 @@ namespace metl
 			assert(expressions_.back().isConstexpr());
 
 			const auto inType = expressions_.back().type();
-			auto it = bits_.suffixImplementations_.find(mangleSuffix(suffix.name, { inType }));
+			auto suffixImplOpt = bits_.findSuffix(mangleSuffix(suffix.name, { inType }));
 
-			if (it == bits_.suffixImplementations_.end())
+			if (!suffixImplOpt)
 			{
-				std::vector<TYPE> allowedCasts = bits_.castDeclarations_.at(inType);
+				std::vector<TYPE> allowedCasts = bits_.getAllTypesThatCanBeConvertedTo(inType);
 
 
 				std::vector<TYPE> validCasts;
 				std::vector<std::string> possibleFunctions;
 				for (auto c : allowedCasts)
 				{
-					auto it2 = bits_.suffixImplementations_.find(mangleSuffix(suffix.name, { c }));
-					if (it2 != bits_.suffixImplementations_.end())
+					auto castedSuffixName = mangleSuffix(suffix.name, {c});
+					auto castedSuffixImplOpt = bits_.findSuffix(castedSuffixName);
+					if (castedSuffixImplOpt)
 					{
-						possibleFunctions.push_back(it2->first);
+						possibleFunctions.push_back(castedSuffixName);
 						validCasts.push_back(c);
 					}
 				}
@@ -106,7 +107,7 @@ namespace metl
 			const auto t = expressions_.back();
 			expressions_.pop_back();
 
-			auto resultExpression = it->second.apply({ t });
+			auto resultExpression = suffixImplOpt->apply({ t });
 
 			expressions_.push_back(resultExpression);
 		}
@@ -145,7 +146,7 @@ namespace metl
 				std::vector<std::vector<TYPE>> castCombis{ {} };
 				for (auto t : inTypes)
 				{
-					castCombis = tensorSum(castCombis, bits_.castDeclarations_.at(t));
+					castCombis = tensorSum(castCombis, bits_.getAllTypesThatCanBeConvertedTo(t));
 				}
 
 				std::vector<std::vector<TYPE>> validCasts;
@@ -210,7 +211,7 @@ namespace metl
 				std::vector<std::vector<TYPE>> castCombis{ {} };
 				for (auto t : inTypes)
 				{
-					castCombis = tensorSum(castCombis, bits_.castDeclarations_.at(t));
+					castCombis = tensorSum(castCombis, bits_.getAllTypesThatCanBeConvertedTo(t));
 				}
 
 				std::vector<std::vector<TYPE>> validCasts;
@@ -271,7 +272,7 @@ namespace metl
 			auto operatorImplOpt = bits_.findOperator(mangleName(opName, {inType}));
 			if (!operatorImplOpt)
 			{
-				std::vector<TYPE> allowedCasts = bits_.castDeclarations_.at(inType);
+				std::vector<TYPE> allowedCasts = bits_.getAllTypesThatCanBeConvertedTo(inType);
 
 
 				std::vector<TYPE> validCasts;
