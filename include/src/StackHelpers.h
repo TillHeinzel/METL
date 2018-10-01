@@ -29,38 +29,35 @@ namespace metl
 {
 	namespace internal
 	{
-		namespace
+		template<class Expression>
+		std::vector<TYPE> getTypes(const std::vector<Expression>& expressions)
 		{
-			template<class Expression>
-			std::vector<TYPE> getTypes(const std::vector<Expression>& expressions)
+			std::vector<TYPE> types{};
+			for(const auto& expr : expressions)
 			{
-				std::vector<TYPE> types{};
-				for (const auto& expr : expressions)
+				types.push_back(expr.type());
+			}
+			return types;
+		}
+
+		inline std::vector<TYPE> addThis(std::vector<TYPE> left, TYPE right)
+		{
+			left.push_back(right);
+			return left;
+		}
+
+		inline std::vector<std::vector<TYPE>> tensorSum(const std::vector<std::vector<TYPE>>& left, const std::vector<TYPE>& right)
+		{
+			std::vector<std::vector<TYPE>> retval{};
+			for(const auto& x : left)
+			{
+				for(const auto& y : right)
 				{
-					types.push_back(expr.type());
+					retval.push_back(addThis(x, y));
 				}
-				return types;
 			}
 
-			inline std::vector<TYPE> addThis(std::vector<TYPE> left, TYPE right)
-			{
-				left.push_back(right);
-				return left;
-			}
-
-			inline std::vector<std::vector<TYPE>> tensorSum(const std::vector<std::vector<TYPE>>& left, const std::vector<TYPE>& right)
-			{
-				std::vector<std::vector<TYPE>> retval{};
-				for (const auto& x : left)
-				{
-					for (const auto& y : right)
-					{
-						retval.push_back(addThis(x, y));
-					}
-				}
-
-				return retval;
-			}
+			return retval;
 		}
 	}
 }

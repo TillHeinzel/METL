@@ -25,9 +25,10 @@ limitations under the License.
 
 #include "ThirdParty/Optional/optional.hpp"
 
+#include "src/TypeErasure/UntypedExpression.h"
+
 #include "opCarrier.h"
 #include "suffixCarrier.h"
-#include "src/TypeErasure/UntypedExpression.h"
 #include "CompilerBits.h"
 
 namespace metl

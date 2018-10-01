@@ -19,8 +19,9 @@ limitations under the License.
 */
 #pragma once
 
-#include "nameMangling.h"
+
 #include "src/TypeErasure/UntypedExpression.h"
+#include "src/TypeErasure/TypedExpression.h"
 
 namespace metl
 {
@@ -34,12 +35,12 @@ namespace metl
 			T operator() () { return *v; }
 		};
 
-		template<class Expression, class T>
-		Expression makeVariableExpression(T* v)
+		template<class UntypedExpression_t, class T>
+		UntypedExpression_t makeVariableExpression(T* v)
 		{
 			auto f = VariableExpression<T>{ v };
 
-			return Expression::makeNonConstexpr(TypedExpression<T>(f));
+			return UntypedExpression_t::makeNonConstexpr(TypedExpression<T>(f));
 		}
 	}
 }

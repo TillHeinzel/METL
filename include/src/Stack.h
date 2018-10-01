@@ -22,9 +22,10 @@ limitations under the License.
 #include <string>
 #include <vector>
 
+#include "src/TypeErasure/UntypedExpression.h"
+
 #include "opCarrier.h"
 #include "suffixCarrier.h"
-#include "src/TypeErasure/UntypedExpression.h"
 #include "CompilerBits.h"
 #include "SubStack.h"
 

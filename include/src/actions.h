@@ -22,7 +22,9 @@ defines actions to be taken when finding specific patterns in the parsed string.
 #include "grammar.h"
 
 #include "src/std17/bool_constant.h"
+
 #include "src/Utility/ConstexprBranching.h"
+
 #include "src/Exceptions.h"
 
 namespace metl

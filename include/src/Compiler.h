@@ -22,6 +22,7 @@ limitations under the License.
 #include <map>
 
 #include "src/TypeErasure/UntypedExpression.h"
+
 #include "Stack.h"
 #include "CompilerBits.h"
 
