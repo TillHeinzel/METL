@@ -3,6 +3,7 @@
 #include <complex>
 
 #include "metl.h"
+#include "src/std17/remove_cvref.h"
 
 #include "DynamicOperationFixture.h"
 
