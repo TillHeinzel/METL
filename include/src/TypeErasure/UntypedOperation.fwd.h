@@ -1,7 +1,8 @@
 /*
 @file
-metl.h
-include-file for user-projects
+Compiler.h
+Declares template class Compiler, which carries all the user-defined operators,
+functions, etc.
 
 Copyright 2017-2018 Till Heinzel
 
@@ -17,13 +18,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
 #pragma once
 
-#include "src/API/MakeCompiler.h"
-#include "src/API/addDefaults.h"
-
-#include "src/Stack.impl.h"
-#include "src/SubStack.impl.h"
-
-#include "src/TypeErasure/UntypedOperation.impl.h"
+namespace metl
+{
+	namespace internal
+	{
+		template <class UntypedExpression_t, class Input>
+		class UntypedOperation;
+	}
+}

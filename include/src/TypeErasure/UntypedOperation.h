@@ -20,16 +20,15 @@ limitations under the License.
 */
 #pragma once
 
+#include "src/TypeErasure/UntypedOperation.fwd.h"
+
 #include <functional>
 #include <vector>
 
-#include "src/Utility/evaluate_each.h"
-#include "src/std17/apply.h"
 #include "src/std17/is_same_v.h"
+#include "src/Utility/is_specialization_of.h"
 
 #include "src/TypeErasure/UntypedExpression.h"
-#include "src/TypeErasure/getTypedExpressions.h"
-#include "src/TypeErasure/areAllConstexpr.h"
 
 namespace metl
 {
@@ -38,37 +37,18 @@ namespace metl
 		template <class UntypedExpression_t, class Input>
 		class UntypedOperation
 		{
+			static_assert(is_specialization_of_v<UntypedExpression_t, UntypedExpression>, "");
 			static_assert(std17::is_same_v<Input, UntypedExpression_t> || std17::is_same_v<Input, std::vector<UntypedExpression_t>>, "");
 
 			using UntypedExpressionFunction = std::function<UntypedExpression_t(const Input&)>;
 		public:
-
 			template<class... ArgumentTypes, class TypedValueFunction>
-			static UntypedOperation fromTypedValueFunction(const TypedValueFunction& typedValueFunction)
-			{
-				auto untypedOperationLambda = [typedValueFunction](const Input& untypedArgumentExpressions)
-				{
-					auto typedArgumentExpressions = getTypedExpressions<ArgumentTypes...>(untypedArgumentExpressions);
-					auto typedResultExpression = makeTypedExpression(typedValueFunction, typedArgumentExpressions);
+			static UntypedOperation fromTypedValueFunction(const TypedValueFunction& typedValueFunction);
 
-					if(areAllConstexpr(untypedArgumentExpressions))
-					{
-						return UntypedExpression_t::makeConstexpr(typedResultExpression());
-					}
-					return UntypedExpression_t::makeNonConstexpr(std::move(typedResultExpression));
-				};
-
-				return {std::move(untypedOperationLambda)};
-			}
-
-			UntypedExpression_t operator()(const Input& inputExpressions) const
-			{
-				return untypedExpressionFunction_(inputExpressions);
-			}
+			UntypedExpression_t operator()(const Input &inputExpressions) const;
 
 		private:
-			UntypedOperation(UntypedExpressionFunction untypedExpressionFunction) : untypedExpressionFunction_(std::move(untypedExpressionFunction))
-			{}
+			UntypedOperation(UntypedExpressionFunction untypedExpressionFunction);
 
 			UntypedExpressionFunction untypedExpressionFunction_;
 		};
