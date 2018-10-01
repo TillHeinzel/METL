@@ -29,7 +29,7 @@ TEST_F(DynamicFunctionFixture, make)
 {
 	auto invoke = [&f = f]()
 	{
-		internal::makeDynamicFunction<Expression, bool, int>(f);
+		internal::makeUntypedFunction<Expression, bool, int>(f);
 	};
 
 	EXPECT_NO_THROW(invoke());
@@ -43,7 +43,7 @@ TEST_F(DynamicFunctionFixture, withConstexpr)
 	});
 	auto boolExpression = Expression::makeConstexpr(boolFunction());
 
-	auto dynamicFunction = internal::makeDynamicFunction<Expression, bool, int>(f);
+	auto dynamicFunction = internal::makeUntypedFunction<Expression, bool, int>(f);
 
 	auto result = dynamicFunction({boolExpression, intExpression});
 
@@ -63,7 +63,7 @@ TEST_F(DynamicFunctionFixture, withNonConstexpr)
 	});
 	auto boolExpression = Expression::makeNonConstexpr(boolFunction);
 
-	auto dynamicFunction = internal::makeDynamicFunction<Expression, bool, int>(f);
+	auto dynamicFunction = internal::makeUntypedFunction<Expression, bool, int>(f);
 
 	auto result = dynamicFunction({boolExpression, intExpression});
 

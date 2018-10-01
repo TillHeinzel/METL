@@ -33,7 +33,7 @@ namespace metl
 
 
 		template <class UntypedExpression_t, class... ArgumentTypes, class TypedValueFunction>
-		UntypedFunction<UntypedExpression_t> makeDynamicFunction(const TypedValueFunction& typedValueFunction)
+		UntypedFunction<UntypedExpression_t> makeUntypedFunction(const TypedValueFunction& typedValueFunction)
 		{
 			return UntypedFunction<UntypedExpression_t>::template fromTypedValueFunction<ArgumentTypes...>(typedValueFunction);
 		}

@@ -88,21 +88,21 @@ namespace metl
 	template <class Left, class Right, class F>
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setOperator(const std::string& token, const F& f)
 	{
-		impl_.bits_.setOperator(token, { type<Left>(), type<Right>() }, metl::internal::makeDynamicFunction<Expression, Left, Right>(f));
+		impl_.bits_.setOperator(token, { type<Left>(), type<Right>() }, metl::internal::makeUntypedFunction<Expression, Left, Right>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
 	template <class T, class F>
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setUnaryOperator(const std::string& token, const F& f)
 	{
-		impl_.bits_.setUnaryOperator(token, type<T>(), metl::internal::makeDynamicFunction<Expression, T>(f));
+		impl_.bits_.setUnaryOperator(token, type<T>(), metl::internal::makeUntypedFunction<Expression, T>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
 	template <class ... ParamTypes, class F>
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setFunction(const std::string& token, const F& f)
 	{
-		impl_.bits_.setFunction(token, std::vector<TYPE>{type<ParamTypes>()...}, metl::internal::makeDynamicFunction<Expression, ParamTypes...>(f));
+		impl_.bits_.setFunction(token, std::vector<TYPE>{type<ParamTypes>()...}, metl::internal::makeUntypedFunction<Expression, ParamTypes...>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>

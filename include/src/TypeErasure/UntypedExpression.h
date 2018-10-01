@@ -23,7 +23,6 @@ limitations under the License.
 #include "ThirdParty/Variant/variant.hpp"
 
 #include "src/Utility/TypeList.h"
-#include "src/std17/remove_cvref.h"
 
 #include "src/TypeErasure/TypeEnum.h"
 #include "src/TypeErasure/TypedExpression.h"
