@@ -24,7 +24,7 @@ limitations under the License.
 #include "src/TypeErasure/UntypedExpression.h"
 
 #include "Stack.h"
-#include "CompilerBits.h"
+#include "CompilerEntityDataBase.h"
 
 namespace metl
 {
@@ -50,7 +50,7 @@ namespace metl
 			void startAssignment(const std::string& varName);
 
 		public:
-			CompilerBits<Ts...> bits_;
+			CompilerEntityDataBase<Ts...> bits_;
 			LiteralConverters literalConverters_;
 			Stack<Ts...> stack_;
 

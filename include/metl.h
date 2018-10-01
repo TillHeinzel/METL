@@ -25,5 +25,6 @@ limitations under the License.
 
 #include "src/Stack.impl.h"
 #include "src/SubStack.impl.h"
+#include "src/CompilerEntityDataBase.impl.h"
 
 #include "src/TypeErasure/UntypedOperation.impl.h"

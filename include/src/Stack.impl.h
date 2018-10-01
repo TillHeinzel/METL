@@ -29,7 +29,7 @@ namespace metl
 	namespace internal
 	{
 		template <class ... Ts>
-		Stack<Ts...>::Stack(const CompilerBits<Ts...>& bits)
+		Stack<Ts...>::Stack(const CompilerEntityDataBase<Ts...>& bits)
 			:bits_(bits)
 		{
 			open();

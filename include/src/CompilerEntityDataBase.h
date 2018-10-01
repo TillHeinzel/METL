@@ -21,6 +21,8 @@ limitations under the License.
 
 #include <map>
 
+#include "ThirdParty/Optional/optional.hpp"
+
 #include "src/TypeErasure/UntypedExpression.h"
 #include "src/TypeErasure/UntypedFunction.h"
 #include "src/TypeErasure/UntypedConversion.h"
@@ -61,7 +63,7 @@ namespace metl
 		}
 
 		template<class... Ts>
-		class CompilerBits
+		class CompilerEntityDataBase
 		{
 
 		public:
@@ -116,7 +118,17 @@ namespace metl
 				return match(in, functionNames_);
 			}
 
-			const auto& getOperators() { return operators_; }
+			tl::optional<UntypedFunction<Expression>> findFunction(const std::string& mangledName) const
+			{
+				auto it = functions_.find(mangledName);
+				if(it != functions_.end())
+				{
+					return {it->second};
+				}
+				return {};
+			}
+
+			//const auto& getOperators() { return operators_; }
 			const auto& getCandV() { return constantsAndVariables_; }
 			const auto& getCarriers() { return opCarriers_; }
 			const auto& getUnaryCarriers() { return unaryCarriers_; }

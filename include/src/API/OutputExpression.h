@@ -27,7 +27,7 @@ limitations under the License.
 #include "src/TypeErasure/TypedExpression.h"
 #include "src/TypeErasure/TypeEnum.h"
 
-#include "src/CompilerBits.h"
+#include "src/CompilerEntityDataBase.h"
 
 namespace metl
 {

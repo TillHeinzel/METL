@@ -26,7 +26,7 @@ limitations under the License.
 
 #include "opCarrier.h"
 #include "suffixCarrier.h"
-#include "CompilerBits.h"
+#include "CompilerEntityDataBase.h"
 #include "SubStack.h"
 
 
@@ -40,7 +40,7 @@ namespace metl
 			using Expression = UntypedExpression<Ts...>;
 
 		public:
-			Stack(const CompilerBits<Ts...>& bits);
+			Stack(const CompilerEntityDataBase<Ts...>& bits);
 
 			void push(const Expression& t);
 
@@ -60,7 +60,7 @@ namespace metl
 		private:
 			std::vector<SubStack<Ts...>> subStacks_;
 
-			const CompilerBits<Ts...>& bits_;
+			const CompilerEntityDataBase<Ts...>& bits_;
 		};
 	}
 }

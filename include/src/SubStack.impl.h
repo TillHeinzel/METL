@@ -28,7 +28,7 @@ namespace metl
 	namespace internal
 	{
 		template <class ... Ts>
-		SubStack<Ts...>::SubStack(const CompilerBits<Ts...>& bits
+		SubStack<Ts...>::SubStack(const CompilerEntityDataBase<Ts...>& bits
 			)
 			:bits_(bits)
 		{
@@ -139,8 +139,8 @@ namespace metl
 
 			auto inTypes = getTypes(expressions_);
 
-			auto it = bits_.functions_.find(mangleName(functionName, inTypes));
-			if (it == bits_.functions_.end())
+			auto functionOpt = bits_.findFunction(mangleName(functionName, inTypes));
+			if (!functionOpt)
 			{
 				std::vector<std::vector<TYPE>> castCombis{ {} };
 				for (auto t : inTypes)
@@ -178,7 +178,7 @@ namespace metl
 				}
 			}
 
-			auto resultExpression = it->second(expressions_);
+			auto resultExpression = (*functionOpt)(expressions_);
 
 			expressions_.clear();
 			expressions_.push_back(resultExpression);

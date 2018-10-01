@@ -29,7 +29,7 @@ limitations under the License.
 
 #include "opCarrier.h"
 #include "suffixCarrier.h"
-#include "CompilerBits.h"
+#include "CompilerEntityDataBase.h"
 
 namespace metl
 {
@@ -42,7 +42,7 @@ namespace metl
 
 		public:
 
-			explicit SubStack(const CompilerBits<Ts...>& bits);
+			explicit SubStack(const CompilerEntityDataBase<Ts...>& bits);
 
 
 			void push(const Expression l);
@@ -67,7 +67,7 @@ namespace metl
 
 			tl::optional<std::string> function_;
 
-			const CompilerBits<Ts...>& bits_;
+			const CompilerEntityDataBase<Ts...>& bits_;
 
 
 		private:

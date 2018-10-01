@@ -19,7 +19,7 @@ limitations under the License.
 */
 
 #pragma once
-#include "CompilerBits.h"
+#include "CompilerEntityDataBase.h"
 
 #include <tao/pegtl.hpp>
 
@@ -37,7 +37,7 @@ namespace metl
 	namespace internal
 	{
 		template <class ... Ts>
-		void CompilerBits<Ts...>::setOperatorPrecedence(const std::string& op, unsigned precedence,
+		void CompilerEntityDataBase<Ts...>::setOperatorPrecedence(const std::string& op, unsigned precedence,
 			ASSOCIATIVITY associativity)
 		{
 
@@ -47,13 +47,13 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void CompilerBits<Ts...>::setUnaryOperatorPrecedence(const std::string& op, unsigned precedence)
+		void CompilerEntityDataBase<Ts...>::setUnaryOperatorPrecedence(const std::string& op, unsigned precedence)
 		{
 			internal::insert_or_emplace(unaryCarriers_, op, opCarrier{ op, precedence, ASSOCIATIVITY::RIGHT, true });
 		}
 
 		template <class ... Ts>
-		void CompilerBits<Ts...>::setOperator(const std::string& token,
+		void CompilerEntityDataBase<Ts...>::setOperator(const std::string& token,
 			const std::vector<TYPE>& paramTypes, const UntypedFunction<Expression>& op)
 		{
 			// check, if operator is in the list of precedences. 
@@ -68,7 +68,7 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void CompilerBits<Ts...>::setUnaryOperator(const std::string& token, TYPE paramType,
+		void CompilerEntityDataBase<Ts...>::setUnaryOperator(const std::string& token, TYPE paramType,
 			const UntypedFunction<Expression>& op)
 		{
 			auto it = unaryCarriers_.find(token);
@@ -82,7 +82,7 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void CompilerBits<Ts...>::setFunction(const std::string& token,
+		void CompilerEntityDataBase<Ts...>::setFunction(const std::string& token,
 			const std::vector<TYPE>& paramTypes, const UntypedFunction<Expression>& function)
 		{
 			insert_or_emplace(functionNames_, token, token);
@@ -90,7 +90,7 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void CompilerBits<Ts...>::setCast(const TYPE from, const TYPE to, const UntypedConversion<Expression>& fs)
+		void CompilerEntityDataBase<Ts...>::setCast(const TYPE from, const TYPE to, const UntypedConversion<Expression>& fs)
 		{
 			auto it = castDeclarations_.find(from);
 			if (it == castDeclarations_.end())
@@ -106,7 +106,7 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void CompilerBits<Ts...>::setSuffix(const std::string& token, const TYPE from, const UntypedConversion<Expression>& conversion)
+		void CompilerEntityDataBase<Ts...>::setSuffix(const std::string& token, const TYPE from, const UntypedConversion<Expression>& conversion)
 		{
 			insert_or_emplace(suffixes_, token, suffixCarrier{ token });
 			insert_or_emplace(suffixImplementations_, mangleSuffix(token, from), conversion);
@@ -122,7 +122,7 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void CompilerBits<Ts...>::addConstantOrVariable(const std::string& token, const Expression& val)
+		void CompilerEntityDataBase<Ts...>::addConstantOrVariable(const std::string& token, const Expression& val)
 		{
 			if (token.empty()) throw std::runtime_error("token must not be empty!");
 			if (!isAllAlnum(token)) throw std::runtime_error("token must be alphanumeric!");
@@ -133,7 +133,7 @@ namespace metl
 
 		template <class... Ts>
 		template <class T>
-		constexpr TYPE CompilerBits<Ts...>::type()
+		constexpr TYPE CompilerEntityDataBase<Ts...>::type()
 		{
 			return classToType2<T, Ts...>();
 		}
