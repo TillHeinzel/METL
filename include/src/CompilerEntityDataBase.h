@@ -88,6 +88,9 @@ namespace metl
 			void addConstantOrVariable(const std::string& token, const Expression& val);
 
 			template<class T>
+			void addVariable(const std::string& token, T* ptr);
+
+			template<class T>
 			constexpr static TYPE type();
 
 			template<class Input>
@@ -156,48 +159,12 @@ namespace metl
 				return castDeclarations_.at(type);
 			}
 
-			//const auto& getOperators() { return operators_; }
-			const auto& getCandV()
-			{
-				return constantsAndVariables_;
-			}
-			const auto& getCarriers()
-			{
-				return opCarriers_;
-			}
-			const auto& getUnaryCarriers()
-			{
-				return unaryCarriers_;
-			}
-			const auto& getFunctionNames()
-			{
-				return functionNames_;
-			}
-			const auto& getFunctions()
-			{
-				return functions_;
-			}
-			const auto& getcastImplementations()
-			{
-				return castImplementations_;
-			}
-			const auto& getcastDeclarations()
-			{
-				return castDeclarations_;
-			}
-			const auto& getSuffixes()
-			{
-				return suffixes_;
-			}
-			const auto& getSuffixImplementations()
-			{
-				return suffixes_;
-			}
-
 			std::map<std::string, UntypedConversion<Expression>> castImplementations_;
 			std::map<std::string, Expression> constantsAndVariables_; // maps identifiers for constants and variables to the expressions returning their values.
 
 		private:
+			std::map<std::string, VariableWrapper<Ts...>> variables_;
+
 			template<class Input, class Map>
 			auto match(Input& in, const Map& map)
 			{

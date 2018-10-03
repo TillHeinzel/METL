@@ -145,7 +145,7 @@ namespace metl
 	{
 		try
 		{
-			return impl_.bits_.getCandV().at(token);
+			return impl_.bits_.constantsAndVariables_.at(token);
 		}
 		catch (...)
 		{
@@ -158,6 +158,7 @@ namespace metl
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setVariable(const std::string& token, T* val)
 	{
 		impl_.bits_.addConstantOrVariable(token, internal::makeVariableExpression<Expression>(val));
+		impl_.bits_.addVariable(token, val);
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
