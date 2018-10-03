@@ -16,5 +16,10 @@ int main(int argc, char **argv) {
 
 	std::cout << "Tests took: ";
 	writeTime(elapsed_seconds);
+
+#if WIN32
+	system("pause");
+#endif
+
 	return result;
 }
