@@ -23,7 +23,7 @@
 #include "src/TypeErasure/UntypedExpression.h"
 #include "src/TypeErasure/UntypedFunction.h"
 #include "src/TypeErasure/UntypedConversion.h"
-
+#include "src/VariableWrapper.h"
 
 #include "src/suffixCarrier.h"
 #include "src/opCarrier.h"
