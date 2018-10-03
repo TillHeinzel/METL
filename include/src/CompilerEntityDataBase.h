@@ -23,7 +23,7 @@
 #include "src/TypeErasure/UntypedExpression.h"
 #include "src/TypeErasure/UntypedFunction.h"
 #include "src/TypeErasure/UntypedConversion.h"
-#include "src/UntypedValue.h"
+#include "src/TypeErasure/UntypedValue.h"
 
 #include "src/suffixCarrier.h"
 #include "src/opCarrier.h"
@@ -91,6 +91,11 @@ namespace metl
 			void addVariable(const std::string& token, T* ptr);
 
 			template<class T>
+			void addConstant(const std::string& token, T val);
+
+
+
+			template<class T>
 			constexpr static TYPE type();
 
 			template<class Input>
@@ -153,7 +158,7 @@ namespace metl
 				return {};
 			}
 
-			tl::optional<Expression> findValueExpression(const std::string& name) const
+			tl::optional<Expression> findValue(const std::string& name) const
 			{
 				auto it = constantsAndVariables_.find(name);
 				if(it != constantsAndVariables_.end())
@@ -174,7 +179,7 @@ namespace metl
 
 		private:
 			
-			std::map<std::string, UntypedValue<Ts...>> values_;
+			std::map<std::string, UntypedValue<Ts...>> constantsAndVariables2_;
 
 			template<class Input, class Map>
 			auto match(Input& in, const Map& map)

@@ -135,7 +135,19 @@ namespace metl
 			if(!isAllAlnum(token)) throw std::runtime_error("token must be alphanumeric!");
 			if(isdigit(token.front())) throw std::runtime_error("token must not start with a number!");
 
-			insert_or_emplace(values_, token, UntypedValue<Ts...>(ptr));
+			insert_or_emplace(constantsAndVariables2_, token, UntypedValue<Ts...>(ptr));
+		}
+
+		template <class ... Ts>
+		template <class T>
+		void CompilerEntityDataBase<Ts...>::addConstant(const std::string& token, T val)
+		{
+			if(token.empty()) throw std::runtime_error("token must not be empty!");
+			if(!isAllAlnum(token)) throw std::runtime_error("token must be alphanumeric!");
+			if(isdigit(token.front())) throw std::runtime_error("token must not start with a number!");
+
+			insert_or_emplace(constantsAndVariables2_, token, UntypedValue<Ts...>(val));
+
 		}
 
 		template <class... Ts>
