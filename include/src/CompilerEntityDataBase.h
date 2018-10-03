@@ -23,7 +23,7 @@
 #include "src/TypeErasure/UntypedExpression.h"
 #include "src/TypeErasure/UntypedFunction.h"
 #include "src/TypeErasure/UntypedConversion.h"
-#include "src/VariableWrapper.h"
+#include "src/UntypedValue.h"
 
 #include "src/suffixCarrier.h"
 #include "src/opCarrier.h"
@@ -153,6 +153,16 @@ namespace metl
 				return {};
 			}
 
+			tl::optional<Expression> findValueExpression(const std::string& name) const
+			{
+				auto it = constantsAndVariables_.find(name);
+				if(it != constantsAndVariables_.end())
+				{
+					return {it->second};
+				}
+				return {};
+			}
+
 			std::vector<TYPE> getAllTypesThatCanBeConvertedTo(const TYPE& type) const
 			{
 				assert(!castDeclarations_.at(type).empty());
@@ -163,7 +173,8 @@ namespace metl
 			std::map<std::string, Expression> constantsAndVariables_; // maps identifiers for constants and variables to the expressions returning their values.
 
 		private:
-			std::map<std::string, VariableWrapper<Ts...>> variables_;
+			
+			std::map<std::string, UntypedValue<Ts...>> values_;
 
 			template<class Input, class Map>
 			auto match(Input& in, const Map& map)
@@ -174,6 +185,17 @@ namespace metl
 
 				return std::make_tuple(varMatched, it);
 			}
+
+			//template<class Map, class Key>
+			//tl::optional<typename Map::mapped_type> find(const Map& map, const Key& key)
+			//{
+			//	auto it = map.find(key);
+			//	if(it != map.end())
+			//	{
+			//		return {it->seccond};
+			//	}
+			//	return {};
+			//}
 
 			std::map<std::string, UntypedConversion<Expression>> suffixImplementations_;
 			std::map<std::string, suffixCarrier> suffixes_;

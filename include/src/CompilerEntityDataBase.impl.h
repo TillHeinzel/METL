@@ -135,7 +135,7 @@ namespace metl
 			if(!isAllAlnum(token)) throw std::runtime_error("token must be alphanumeric!");
 			if(isdigit(token.front())) throw std::runtime_error("token must not start with a number!");
 
-			insert_or_emplace(variables_, token, VariableWrapper<Ts...>(ptr));
+			insert_or_emplace(values_, token, UntypedValue<Ts...>(ptr));
 		}
 
 		template <class... Ts>

@@ -23,11 +23,11 @@
 namespace metl
 {
 	template<class... Ts>
-	class VariableWrapper
+	class UntypedValue
 	{
 	public:
 		template<class T>
-		explicit VariableWrapper(T* var): variable_(var)
+		explicit UntypedValue(T* var): variable_(var)
 		{}
 
 		template<class T>

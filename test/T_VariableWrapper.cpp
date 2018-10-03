@@ -7,12 +7,12 @@ class VariableWrapperFixture: public ::testing::Test
 {
 public:
 	int i = 0;
-	metl::VariableWrapper<bool, int, double> variable{&i};
+	metl::UntypedValue<bool, int, double> variable{&i};
 };
 
 TEST_F(VariableWrapperFixture, construct)
 {
-	auto var = metl::VariableWrapper<bool, int, double>{&i};
+	auto var = metl::UntypedValue<bool, int, double>{&i};
 }
 
 TEST_F(VariableWrapperFixture, setValue)

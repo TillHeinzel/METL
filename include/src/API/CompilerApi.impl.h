@@ -25,17 +25,16 @@ namespace metl
 {
 	template <class Grammar, class LiteralsConverters, class ... Ts>
 	CompilerApi<Grammar, LiteralsConverters, Ts...>::CompilerApi(const LiteralsConverters& literalConverters) :
-	impl_(literalConverters)
+		impl_(literalConverters)
 	{
 
 	}
 
-	namespace detail 
+	namespace detail
 	{
 		template<class Expr>
 		void castToAll(Expr&, const std::map<std::string, internal::UntypedConversion<Expr>>&)
-		{
-		}
+		{}
 
 		template<class T, class... Ts, class Expr>
 		void castToAll(Expr& expr, const std::map<std::string, internal::UntypedConversion<Expr>>& castImpls)
@@ -56,7 +55,7 @@ namespace metl
 		tao::pegtl::memory_input<> input(expression, std::string{});
 		tao::pegtl::parse<Grammar, internal::action>(input, impl_);
 
-		auto expr =  impl_.finish();
+		auto expr = impl_.finish();
 
 		return {expr, impl_.bits_.castImplementations_};
 	}
@@ -84,7 +83,7 @@ namespace metl
 	template <class Left, class Right, class F>
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setOperator(const std::string& token, const F& f)
 	{
-		impl_.bits_.setOperator(token, { type<Left>(), type<Right>() }, metl::internal::makeUntypedFunction<Expression, Left, Right>(f));
+		impl_.bits_.setOperator(token, {type<Left>(), type<Right>()}, metl::internal::makeUntypedFunction<Expression, Left, Right>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
@@ -121,8 +120,8 @@ namespace metl
 
 		static_assert(isInList<From, Ts...>(), "Type the suffix converts from is not one of the types of this compiler!");
 		static_assert(isInList<To, Ts...>(), "Type the suffix converts to is not one of the types of this compiler!");
-		
-		impl_.bits_.setSuffix(token, type<From>(),internal::makeDynamicConversion<Expression, From>(f));
+
+		impl_.bits_.setSuffix(token, type<From>(), internal::makeDynamicConversion<Expression, From>(f));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
@@ -141,16 +140,15 @@ namespace metl
 
 	template <class Grammar, class LiteralsConverters, class ... Ts>
 	typename CompilerApi<Grammar, LiteralsConverters, Ts...>::Expression CompilerApi<Grammar, LiteralsConverters, Ts...>::
-	getValue(const std::string& token)
+		getValue(const std::string& token)
 	{
-		try
+		auto valueOpt = impl_.bits_.findValueExpression(token);
+
+		if(valueOpt)
 		{
-			return impl_.bits_.constantsAndVariables_.at(token);
+			return *valueOpt;
 		}
-		catch (...)
-		{
-			throw std::runtime_error("Variable with name \"" + token + "\" could not be found");
-		}
+		throw std::runtime_error("Variable with name \"" + token + "\" could not be found");
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
