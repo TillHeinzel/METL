@@ -47,6 +47,18 @@ namespace metl
 			return UntypedExpression(t, false);
 		}
 
+		template<class T>
+		constexpr static bool canConstructTypedExpressionFrom = std::is_constructible<TypedExpression<typename std::result_of<T()>::type>, T>::value;
+
+		template<class T>
+		static UntypedExpression makeNonConstexpr(const T& t)
+		{
+			static_assert(canConstructTypedExpressionFrom<T>, "must be able to construct typedExpression from inputType");
+			return makeNonConstexpr(TypedExpression<typename std::result_of<T()>::type>(t));
+		}
+
+
+
 		template<class T> TypedExpression<T> get() const
 		{
 			static_assert(internal::isInList<T, Ts...>(), "Error: Requested Type is not a valid type!");

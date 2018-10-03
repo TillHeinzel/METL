@@ -13,6 +13,31 @@ public:
 	Expression expression = Expression::makeConstexpr( function());
 };
 
+TEST_F(UntypedExpressionFixture, canConstructTypedExpressionFrom)
+{
+	auto i = 0;
+	auto lambda = [&i]()
+	{
+		return i;
+	};
+	static_assert(Expression::canConstructTypedExpressionFrom<decltype(lambda)>, "");
+}
+
+TEST_F(UntypedExpressionFixture, makeFromLambda)
+{
+	auto i = 0;
+	auto lambda = [&i]()
+	{
+		return i;
+	};
+	auto expr = Expression::makeNonConstexpr(lambda);
+
+	ASSERT_EQ(i, expr.get<int>()());
+
+	i = 2;
+	ASSERT_EQ(i, expr.get<int>()());
+}
+
 TEST_F(UntypedExpressionFixture, type)
 {
 	EXPECT_EQ(expression.type(), expression.toType<int>());
