@@ -147,7 +147,7 @@ namespace metl
 
 		if(valueOpt)
 		{
-			return *valueOpt;
+			return valueOpt->makeUntypedExpression();
 		}
 		throw std::runtime_error("Variable with name \"" + token + "\" could not be found");
 	}

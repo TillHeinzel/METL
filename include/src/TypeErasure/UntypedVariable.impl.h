@@ -5,8 +5,12 @@
 #include "src/TypeErasure/UntypedVariable.h"
 
 #include "src/TypeErasure/UntypedExpression.h"
+#include "src/TypeErasure/UntypedConstant.h"
 
 #include "src/std17/remove_cvref.h"
+
+template<class T>
+using removeAnyPointers = std17::remove_cvref_t<std::remove_pointer_t<std17::remove_cvref_t<T>>>;
 
 namespace metl
 {
@@ -23,6 +27,23 @@ namespace metl
 		auto visitor = [&t](auto* typedVariablePtr)
 		{
 			*typedVariablePtr = t;
+		};
+		mpark::visit(visitor, variable_);
+	}
+
+	template <class ... Ts>
+	void UntypedVariable<Ts...>::setValueUntyped(const UntypedConstant<Ts...>& newValue)
+	{
+		if(newValue.type() != type())
+		{
+			throw std::runtime_error("cannot assign value of different type to variable");
+		}
+
+		auto expr = newValue.makeUntypedExpression();
+
+		auto visitor = [&expr](auto* typedVariablePtr)
+		{
+			*typedVariablePtr = expr.template get<removeAnyPointers<decltype(typedVariablePtr)>>()();
 		};
 		mpark::visit(visitor, variable_);
 	}

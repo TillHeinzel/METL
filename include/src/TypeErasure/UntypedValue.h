@@ -39,13 +39,15 @@ namespace metl
 		template<class T>
 		void setValue(const T& t);
 
+		void setValueUntyped(const UntypedValue<Ts...>& newValue);
+
 		UntypedExpression<Ts...> makeUntypedExpression() const;
 
 		TYPE type() const;
 
-		bool isConstant();
+		bool isConstant() const;
 
-		bool isVariable();
+		bool isVariable() const;
 
 	private:
 		mpark::variant<UntypedConstant<Ts...>, UntypedVariable<Ts...>> value_;

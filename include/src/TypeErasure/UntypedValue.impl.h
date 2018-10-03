@@ -30,6 +30,20 @@ namespace metl
 	}
 
 	template <class ... Ts>
+	void UntypedValue<Ts...>::setValueUntyped(const UntypedValue<Ts...>& newValue)
+	{
+		assert(newValue.isConstant());
+
+		const auto& newValueConstant = mpark::get<UntypedConstant<Ts...>>(newValue.value_);
+
+		auto visitor = [&newValueConstant](auto& constantOrVariable)
+		{
+			constantOrVariable.setValueUntyped(newValueConstant);
+		};
+		mpark::visit(visitor, value_);
+	}
+
+	template <class ... Ts>
 	UntypedExpression<Ts...> UntypedValue<Ts...>::makeUntypedExpression() const
 	{
 		auto visitor = [](const auto& constantOrVariable)
@@ -50,13 +64,13 @@ namespace metl
 	}
 
 	template <class ... Ts>
-	bool UntypedValue<Ts...>::isConstant()
+	bool UntypedValue<Ts...>::isConstant() const
 	{
 		return mpark::holds_alternative<UntypedConstant<Ts...>>(value_);
 	}
 
 	template <class ... Ts>
-	bool UntypedValue<Ts...>::isVariable()
+	bool UntypedValue<Ts...>::isVariable() const
 	{
 		return mpark::holds_alternative<UntypedVariable<Ts...>>(value_);
 	}

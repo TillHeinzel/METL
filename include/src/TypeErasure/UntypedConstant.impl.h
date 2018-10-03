@@ -25,6 +25,12 @@ namespace metl
 	}
 
 	template <class ... Ts>
+	void UntypedConstant<Ts...>::setValueUntyped(const UntypedConstant& newValue)
+	{
+		value_ = newValue.value_;
+	}
+
+	template <class ... Ts>
 	UntypedExpression<Ts...> UntypedConstant<Ts...>::makeUntypedExpression() const
 	{
 		auto visitor = [](const auto& typedValue)

@@ -20,6 +20,7 @@
 
 #include "src/TypeErasure/TypeEnum.h"
 #include "src/TypeErasure/UntypedExpression.fwd.h"
+#include "src/TypeErasure/UntypedConstant.fwd.h"
 
 namespace metl
 {
@@ -32,6 +33,8 @@ namespace metl
 
 		template<class T>
 		void setValue(const T& t);
+
+		void setValueUntyped(const UntypedConstant<Ts...>& newValue);
 
 		UntypedExpression<Ts...> makeUntypedExpression() const;
 

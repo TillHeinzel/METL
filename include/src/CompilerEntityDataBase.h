@@ -89,13 +89,13 @@ namespace metl
 
 			void addConstantOrVariable(const std::string& token, const Expression& val);
 
+			void addConstantOrVariable(const std::string& token, const UntypedValue<Ts...>& val);
+
 			template<class T>
 			void addVariable(const std::string& token, T* ptr);
 
 			template<class T>
 			void addConstant(const std::string& token, T val);
-
-
 
 			template<class T>
 			constexpr static TYPE type();
@@ -160,10 +160,10 @@ namespace metl
 				return {};
 			}
 
-			tl::optional<Expression> findValue(const std::string& name) const
+			tl::optional<UntypedValue<Ts...>> findValue(const std::string& name) const
 			{
-				auto it = constantsAndVariables_.find(name);
-				if(it != constantsAndVariables_.end())
+				auto it = constantsAndVariables2_.find(name);
+				if(it != constantsAndVariables2_.end())
 				{
 					return {it->second};
 				}

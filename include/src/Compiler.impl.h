@@ -61,12 +61,12 @@ namespace metl
 				{
 					*existingVarExpression.template get<T>().template target<VariableExpression<T>>()->v = evaluatedExpr.template get<T>()();
 				}
-				else 
+				else
 				{
 					assignToVar_impl<RemainingTs...>(existingVarExpression, evaluatedExpr);
 				}
 			}
-			
+
 			template<class... Ts>
 			void assignToVar(UntypedExpression<Ts...>& existingVarExpression, const UntypedExpression<Ts...>& evaluatedExpr)// assumes the two expression have the same type
 			{
@@ -81,29 +81,17 @@ namespace metl
 
 			if(assignToThis_ != "")
 			{
-				auto evaluatedExpr = expr.evaluatedExpression();
+				auto untypedResult = expr.evaluateUntyped();
+				assert(untypedResult.isConstant());
 
-				auto it = bits_.constantsAndVariables_.find(assignToThis_);
-				if(it == bits_.constantsAndVariables_.end())
+				auto valueOpt = bits_.findValue(assignToThis_);
+				if(!valueOpt)
 				{
-					bits_.constantsAndVariables_.emplace(assignToThis_, evaluatedExpr);
+					bits_.addConstantOrVariable(assignToThis_, untypedResult);
 				}
-				else if(it->second.isConstexpr())
+				else // name exist
 				{
-					it->second = evaluatedExpr;
-				}
-				else // name exist, is dynexpr
-				{
-					if(evaluatedExpr.type() != it->second.type())
-					{
-						auto fromType = evaluatedExpr.type();
-						auto toType = it->second.type();
-
-						auto castIt = bits_.castImplementations_.find(mangleCast(fromType, toType));
-						if (castIt == bits_.castImplementations_.end()) throw std::runtime_error("cannot assign to incompatible type");
-						evaluatedExpr = castIt->second.apply(evaluatedExpr);
-					}
-					assignToVar(it->second, evaluatedExpr);
+					valueOpt->setValueUntyped(untypedResult);
 				}
 			}
 
