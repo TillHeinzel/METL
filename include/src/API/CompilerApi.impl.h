@@ -129,7 +129,6 @@ namespace metl
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setConstant(const std::string& token, T&& val)
 	{
 		impl_.bits_.addConstant(token, val);
-		impl_.bits_.addConstantOrVariable(token, Expression::makeConstexpr(std::forward<T>(val)));
 	}
 
 	template <class Grammar, class LiteralsConverters, class ... Ts>
@@ -157,7 +156,6 @@ namespace metl
 	void CompilerApi<Grammar, LiteralConverters, Ts...>::setVariable(const std::string& token, T* val)
 	{
 		impl_.bits_.addVariable(token, val);
-		impl_.bits_.addConstantOrVariable(token, internal::makeVariableExpression<Expression>(val));
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>

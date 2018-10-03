@@ -83,15 +83,36 @@ namespace metl
 			{
 				auto untypedResult = expr.evaluateUntyped();
 				assert(untypedResult.isConstant());
+				assert(untypedResult.type() == expr.type());
 
 				auto valueOpt = bits_.findValue(assignToThis_);
 				if(!valueOpt)
 				{
 					bits_.addConstantOrVariable(assignToThis_, untypedResult);
 				}
-				else // name exist
+				else if(valueOpt->isConstant())
 				{
-					valueOpt->setValueUntyped(untypedResult);
+					bits_.addConstantOrVariable(assignToThis_, untypedResult);
+				}
+				else
+				{
+					if(valueOpt->type() == untypedResult.type())
+					{
+						valueOpt->setValueUntyped(untypedResult);
+					}
+					else
+					{
+						auto castOpt = bits_.findCast(mangleCast(expr.type(), valueOpt->type()));
+						if(castOpt)
+						{
+							auto castedResult = castOpt->apply(expr).evaluateUntyped();
+							valueOpt->setValueUntyped(castedResult);
+						}
+						else
+						{
+							throw std::runtime_error("cannot assign different types without available cast");
+						}
+					}
 				}
 			}
 

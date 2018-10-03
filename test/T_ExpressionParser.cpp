@@ -316,9 +316,11 @@ TEST_F(AssignmentFixture, assignExpressionToExistingVariable)
 
 	compiler.build<double>("a = 2*x+b");
 	EXPECT_EQ(2 * 3 + 45.0, compiler.getValue<double>("a"));
+	EXPECT_EQ(2 * 3 + 45.0, a);
 
 	compiler.build<double>("a = 2");
 	EXPECT_EQ(2.0, compiler.getValue<double>("a"));
+	EXPECT_EQ(2.0, a);
 }
 
 TEST_F(AssignmentFixture, disableAssignment)

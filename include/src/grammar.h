@@ -108,7 +108,7 @@ namespace metl
 				if (std::get<0>(ret) == false) return false;
 				const auto& it = std::get<1>(ret);
 
-				s.stack_.push(it->second);
+				s.stack_.push(it->second.makeUntypedExpression());
 				in.bump(it->first.size());
 				return true;
 			}

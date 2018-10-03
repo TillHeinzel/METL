@@ -87,8 +87,6 @@ namespace metl
 
 			void setSuffix(const std::string& token, TYPE from, const UntypedConversion<Expression>& conversion);
 
-			void addConstantOrVariable(const std::string& token, const Expression& val);
-
 			void addConstantOrVariable(const std::string& token, const UntypedValue<Ts...>& val);
 
 			template<class T>
@@ -103,7 +101,7 @@ namespace metl
 			template<class Input>
 			auto matchVariable(Input& in)
 			{
-				return match(in, constantsAndVariables_);
+				return match(in, constantsAndVariables2_);
 			}
 
 			template<class Input>
@@ -170,6 +168,16 @@ namespace metl
 				return {};
 			}
 
+			tl::optional<UntypedConversion<Expression>> findCast(const std::string& mangledName)
+			{
+				auto it = castImplementations_.find(mangledName);
+				if(it != castImplementations_.end())
+				{
+					return {it->second};
+				}
+				return {};
+			}
+
 			std::vector<TYPE> getAllTypesThatCanBeConvertedTo(const TYPE& type) const
 			{
 				assert(!castDeclarations_.at(type).empty());
@@ -177,10 +185,8 @@ namespace metl
 			}
 
 			std::map<std::string, UntypedConversion<Expression>> castImplementations_;
-			std::map<std::string, Expression> constantsAndVariables_; // maps identifiers for constants and variables to the expressions returning their values.
-
-		private:
 			
+		private:
 			std::map<std::string, UntypedValue<Ts...>> constantsAndVariables2_;
 
 			template<class Input, class Map>

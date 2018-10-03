@@ -118,16 +118,6 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void CompilerEntityDataBase<Ts...>::addConstantOrVariable(const std::string& token, const Expression& val)
-		{
-			if (token.empty()) throw std::runtime_error("token must not be empty!");
-			if (!isAllAlnum(token)) throw std::runtime_error("token must be alphanumeric!");
-			if (isdigit(token.front())) throw std::runtime_error("token must not start with a number!");
-
-			insert_or_emplace(constantsAndVariables_, token, val);
-		}
-
-		template <class ... Ts>
 		void CompilerEntityDataBase<Ts...>::addConstantOrVariable(const std::string& token,	const UntypedValue<Ts...>& val)
 		{
 			if(token.empty()) throw std::runtime_error("token must not be empty!");
