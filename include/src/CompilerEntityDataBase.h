@@ -130,52 +130,27 @@ namespace metl
 
 			tl::optional<UntypedFunction<Expression>> findFunction(const std::string& mangledName) const
 			{
-				auto it = functions_.find(mangledName);
-				if(it != functions_.end())
-				{
-					return {it->second};
-				}
-				return {};
+				return find(functions_, mangledName);
 			}
 			
 			tl::optional<UntypedFunction<Expression>> findOperator(const std::string& mangledName) const
 			{
-				auto it = operators_.find(mangledName);
-				if(it != operators_.end())
-				{
-					return {it->second};
-				}
-				return {};
+				return find(operators_, mangledName);
 			}
 			
 			tl::optional<UntypedConversion<Expression>> findSuffix(const std::string& mangledName) const
 			{
-				auto it = suffixImplementations_.find(mangledName);
-				if(it != suffixImplementations_.end())
-				{
-					return {it->second};
-				}
-				return {};
+				return find(suffixImplementations_, mangledName);
 			}
 
 			tl::optional<UntypedValue<Ts...>> findValue(const std::string& name) const
 			{
-				auto it = constantsAndVariables2_.find(name);
-				if(it != constantsAndVariables2_.end())
-				{
-					return {it->second};
-				}
-				return {};
+				return find(constantsAndVariables2_, name);
 			}
 
 			tl::optional<UntypedConversion<Expression>> findCast(const std::string& mangledName)
 			{
-				auto it = castImplementations_.find(mangledName);
-				if(it != castImplementations_.end())
-				{
-					return {it->second};
-				}
-				return {};
+				return find(castImplementations_, mangledName);
 			}
 
 			std::vector<TYPE> getAllTypesThatCanBeConvertedTo(const TYPE& type) const
@@ -199,16 +174,16 @@ namespace metl
 				return std::make_tuple(varMatched, it);
 			}
 
-			//template<class Map, class Key>
-			//tl::optional<typename Map::mapped_type> find(const Map& map, const Key& key)
-			//{
-			//	auto it = map.find(key);
-			//	if(it != map.end())
-			//	{
-			//		return {it->seccond};
-			//	}
-			//	return {};
-			//}
+			template<class Map, class Key>
+			static tl::optional<typename Map::mapped_type> find(const Map& map, const Key& key)
+			{
+				auto it = map.find(key);
+				if(it != map.end())
+				{
+					return {it->second};
+				}
+				return {};
+			}
 
 			std::map<std::string, UntypedConversion<Expression>> suffixImplementations_;
 			std::map<std::string, suffixCarrier> suffixes_;
