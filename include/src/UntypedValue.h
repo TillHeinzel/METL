@@ -19,15 +19,16 @@
 #include "ThirdParty/Variant/variant.hpp"
 
 #include "src/TypeErasure/UntypedExpression.h"
+#include "std17/remove_cvref.h"
 
 namespace metl
 {
 	template<class... Ts>
-	class UntypedValue
+	class UntypedVariable
 	{
 	public:
 		template<class T>
-		explicit UntypedValue(T* var): variable_(var)
+		explicit UntypedVariable(T* var) : variable_(var)
 		{}
 
 		template<class T>
@@ -54,8 +55,108 @@ namespace metl
 			return mpark::visit(visitor, variable_);
 		}
 
+		TYPE type() const
+		{
+			auto visitor = [](const auto* typedValue)
+			{
+				using T = std17::remove_cvref_t < std::remove_pointer_t<std17::remove_cvref_t<decltype(typedValue)>>>;
+
+				return classToType2<T, Ts...>();
+			};
+			return mpark::visit(visitor, variable_);
+		}
+
 	private:
 		mpark::variant<Ts*...> variable_;
+	};
+
+	template<class... Ts>
+	class UntypedConstant
+	{
+	public:
+		template<class T>
+		explicit UntypedConstant(T val) : value_(val)
+		{}
+
+		template<class T>
+		void setValue(const T& t)
+		{
+			value_ = t;
+		}
+
+		UntypedExpression<Ts...> makeUntypedExpression() const
+		{
+			auto visitor = [](const auto& typedValue)
+			{
+				return UntypedExpression<Ts...>::makeConstexpr(typedValue);
+			};
+			return mpark::visit(visitor, value_);
+		}
+
+		TYPE type() const
+		{
+			auto visitor = [](const auto& typedValue)
+			{
+				return classToType2<std17::remove_cvref_t<decltype(typedValue)>, Ts...>();
+			};
+			return mpark::visit(visitor, value_);
+		}
+
+	private:
+		mpark::variant<Ts...> value_;
+	};
+
+	template<class... Ts>
+	class UntypedValue
+	{
+	public:
+		template<class T>
+		explicit UntypedValue(T val): value_(UntypedConstant<Ts...>(val))
+		{}
+
+		template<class T>
+		explicit UntypedValue(T* val): value_(UntypedVariable<Ts...>(val))
+		{}
+
+		template<class T>
+		void setValue(const T& t)
+		{
+			auto visitor = [&t](auto& constantOrVariable)
+			{
+				constantOrVariable.setValue(t);
+			};
+			mpark::visit(visitor, value_);
+		}
+
+		UntypedExpression<Ts...> makeUntypedExpression() const
+		{
+			auto visitor = [](const auto& constantOrVariable)
+			{
+				return constantOrVariable.makeUntypedExpression();
+			};
+			return mpark::visit(visitor, value_);
+		}
+
+		TYPE type() const
+		{
+			auto visitor = [](const auto& constantOrVariable)
+			{
+				return constantOrVariable.type();
+			};
+			return mpark::visit(visitor, value_);
+		}
+		bool isConstant()
+		{
+			return mpark::holds_alternative<UntypedConstant<Ts...>>(value_);
+		}
+
+		bool isVariable()
+		{
+			return mpark::holds_alternative<UntypedVariable<Ts...>>(value_);
+		}
+
+	private:
+		mpark::variant<UntypedConstant<Ts...>, UntypedVariable<Ts...>> value_;
 
 	};
 }

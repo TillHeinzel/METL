@@ -44,7 +44,7 @@ namespace metl
 			auto it = expressions_.find(classToType2<T, Ts...>());
 			if (it != expressions_.end())
 			{
-				return it->second.get<T>();
+				return it->second.template get<T>();
 			}
 			throw std::runtime_error("this is not the correct type");
 		}
@@ -52,6 +52,7 @@ namespace metl
 		template<class T>
 		bool isType() const
 		{
+			static_assert(internal::isInList<T, Ts...>(), "Type is not part of the list");
 			return type_ == classToType2<T, Ts...>();
 		}
 

@@ -32,8 +32,8 @@ TEST_F(OutExpressionFixture, isType)
 	ASSERT_FALSE(expr.isType<double>());
 	ASSERT_FALSE(expr.isType<bool>());
 
-	ASSERT_FALSE(expr.isType<unsigned>());
-	ASSERT_FALSE(expr.isType<std::string>());
+	//ASSERT_FALSE(expr.isType<unsigned>()); // should not compile
+	//ASSERT_FALSE(expr.isType<std::string>()); // should not compile
 }
 
 TEST_F(OutExpressionFixture, get)

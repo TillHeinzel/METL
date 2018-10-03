@@ -41,6 +41,8 @@ namespace metl
 	template<class T, class... Ts>
 	constexpr TYPE classToType2()
 	{
-		return static_cast<TYPE>(internal::findFirstIndex<T>(internal::TypeList<Ts...>{}));
+		constexpr auto firstIndex = internal::findFirstIndex<T>(internal::TypeList<Ts...>{});
+		static_assert(firstIndex < sizeof...(Ts), "Type is not in list");
+		return static_cast<TYPE>(firstIndex);
 	}
 }
