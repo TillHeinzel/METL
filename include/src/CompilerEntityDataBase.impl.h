@@ -124,7 +124,7 @@ namespace metl
 			if(!isAllAlnum(token)) throw std::runtime_error("token must be alphanumeric!");
 			if(isdigit(token.front())) throw std::runtime_error("token must not start with a number!");
 
-			insert_or_emplace(constantsAndVariables2_, token, val);
+			insert_or_emplace(constantsAndVariables_, token, val);
 		}
 
 		template <class ... Ts>
@@ -135,7 +135,7 @@ namespace metl
 			if(!isAllAlnum(token)) throw std::runtime_error("token must be alphanumeric!");
 			if(isdigit(token.front())) throw std::runtime_error("token must not start with a number!");
 
-			insert_or_emplace(constantsAndVariables2_, token, UntypedValue<Ts...>(ptr));
+			insert_or_emplace(constantsAndVariables_, token, UntypedValue<Ts...>(ptr));
 		}
 
 		template <class ... Ts>
@@ -146,7 +146,7 @@ namespace metl
 			if(!isAllAlnum(token)) throw std::runtime_error("token must be alphanumeric!");
 			if(isdigit(token.front())) throw std::runtime_error("token must not start with a number!");
 
-			insert_or_emplace(constantsAndVariables2_, token, UntypedValue<Ts...>(val));
+			insert_or_emplace(constantsAndVariables_, token, UntypedValue<Ts...>(val));
 
 		}
 

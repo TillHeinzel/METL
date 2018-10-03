@@ -101,7 +101,7 @@ namespace metl
 			template<class Input>
 			auto matchVariable(Input& in)
 			{
-				return match(in, constantsAndVariables2_);
+				return match(in, constantsAndVariables_);
 			}
 
 			template<class Input>
@@ -145,7 +145,7 @@ namespace metl
 
 			tl::optional<UntypedValue<Ts...>> findValue(const std::string& name) const
 			{
-				return find(constantsAndVariables2_, name);
+				return find(constantsAndVariables_, name);
 			}
 
 			tl::optional<UntypedConversion<Expression>> findCast(const std::string& mangledName)
@@ -162,7 +162,7 @@ namespace metl
 			std::map<std::string, UntypedConversion<Expression>> castImplementations_;
 			
 		private:
-			std::map<std::string, UntypedValue<Ts...>> constantsAndVariables2_;
+			std::map<std::string, UntypedValue<Ts...>> constantsAndVariables_;
 
 			template<class Input, class Map>
 			auto match(Input& in, const Map& map)
