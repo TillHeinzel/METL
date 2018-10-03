@@ -23,6 +23,8 @@
 #include "src/TypeErasure/TypeEnum.h"
 #include "src/TypeErasure/TypedExpression.h"
 
+#include "src/TypeErasure/UntypedValue.fwd.h"
+
 namespace metl
 {
 	template<class... Ts>
@@ -30,88 +32,42 @@ namespace metl
 	{
 	public:
 		template<class T>
-		static UntypedExpression makeConstexpr(T t)
-		{
-			static_assert(internal::isInList<T, Ts...>(), "cannot construct UntypedExpression with this type");
-			auto ExpressionLambda = [t]()
-			{
-				return t;
-			};
-			auto typedExpression = TypedExpression<T>{ExpressionLambda};
-			return UntypedExpression(typedExpression, true);
-		}
+		static UntypedExpression makeConstexpr(T t);
 
 		template<class T>
-		static UntypedExpression makeNonConstexpr(const TypedExpression<T>& t)
-		{
-			return UntypedExpression(t, false);
-		}
+		static UntypedExpression makeNonConstexpr(const TypedExpression<T>& t);
 
 		template<class T>
 		constexpr static bool canConstructTypedExpressionFrom = std::is_constructible<TypedExpression<typename std::result_of<T()>::type>, T>::value;
 
 		template<class T>
-		static UntypedExpression makeNonConstexpr(const T& t)
-		{
-			static_assert(canConstructTypedExpressionFrom<T>, "must be able to construct typedExpression from inputType");
-			return makeNonConstexpr(TypedExpression<typename std::result_of<T()>::type>(t));
-		}
+		static UntypedExpression makeNonConstexpr(const T& t);
 
 
-
-		template<class T> TypedExpression<T> get() const
-		{
-			static_assert(internal::isInList<T, Ts...>(), "Error: Requested Type is not a valid type!");
-
-			if(mpark::holds_alternative<TypedExpression<T>>(vals_)) return mpark::get<TypedExpression<T>>(vals_);
-			throw std::runtime_error("this is not the correct type");
-		}
-
-		UntypedExpression evaluatedExpression() const
-		{
-			auto visitor = [](const auto& expr)
-			{
-				return UntypedExpression::makeConstexpr(expr());
-			};
-
-			return mpark::visit(visitor, vals_);
-		}
 
 		template<class T>
-		bool isType() const
-		{
-			return type_ == toType<T>();
-		}
+		TypedExpression<T> get() const;
 
-		bool isConstexpr() const
-		{
-			return isConstexpr_;
-		}
+		UntypedExpression evaluatedExpression() const;
 
-		TYPE type() const
-		{
-			return type_;
-		}
+		UntypedValue<Ts...> evaluateUntyped() const;
 
 		template<class T>
-		constexpr static TYPE toType()
-		{
-			return classToType2<T, Ts...>();
-		}
+		bool isType() const;
+
+		bool isConstexpr() const;
+
+		TYPE type() const;
+
+		template<class T>
+		constexpr static TYPE toType();
 	private:
 
 		template<class T, std::enable_if_t<!internal::isInList<T, Ts...>(), int> = 0>
-		UntypedExpression(const TypedExpression<T>&, bool)
-		{
-			static_assert(internal::isInList<T, Ts...>(), "cannot construct UntypedExpression with this type");
-		}
+		UntypedExpression(const TypedExpression<T>&, bool);
 
 		template<class T, std::enable_if_t<internal::isInList<T, Ts...>(), int> = 0>
-		UntypedExpression(const TypedExpression<T>& t, bool isConstexpr) :
-			type_(classToType2<T, Ts...>()),
-			isConstexpr_(isConstexpr),
-			vals_(t)
-		{}
+		UntypedExpression(const TypedExpression<T>& t, bool isConstexpr);
 
 
 		TYPE type_;
@@ -119,6 +75,14 @@ namespace metl
 
 		mpark::variant<TypedExpression<Ts>...> vals_;
 	};
+
+	template <class ... Ts>
+	template <class T>
+	constexpr TYPE UntypedExpression<Ts...>::toType()
+	{
+		return classToType2<T, Ts...>();
+	}
+
 
 	namespace internal
 	{

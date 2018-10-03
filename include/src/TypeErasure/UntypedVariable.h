@@ -18,8 +18,8 @@
 
 #include "ThirdParty/Variant/variant.hpp"
 
-#include "src/TypeErasure/UntypedExpression.h"
-#include "std17/remove_cvref.h"
+#include "src/TypeErasure/TypeEnum.h"
+#include "src/TypeErasure/UntypedExpression.fwd.h"
 
 namespace metl
 {
@@ -28,45 +28,17 @@ namespace metl
 	{
 	public:
 		template<class T>
-		explicit UntypedVariable(T* var) : variable_(var)
-		{}
+		explicit UntypedVariable(T* var);
 
 		template<class T>
-		void setValue(const T& t)
-		{
-			auto visitor = [&t](auto* typedVariablePtr)
-			{
-				*typedVariablePtr = t;
-			};
-			mpark::visit(visitor, variable_);
-		}
+		void setValue(const T& t);
 
-		UntypedExpression<Ts...> makeUntypedExpression() const
-		{
-			auto visitor = [](const auto* typedVariablePtr)
-			{
-				auto valueLambda = [typedVariablePtr]()
-				{
-					return *typedVariablePtr;
-				};
+		UntypedExpression<Ts...> makeUntypedExpression() const;
 
-				return UntypedExpression<Ts...>::makeNonConstexpr(valueLambda);
-			};
-			return mpark::visit(visitor, variable_);
-		}
-
-		TYPE type() const
-		{
-			auto visitor = [](const auto* typedValue)
-			{
-				using T = std17::remove_cvref_t < std::remove_pointer_t<std17::remove_cvref_t<decltype(typedValue)>>>;
-
-				return classToType2<T, Ts...>();
-			};
-			return mpark::visit(visitor, variable_);
-		}
+		TYPE type() const;
 
 	private:
 		mpark::variant<Ts*...> variable_;
 	};
+
 }

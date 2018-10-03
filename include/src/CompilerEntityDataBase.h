@@ -18,6 +18,8 @@
 
 #include <map>
 
+#include <cassert>
+
 #include "ThirdParty/Optional/optional.hpp"
 
 #include "src/TypeErasure/UntypedExpression.h"

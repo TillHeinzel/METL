@@ -103,3 +103,12 @@ TEST_F(UntypedExpressionFixture, evaluatedExpression)
 
 	EXPECT_EQ(1, evaluationCount);
 }
+
+TEST_F(UntypedExpressionFixture, evaluateUntyped)
+{
+	auto untypedValue = expression.evaluateUntyped();
+
+	auto exprBack = untypedValue.makeUntypedExpression();
+
+	ASSERT_EQ(expression.get<int>()(), exprBack.get<int>()());
+}

@@ -24,3 +24,7 @@
 #include "src/CompilerEntityDataBase.impl.h"
 
 #include "src/TypeErasure/UntypedOperation.impl.h"
+#include "src/TypeErasure/UntypedConstant.impl.h"
+#include "src/TypeErasure/UntypedVariable.impl.h"
+#include "src/TypeErasure/UntypedValue.impl.h"
+#include "src/TypeErasure/UntypedExpression.impl.h"

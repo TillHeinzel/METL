@@ -18,6 +18,9 @@
 
 #include "ThirdParty/Variant/variant.hpp"
 
+#include "src/TypeErasure/TypeEnum.h"
+#include "src/TypeErasure/UntypedExpression.fwd.h"
+
 #include "src/TypeErasure/UntypedConstant.h"
 #include "src/TypeErasure/UntypedVariable.h"
 
@@ -28,52 +31,25 @@ namespace metl
 	{
 	public:
 		template<class T>
-		explicit UntypedValue(T val): value_(UntypedConstant<Ts...>(val))
-		{}
+		explicit UntypedValue(T val);
 
 		template<class T>
-		explicit UntypedValue(T* val): value_(UntypedVariable<Ts...>(val))
-		{}
+		explicit UntypedValue(T* val);
 
 		template<class T>
-		void setValue(const T& t)
-		{
-			auto visitor = [&t](auto& constantOrVariable)
-			{
-				constantOrVariable.setValue(t);
-			};
-			mpark::visit(visitor, value_);
-		}
+		void setValue(const T& t);
 
-		UntypedExpression<Ts...> makeUntypedExpression() const
-		{
-			auto visitor = [](const auto& constantOrVariable)
-			{
-				return constantOrVariable.makeUntypedExpression();
-			};
-			return mpark::visit(visitor, value_);
-		}
+		UntypedExpression<Ts...> makeUntypedExpression() const;
 
-		TYPE type() const
-		{
-			auto visitor = [](const auto& constantOrVariable)
-			{
-				return constantOrVariable.type();
-			};
-			return mpark::visit(visitor, value_);
-		}
-		bool isConstant()
-		{
-			return mpark::holds_alternative<UntypedConstant<Ts...>>(value_);
-		}
+		TYPE type() const;
 
-		bool isVariable()
-		{
-			return mpark::holds_alternative<UntypedVariable<Ts...>>(value_);
-		}
+		bool isConstant();
+
+		bool isVariable();
 
 	private:
 		mpark::variant<UntypedConstant<Ts...>, UntypedVariable<Ts...>> value_;
 
 	};
+
 }

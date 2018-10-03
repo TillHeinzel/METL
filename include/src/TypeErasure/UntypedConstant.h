@@ -18,8 +18,8 @@
 
 #include "ThirdParty/Variant/variant.hpp"
 
-#include "src/TypeErasure/UntypedExpression.h"
-#include "std17/remove_cvref.h"
+#include "src/TypeErasure/TypeEnum.h"
+#include "src/TypeErasure/UntypedExpression.fwd.h"
 
 namespace metl
 {
@@ -28,34 +28,17 @@ namespace metl
 	{
 	public:
 		template<class T>
-		explicit UntypedConstant(T val) : value_(val)
-		{}
+		explicit UntypedConstant(T val);
 
 		template<class T>
-		void setValue(const T& t)
-		{
-			value_ = t;
-		}
+		void setValue(const T& t);
 
-		UntypedExpression<Ts...> makeUntypedExpression() const
-		{
-			auto visitor = [](const auto& typedValue)
-			{
-				return UntypedExpression<Ts...>::makeConstexpr(typedValue);
-			};
-			return mpark::visit(visitor, value_);
-		}
+		UntypedExpression<Ts...> makeUntypedExpression() const;
 
-		TYPE type() const
-		{
-			auto visitor = [](const auto& typedValue)
-			{
-				return classToType2<std17::remove_cvref_t<decltype(typedValue)>, Ts...>();
-			};
-			return mpark::visit(visitor, value_);
-		}
+		TYPE type() const;
 
 	private:
 		mpark::variant<Ts...> value_;
 	};
+
 }
