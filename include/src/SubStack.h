@@ -20,6 +20,7 @@
 #include <string>
 
 #include "ThirdParty/Optional/optional.hpp"
+#include "ThirdParty/Variant/variant.hpp"
 
 #include "src/TypeErasure/UntypedExpression.h"
 
@@ -31,6 +32,49 @@ namespace metl
 {
 	namespace internal
 	{
+		template<class... Ts>
+		class FunctionSubStack
+		{
+			using Expression = UntypedExpression<Ts...>;
+		public:
+			FunctionSubStack(const CompilerEntityDataBase<Ts...>& database, std::string functionName) :
+				functionName_(std::move(functionName)),
+				dataBase_(database)
+			{}
+
+			void addArgument(Expression l)
+			{
+				arguments_.push_back(std::move(l));
+			}
+
+		private:
+			const CompilerEntityDataBase<Ts...>& dataBase_;
+
+			const std::string functionName_;
+			std::vector<Expression> arguments_;
+		};
+
+		template<class... Ts>
+		class ExpressionSubStack
+		{
+			using Expression = UntypedExpression<Ts...>;
+		public:
+			explicit ExpressionSubStack(const CompilerEntityDataBase<Ts...>& dataBase):dataBase_(dataBase){}
+
+			void push(Expression l)
+			{
+				subExpressions_.push_back(std::move(l));
+			}
+			void push(const opCarrier& b);
+			void push(const suffixCarrier& suffix);
+
+		private:
+			std::vector<Expression> subExpressions_;
+			std::vector<opCarrier> operators_;
+
+			const CompilerEntityDataBase<Ts...>& dataBase_;
+		};
+
 		template<class... Ts>
 		class SubStack
 		{
@@ -48,7 +92,10 @@ namespace metl
 
 			Expression finish();
 
-			bool empty() const { return expressions_.empty(); }
+			bool empty() const
+			{
+				return expressions_.empty();
+			}
 		private:
 			void evaluateFunction(const std::string& functionName);
 
@@ -63,10 +110,12 @@ namespace metl
 
 			tl::optional<std::string> function_;
 
+			//mpark::variant<mpark::monostate, FunctionSubStack<Ts...>, ExpressionSubStack<Ts...>> specificSubStack_;
+
 			const CompilerEntityDataBase<Ts...>& bits_;
 
+			
 
-		private:
 			void castTo(const std::vector<TYPE>& targetTypes);
 		};
 	}

@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <tao/pegtl.hpp>
+#include "tao/pegtl.hpp"
 
 #include "src/Utility/ConstexprBranching.h"
 

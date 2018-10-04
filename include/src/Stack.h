@@ -36,7 +36,7 @@ namespace metl
 			using Expression = UntypedExpression<Ts...>;
 
 		public:
-			Stack(const CompilerEntityDataBase<Ts...>& bits);
+			explicit Stack(const CompilerEntityDataBase<Ts...>& bits);
 
 			void push(const Expression& t);
 
