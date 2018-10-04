@@ -33,7 +33,7 @@ namespace metl
 	public:
 		using Expression = UntypedExpression<Ts...>;
 
-		OutputExpression(const Expression& expr, const std::map<std::string, internal::UntypedConversion<Expression>>& casts) :
+		OutputExpression(const Expression& expr, const std::vector<internal::UntypedConversion<Expression>>& casts) :
 			expressions_(castToAll(expr, casts)),
 			type_(expr.type())
 		{}
@@ -60,20 +60,13 @@ namespace metl
 		const std::map<TYPE, Expression> expressions_;
 		TYPE type_;
 
-		std::map<TYPE, Expression> castToAll(const Expression& expr, const std::map<std::string, internal::UntypedConversion<Expression>>& casts)
+		static std::map<TYPE, Expression> castToAll(const Expression& expr, const std::vector<internal::UntypedConversion<Expression>>& casts)
 		{
 			std::map<TYPE, Expression> castedExpressions{ {expr.type(), expr} };
 			for (const auto& cast : casts)
 			{
-				try
-				{
-					auto castedExpression = cast.second.apply(expr);
+					auto castedExpression = cast.apply(expr);
 					castedExpressions.emplace(castedExpression.type(), std::move(castedExpression));
-				}
-				catch (const std::runtime_error&)
-				{
-
-				}
 			}
 			return castedExpressions;
 		}

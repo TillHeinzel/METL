@@ -14,10 +14,9 @@ public:
 
 	Expr varExpression = Expr::makeConstexpr(0);
 
-	std::map<std::string, internal::UntypedConversion<Expr>> casts
+	std::vector<internal::UntypedConversion<Expr>> casts
 	{
 		{
-			internal::mangleCast(classToType2<int, bool, int, double>(), classToType2<double, bool, int, double>()),
 			internal::makeDynamicConversion<Expr, int>([](int i) {return static_cast<double>(i); })
 		}
 	};

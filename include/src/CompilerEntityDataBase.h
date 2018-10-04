@@ -31,6 +31,7 @@
 #include "src/opCarrier.h"
 
 #include "Associativity.h"
+#include "nameMangling.h"
 
 namespace metl
 {
@@ -148,9 +149,24 @@ namespace metl
 				return find(constantsAndVariables_, name);
 			}
 
-			tl::optional<UntypedConversion<Expression>> findCast(const std::string& mangledName)
+			tl::optional<UntypedConversion<Expression>> findCast(const std::string& mangledName) const
 			{
 				return find(castImplementations_, mangledName);
+			}
+
+			std::vector<UntypedConversion<Expression>> getAllCastsFrom(const TYPE& from) const
+			{
+				auto accessibleTypes = castDeclarations_.at(from);
+				auto retval = std::vector<UntypedConversion<Expression>>{};
+
+				for(const auto& to: accessibleTypes)
+				{
+					if(to != from)
+					{
+						retval.push_back(castImplementations_.at(mangleCast(from, to)));
+					}
+				}
+				return retval;
 			}
 
 			std::vector<TYPE> getAllTypesThatCanBeConvertedTo(const TYPE& type) const
@@ -159,9 +175,9 @@ namespace metl
 				return castDeclarations_.at(type);
 			}
 
-			std::map<std::string, UntypedConversion<Expression>> castImplementations_;
 			
 		private:
+			std::map<std::string, UntypedConversion<Expression>> castImplementations_;
 			std::map<std::string, UntypedValue<Ts...>> constantsAndVariables_;
 
 			template<class Input, class Map>

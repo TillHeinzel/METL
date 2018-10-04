@@ -324,7 +324,7 @@ namespace metl
 				const auto toType = targetTypes.at(i_target);
 				if (fromType != toType)
 				{
-					expr = bits_.castImplementations_.at(mangleCast(fromType, toType)).apply(expr);
+					expr = bits_.findCast(mangleCast(fromType, toType))->apply(expr);
 				}
 				++i_target;
 			}

@@ -57,7 +57,7 @@ namespace metl
 
 		auto expr = impl_.finish();
 
-		return {expr, impl_.bits_.castImplementations_};
+		return {expr, impl_.bits_.getAllCastsFrom(expr.type())};
 	}
 
 	template <class Grammar, class LiteralConverters, class... Ts>
