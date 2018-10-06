@@ -1,14 +1,12 @@
 
 #include <gtest/gtest.h>
-#include <complex>
 
 #include "metl.h"
 
 #include "src/Utility/is_specialization_of.h"
 #include "src/Utility/is_callable.h"
 #include "src/Utility/MixedVisitor.h"
-
-#include "AUTO_MEMBER.h"
+#include "src/Utility/AUTO_MEMBER.h"
 
 using namespace metl;
 
@@ -32,6 +30,60 @@ TEST_F(UtilityFixture, is_specialization_of)
 
 }
 
+class is_callable2_Fixture : public ::testing::Test
+{
+public:
+};
+
+TEST_F(is_callable2_Fixture, simpleNoReturn)
+{
+	using namespace metl::internal;
+	auto f1 = [](int i)
+	{
+		return i;
+	};
+
+	static_assert(decltype(is_callable2(CallableType<decltype(f1)>(), Type<int>()))::value, "");
+}
+
+TEST_F(is_callable2_Fixture, simpleNoReturn_v)
+{
+	using namespace metl::internal;
+	auto f1 = [](int i)
+	{
+		return i;
+	};
+
+	static_assert(is_callable2_v<decltype(f1), Arguments<int>>, "");
+}
+
+TEST_F(is_callable2_Fixture, simpleWithReturn)
+{
+	using namespace metl::internal;
+
+	auto f1 = [](int i)
+	{
+		return i;
+	};
+
+	static_assert(decltype(is_callable2(CallableType<decltype(f1)>(), Return<int>(), Type<int>()))::value, "");
+	static_assert(!decltype(is_callable2(CallableType<decltype(f1)>(), Return<std::string>(), Type<int>()))::value, "");
+}
+
+TEST_F(is_callable2_Fixture, simpleWithReturn_v)
+{
+	using namespace metl::internal;
+
+	auto f1 = [](int i)
+	{
+		return i;
+	};
+
+	static_assert(is_callable2_v<decltype(f1), Return<int>, Arguments<int>>, "");
+}
+
+
+
 TEST_F(UtilityFixture, is_callable)
 {
 	auto f1 = [](int i)
@@ -53,12 +105,12 @@ TEST_F(UtilityFixture, is_callable)
 }
 
 auto makeGenericVisitor()
+{
+	return [](const auto&)
 	{
-		return [](const auto&)
-		{
-			return 0;
-		};
-	}
+		return 0;
+	};
+}
 
 class MixedVisitorFixture : public UtilityFixture
 {
