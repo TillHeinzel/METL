@@ -40,8 +40,7 @@ namespace metl
 		template <class ... Ts>
 		void Stack<Ts...>::pushFunction(std::string functionName)
 		{
-			open();
-			subStacks_.back().pushFunction(functionName);
+			subStacks_.emplace_back(bits_, functionName);
 		}
 
 		template <class ... Ts>

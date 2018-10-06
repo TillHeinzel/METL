@@ -27,6 +27,7 @@
 #include "opCarrier.h"
 #include "suffixCarrier.h"
 #include "CompilerEntityDataBase.h"
+#include "src/Caster.h"
 
 namespace metl
 {
@@ -149,10 +150,10 @@ namespace metl
 
 			explicit SubStack(const CompilerEntityDataBase<Ts...>& bits);
 
+			explicit SubStack(const CompilerEntityDataBase<Ts...>& bits, const std::string& FunctionName);
 
 			void push(const Expression l);
 			void push(const opCarrier& b);
-			void pushFunction(std::string FunctionName);
 			void push(const suffixCarrier& suffix);
 
 			Expression finish();
@@ -162,27 +163,12 @@ namespace metl
 				return expressions_.empty();
 			}
 		private:
-			TYPE findTypeForSuffix(const std::string& suffix, const TYPE inType) const;
-
 			void evaluateFunction(const std::string& functionName);
-
-			template<class CheckExistence>
-			std::vector<std::vector<TYPE>> getValidCasts(const std::vector<TYPE> inTypes, const CheckExistence& doTypesWork) const;
-
-
-			std::vector<TYPE> findTypesForFunction(const std::string& functionName, const std::vector<TYPE>& inTypes) const;
 
 			void reduce();
 			void reduceBinary();
 
-			std::vector<TYPE> findTypesForBinaryOperator(const std::string& opName, const std::vector<TYPE>& inTypes) const;
-
 			void reduceUnary();
-
-			TYPE findTypeForUnaryOperator(const std::string& opName, const TYPE inType) const;
-
-			template<class CheckExistence>
-			std::vector<TYPE> getValidCasts(const TYPE inType, const CheckExistence& doesTypeWork) const;
 
 			bool plannedSignSwitch = false;
 
@@ -194,6 +180,7 @@ namespace metl
 			//mpark::variant<ExpressionSubStack<Ts...>, FunctionSubStack<Ts...>> specificSubStack_;
 
 			const CompilerEntityDataBase<Ts...>& bits_;
+			const Caster<Ts...> caster_;
 		};
 	}
 }

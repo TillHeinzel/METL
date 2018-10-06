@@ -175,22 +175,7 @@ namespace metl
 				return castDeclarations_.at(type);
 			}
 
-			void castTo(std::vector<Expression>& expressions, const std::vector<TYPE>& targetTypes) const
-			{
-				auto i_target = 0u;
-				// we cast only the last size(targetTypes) expressions. This then works for both functions and operators
-				for(auto i = expressions.size() - targetTypes.size(); i < expressions.size(); ++i)
-				{
-					auto& expr = expressions.at(i);
-					const auto fromType = expr.type();
-					const auto toType = targetTypes.at(i_target);
-					if(fromType != toType)
-					{
-						expr = findCast(mangleCast(fromType, toType))->apply(expr);
-					}
-					++i_target;
-				}
-			}
+			
 
 
 		private:

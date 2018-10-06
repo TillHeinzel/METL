@@ -26,7 +26,15 @@ namespace metl
 		template <class ... Ts>
 		SubStack<Ts...>::SubStack(const CompilerEntityDataBase<Ts...>& bits
 		)
-			:bits_(bits)
+			:bits_(bits),
+			caster_(bits)
+		{}
+
+		template <class ... Ts>
+		SubStack<Ts...>::SubStack(const CompilerEntityDataBase<Ts...>& bits, const std::string& FunctionName) :
+			function_(FunctionName),
+			bits_(bits),
+			caster_(bits)
 		{}
 
 		template <class ... Ts>
@@ -49,12 +57,6 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void SubStack<Ts...>::pushFunction(std::string functionName)
-		{
-			function_ = functionName;
-		}
-
-		template <class ... Ts>
 		void SubStack<Ts...>::push(const suffixCarrier& suffix)
 		{
 			assert(!expressions_.empty());
@@ -65,8 +67,8 @@ namespace metl
 
 			if(!suffixImplOpt)
 			{
-				auto targetType = findTypeForSuffix(suffix.name, inType);
-				bits_.castTo(expressions_, {targetType});
+				auto targetType = caster_.findTypeForSuffix(suffix.name, inType);
+				caster_.castTo(expressions_, {targetType});
 				push(suffix);
 			}
 
@@ -110,8 +112,8 @@ namespace metl
 			auto functionOpt = bits_.findFunction(mangleName(functionName, inTypes));
 			if(!functionOpt)
 			{
-				auto targetTypes = findTypesForFunction(functionName, inTypes);
-				bits_.castTo(expressions_, targetTypes);
+				auto targetTypes = caster_.findTypesForFunction(functionName, inTypes);
+				caster_.castTo(expressions_, targetTypes);
 				evaluateFunction(functionName); // call recursively
 			}
 
@@ -120,80 +122,6 @@ namespace metl
 			expressions_.clear();
 			expressions_.push_back(resultExpression);
 		}
-
-		template <class ... Ts>
-		template <class CheckExistence>
-		std::vector<std::vector<TYPE>> SubStack<Ts...>::getValidCasts(const std::vector<TYPE> inTypes,
-			const CheckExistence& doTypesWork) const
-		{
-
-			std::vector<std::vector<TYPE>> castCombis{{}};
-			for(auto t : inTypes)
-			{
-				castCombis = tensorSum(castCombis, bits_.getAllTypesCastableFrom(t));
-			}
-
-			std::vector<std::vector<TYPE>> validCasts;
-			for(auto c : castCombis)
-			{
-				if(doTypesWork(c))
-				{
-					validCasts.push_back(c);
-				}
-			}
-
-			return validCasts;
-		}
-
-		template<class T>
-		void checkExactlyOneValidCast(const std::vector<T>& validCasts, const std::string& objectLabel)
-		{
-			if(validCasts.size() > 1)
-			{
-				throw std::runtime_error("To many possible overloads for " + objectLabel);
-			}
-
-			if(validCasts.size() == 0)
-			{
-				throw std::runtime_error("could not find a match for " + objectLabel);
-			}
-		}
-
-		template <class ... Ts>
-		std::vector<TYPE> SubStack<Ts...>::findTypesForFunction(const std::string& functionName, const std::vector<TYPE>& inTypes) const
-		{
-			auto doTypesWork = [&functionName, &database = bits_](const std::vector<TYPE>& toTypes) -> bool
-			{
-				auto mangledName = mangleName(functionName, toTypes);
-				auto castedImplOpt = database.findFunction(mangledName);
-
-				return castedImplOpt.has_value();
-			};
-
-			auto validCasts = getValidCasts(inTypes, doTypesWork);
-
-			checkExactlyOneValidCast(validCasts, "function " + functionName);
-			return validCasts.back();
-			
-		}
-
-		template <class ... Ts>
-		std::vector<TYPE> SubStack<Ts...>::findTypesForBinaryOperator(const std::string& opName, const std::vector<TYPE>& inTypes) const
-		{
-			auto doTypesWork = [&opName, &database = bits_](const std::vector<TYPE>& toTypes) -> bool
-			{
-				auto castedName = mangleName(opName, toTypes);
-				auto castedImplOpt = database.findOperator(castedName);
-
-				return castedImplOpt.has_value();
-			};
-
-			auto validCasts = getValidCasts(inTypes, doTypesWork);
-
-			checkExactlyOneValidCast(validCasts, "operator " + opName);
-			return validCasts.back();
-		}
-
 
 		template <class ... Ts>
 		void SubStack<Ts...>::reduce()
@@ -216,8 +144,8 @@ namespace metl
 
 			if(!operatorImplOpt)
 			{
-				auto targetTypes = findTypesForBinaryOperator(opName, inTypes);
-				bits_.castTo(expressions_, targetTypes);
+				auto targetTypes = caster_.findTypesForBinaryOperator(opName, inTypes);
+				caster_.castTo(expressions_, targetTypes);
 				reduce(); // call recursively
 			}
 
@@ -247,9 +175,9 @@ namespace metl
 			auto operatorImplOpt = bits_.findOperator(mangleName(opName, {inType}));
 			if(!operatorImplOpt)
 			{
-				auto targetType = findTypeForUnaryOperator(opName, inType);
+				auto targetType = caster_.findTypeForUnaryOperator(opName, inType);
 
-				bits_.castTo(expressions_, {targetType});
+				caster_.castTo(expressions_, {targetType});
 				reduceUnary(); // call recursively
 			}
 
@@ -265,58 +193,6 @@ namespace metl
 		}
 
 
-		template <class ... Ts>
-		template <class CheckExistence>
-		std::vector<TYPE> SubStack<Ts...>::getValidCasts(const TYPE inType, const CheckExistence& doesTypeWork) const
-		{
-			std::vector<TYPE> allowedCasts = bits_.getAllTypesCastableFrom(inType);
-
-			std::vector<TYPE> validCasts;
-			for(auto c : allowedCasts)
-			{
-				if(doesTypeWork(c))
-				{
-					validCasts.push_back(c);
-				}
-			}
-
-			return validCasts;
-		}
-
-
-		template <class ... Ts>
-		TYPE SubStack<Ts...>::findTypeForSuffix(const std::string& suffix, const TYPE inType) const
-		{
-			auto doesTypeWork = [&suffix, &database = bits_](TYPE t) -> bool
-			{
-				auto castedName = mangleSuffix(suffix, {t});
-				auto castedImplOpt = database.findSuffix(castedName);
-
-				return castedImplOpt.has_value();
-			};
-
-			auto validCasts = getValidCasts(inType, doesTypeWork);
-
-			checkExactlyOneValidCast(validCasts, "suffix " + suffix);
-			return validCasts.back();
-		}
-
-		template <class ... Ts>
-		TYPE SubStack<Ts...>::findTypeForUnaryOperator(const std::string& opName, const TYPE inType) const
-		{
-			auto doesTypeWork = [&opName, &database = bits_](TYPE t) -> bool
-			{
-				auto castedName = mangleName(opName, {t});
-				auto castedImplOpt = database.findOperator(castedName);
-
-				return castedImplOpt.has_value();
-			};
-
-			auto validCasts = getValidCasts(inType, doesTypeWork);
-
-			checkExactlyOneValidCast(validCasts, "unary operator " + opName);
-			return validCasts.back();
-		}
 
 	}
 }
