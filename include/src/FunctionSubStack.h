@@ -3,7 +3,7 @@
 #include "src/TypeErasure/UntypedExpression.h"
 
 #include "src/CompilerEntityDataBase.h"
-#include "src/Caster.h"
+#include "src/OperationApplier.h"
 
 namespace metl
 {
@@ -14,7 +14,7 @@ namespace metl
 		{
 			using Expression = UntypedExpression<Ts...>;
 		public:
-			FunctionSubStack(const CompilerEntityDataBase<Ts...>& database, std::string functionName);
+			FunctionSubStack(const CompilerEntityDataBase<Ts...>& dataBase, std::string functionName);
 
 			void addArgument(Expression l);
 
@@ -23,10 +23,7 @@ namespace metl
 			bool empty() const;
 
 		private:
-			UntypedExpression<Ts...> applyFunction(const std::string& opName, const std::vector<Expression>& arguments) const;
-
-			const CompilerEntityDataBase<Ts...>& dataBase_;
-			const Caster<Ts...> caster_;
+			const OperationApplier<Ts...> operationApplier_;
 
 			const std::string functionName_;
 			std::vector<Expression> arguments_;

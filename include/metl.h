@@ -25,6 +25,7 @@
 #include "src/ExpressionSubStack.impl.h"
 #include "src/CompilerEntityDataBase.impl.h"
 #include "src/Caster.impl.h"
+#include "src/OperationApplier.impl.h"
 
 #include "src/TypeErasure/UntypedOperation.impl.h"
 #include "src/TypeErasure/UntypedConstant.impl.h"

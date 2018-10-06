@@ -2,8 +2,6 @@
 
 #include "src/ExpressionSubStack.h"
 
-#include "src/Utility/get_each.h"
-
 namespace metl
 {
 	namespace internal
@@ -11,8 +9,7 @@ namespace metl
 
 		template <class ... Ts>
 		ExpressionSubStack<Ts...>::ExpressionSubStack(const CompilerEntityDataBase<Ts...>& dataBase) :
-			dataBase_(dataBase),
-			caster_(dataBase)
+			operationApplier_(dataBase)
 		{}
 
 		template <class ... Ts>
@@ -43,7 +40,7 @@ namespace metl
 			const auto t = subExpressions_.back();
 			subExpressions_.pop_back();
 
-			subExpressions_.push_back(applySuffix(suffix.name, t));
+			subExpressions_.push_back(operationApplier_.applySuffix(suffix.name, t));
 		}
 
 		template <class ... Ts>
@@ -67,23 +64,6 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		UntypedExpression<Ts...> ExpressionSubStack<Ts...>::applySuffix(const std::string& suffix, const Expression& argument) const
-		{
-
-			const auto inType = argument.type();
-			auto suffixImplOpt = dataBase_.findSuffix(mangleSuffix(suffix, {inType}));
-
-			if(!suffixImplOpt)
-			{
-				auto targetType = caster_.findTypeForSuffix(suffix, inType);
-				auto castedArguments = caster_.castTo2({argument}, {targetType});
-				return applySuffix(suffix, castedArguments.front());
-			}
-
-			return suffixImplOpt->apply({argument});
-		}
-
-		template <class ... Ts>
 		void ExpressionSubStack<Ts...>::reduceUnary()
 		{
 			assert(subExpressions_.size() > 0u);
@@ -95,24 +75,7 @@ namespace metl
 			const auto t = subExpressions_.back();
 			subExpressions_.pop_back();
 
-			subExpressions_.push_back(applyUnary(opName, t));
-		}
-
-		template <class ... Ts>
-		UntypedExpression<Ts...> ExpressionSubStack<Ts...>::applyUnary(const std::string& opName,
-																	   const Expression& argument) const
-		{
-			auto inType = argument.type();
-			auto operatorImplOpt = dataBase_.findOperator(mangleName(opName, {inType}));
-
-			if(!operatorImplOpt)
-			{
-				auto targetType = caster_.findTypeForUnaryOperator(opName, inType);
-				auto castedArgument = caster_.castTo2({argument}, {targetType});
-				return applyUnary(opName, castedArgument.front()); // call recursively
-			}
-
-			return operatorImplOpt->apply({argument});
+			subExpressions_.push_back(operationApplier_.applyUnary(opName, t));
 		}
 
 		template <class ... Ts>
@@ -129,30 +92,9 @@ namespace metl
 			const auto l = subExpressions_.back();
 			subExpressions_.pop_back();
 
-			subExpressions_.push_back(applyBinary(opName, {l,r}));
+			subExpressions_.push_back(operationApplier_.applyBinary(opName, {l,r}));
 		}
-
-		template <class ... Ts>
-		UntypedExpression<Ts...> ExpressionSubStack<Ts...>::applyBinary(const std::string& opName, const std::vector<Expression>& arguments) const
-		{
-
-			auto inTypes = get_each(arguments, [](const auto& expr)
-			{
-				return expr.type();
-			});
-			auto operatorImplOpt = dataBase_.findOperator(mangleName(opName, inTypes));
-
-			if(!operatorImplOpt)
-			{
-				auto targetTypes = caster_.findTypesForBinaryOperator(opName, inTypes);
-				auto castedArguments = caster_.castTo2(arguments, targetTypes);
-				return applyBinary(opName, castedArguments); // call recursively
-			}
-
-			return operatorImplOpt->apply(arguments);
-		}
-
-
+		
 		template <class ... Ts>
 		void ExpressionSubStack<Ts...>::reduce()
 		{
