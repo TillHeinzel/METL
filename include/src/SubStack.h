@@ -162,11 +162,21 @@ namespace metl
 				return expressions_.empty();
 			}
 		private:
+			TYPE findTypeForSuffix(const std::string& opName, const TYPE inType) const;
+
 			void evaluateFunction(const std::string& functionName);
+
+
+			std::vector<TYPE> findTypesForFunction(const std::string& functionName, const std::vector<TYPE>& inTypes) const;
 
 			void reduce();
 			void reduceBinary();
+
+			std::vector<TYPE> findTypesForBinaryOperator(const std::string& opName, const std::vector<TYPE>& inTypes) const;
+
 			void reduceUnary();
+
+			TYPE findTypeForUnaryOperator(const std::string& opName, const TYPE inType) const;
 
 			bool plannedSignSwitch = false;
 
