@@ -21,7 +21,7 @@ namespace metl
 		template <class ... Ts>
 		typename FunctionSubStack<Ts...>::Expression FunctionSubStack<Ts...>::finish()
 		{
-			const auto r = operationApplier_.applyFunction(functionName_, arguments_);
+			const auto r = operationApplier_.apply(FunctionID{functionName_}, arguments_);
 			arguments_.clear();
 			return r;
 		}

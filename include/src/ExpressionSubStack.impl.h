@@ -40,7 +40,7 @@ namespace metl
 			const auto t = subExpressions_.back();
 			subExpressions_.pop_back();
 
-			subExpressions_.push_back(operationApplier_.applySuffix(suffix.name, t));
+			subExpressions_.push_back(operationApplier_.apply(suffix, t));
 		}
 
 		template <class ... Ts>
@@ -75,7 +75,7 @@ namespace metl
 			const auto t = subExpressions_.back();
 			subExpressions_.pop_back();
 
-			subExpressions_.push_back(operationApplier_.applyUnary(opName, t));
+			subExpressions_.push_back(operationApplier_.apply(UnaryID{opName}, t));
 		}
 
 		template <class ... Ts>
@@ -92,7 +92,7 @@ namespace metl
 			const auto l = subExpressions_.back();
 			subExpressions_.pop_back();
 
-			subExpressions_.push_back(operationApplier_.applyBinary(opName, {l,r}));
+			subExpressions_.push_back(operationApplier_.apply(BinaryID{opName}, {l,r}));
 		}
 		
 		template <class ... Ts>

@@ -13,20 +13,6 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		UntypedExpression<Ts...> OperationApplier<Ts...>::applySuffix(const std::string& suffix,
-		                                                              const Expression& argument) const
-		{
-			return apply(SuffixID{suffix}, argument);
-		}
-
-		template <class ... Ts>
-		UntypedExpression<Ts...> OperationApplier<Ts...>::applyUnary(const std::string& opName,
-		                                                             const Expression& argument) const
-		{
-			return apply(UnaryID{opName}, argument);
-		}
-
-		template <class ... Ts>
 		template <class ID>
 		UntypedExpression<Ts...> OperationApplier<Ts...>::apply(const ID& id, const Expression& argument) const
 		{
@@ -41,21 +27,6 @@ namespace metl
 			}
 
 			return implementationOpt->apply({argument});
-		}
-
-
-		template <class ... Ts>
-		UntypedExpression<Ts...> OperationApplier<Ts...>::applyBinary(const std::string& opName,
-		                                                              const std::vector<Expression>& arguments) const
-		{
-			return apply(BinaryID{opName}, arguments);
-		}
-
-		template <class ... Ts>
-		UntypedExpression<Ts...> OperationApplier<Ts...>::applyFunction(const std::string& functionName,
-		                                                                const std::vector<Expression>& arguments) const
-		{
-			return apply(FunctionID{functionName}, arguments);
 		}
 
 		template <class ... Ts>

@@ -21,25 +21,12 @@ namespace metl
 		public:
 			OperationApplier(const CompilerEntityDataBase<Ts...>& dataBase);
 
-			UntypedExpression<Ts...> applySuffix(const std::string& suffix, const Expression& argument) const;
-
-			UntypedExpression<Ts...> applyUnary(const std::string& opName, const Expression& argument) const;
-
 			template<class ID>
 			UntypedExpression<Ts...> apply(const ID& id, const Expression& argument) const;
 
-			UntypedExpression<Ts...> applyBinary(const std::string& opName,
-			                                     const std::vector<Expression>& arguments) const;
-
-			UntypedExpression<Ts...> applyFunction(const std::string& functionName,
-			                                       const std::vector<Expression>& arguments) const;
-
-
 			template<class ID>
 			UntypedExpression<Ts...> apply(const ID& id, const std::vector<Expression>& arguments) const;
-
-
-
+			
 		private:
 			auto findImpl(const SuffixID& id, TYPE inType) const
 			{
