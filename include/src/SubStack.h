@@ -162,7 +162,7 @@ namespace metl
 				return expressions_.empty();
 			}
 		private:
-			TYPE findTypeForSuffix(const std::string& opName, const TYPE inType) const;
+			TYPE findTypeForSuffix(const std::string& suffix, const TYPE inType) const;
 
 			void evaluateFunction(const std::string& functionName);
 
@@ -177,6 +177,9 @@ namespace metl
 			void reduceUnary();
 
 			TYPE findTypeForUnaryOperator(const std::string& opName, const TYPE inType) const;
+
+			template<class CheckExistence>
+			std::vector<TYPE> getValidCasts(const TYPE inType, const CheckExistence& doesTypeWork) const;
 
 			bool plannedSignSwitch = false;
 

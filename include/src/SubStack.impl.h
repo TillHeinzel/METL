@@ -99,40 +99,6 @@ namespace metl
 			return r;
 		}
 
-		template <class ... Ts>
-		TYPE SubStack<Ts...>::findTypeForSuffix(const std::string& suffix, const TYPE inType) const
-		{
-			std::vector<TYPE> allowedCasts = bits_.getAllTypesCastableFrom(inType);
-
-
-			std::vector<TYPE> validCasts;
-			std::vector<std::string> possibleFunctions;
-			for(auto c : allowedCasts)
-			{
-				auto castedSuffixName = mangleSuffix(suffix, {c});
-				auto castedSuffixImplOpt = bits_.findSuffix(castedSuffixName);
-				if(castedSuffixImplOpt)
-				{
-					possibleFunctions.push_back(castedSuffixName);
-					validCasts.push_back(c);
-				}
-			}
-			// if we found a single possible overload that can be achieved through casting, use it!
-			if(possibleFunctions.size() == 1)
-			{
-				return validCasts.back();
-			}
-			// if we found multiple possible overloads that we can get through casts, this is an error
-			if(possibleFunctions.size() > 1)
-			{
-				throw std::runtime_error("To many possible overloads for unary operator " + suffix);
-			}
-
-			else
-			{
-				throw std::runtime_error("could not find a matching unary operator for " + suffix);
-			}
-		}
 
 		template <class ... Ts>
 		void SubStack<Ts...>::evaluateFunction(const std::string& functionName)
@@ -165,7 +131,6 @@ namespace metl
 			}
 
 			std::vector<std::vector<TYPE>> validCasts;
-			std::vector<std::string> possibleFunctions;
 			for(auto c : castCombis)
 			{
 				auto mangledName = mangleName(functionName, c);
@@ -173,17 +138,16 @@ namespace metl
 
 				if(castedFunctionOpt)
 				{
-					possibleFunctions.push_back(mangledName);
 					validCasts.push_back(c);
 				}
 			}
 			// if we found a single possible overload that can be achieved through casting, use it!
-			if(possibleFunctions.size() == 1)
+			if(castCombis.size() == 1)
 			{
 				return castCombis.back();
 			}
 			// if we found multiple possible overloads that we can get through casts, this is an error
-			if(possibleFunctions.size() > 1)
+			if(castCombis.size() > 1)
 			{
 				throw std::runtime_error("To many possible overloads for function " + functionName);
 			}
@@ -301,38 +265,72 @@ namespace metl
 			expressions_.push_back(resultExpression);
 		}
 
+
 		template <class ... Ts>
-		TYPE SubStack<Ts...>::findTypeForUnaryOperator(const std::string& opName, const TYPE inType) const
+		template <class CheckExistence>
+		std::vector<TYPE> SubStack<Ts...>::getValidCasts(const TYPE inType, const CheckExistence& doesTypeWork) const
 		{
 			std::vector<TYPE> allowedCasts = bits_.getAllTypesCastableFrom(inType);
 
 			std::vector<TYPE> validCasts;
-			std::vector<std::string> possibleFunctions;
 			for(auto c : allowedCasts)
 			{
-				auto castedOperatorName = mangleName(opName, {c});
-				auto castedoperatorImplOpt = bits_.findOperator(castedOperatorName);
-				if(castedoperatorImplOpt)
+				if(doesTypeWork(c))
 				{
-					possibleFunctions.push_back(castedOperatorName);
 					validCasts.push_back(c);
 				}
 			}
-			// if we found a single possible overload that can be achieved through casting, use it!
-			if(possibleFunctions.size() == 1)
+
+			return validCasts;
+		}
+
+		template<class T>
+		void checkExactlyOneValidCast(const std::vector<T>& validCasts, const std::string& objectLabel)
+		{
+			if(validCasts.size() > 1)
 			{
-				return validCasts.back();
-			}
-			// if we found multiple possible overloads that we can get through casts, this is an error
-			if(possibleFunctions.size() > 1)
-			{
-				throw std::runtime_error("To many possible overloads for unary operator " + opName);
+				throw std::runtime_error("To many possible overloads for " + objectLabel);
 			}
 
-			else
+			if(validCasts.size() == 0)
 			{
-				throw std::runtime_error("could not find a matching unary operator for " + opName);
+				throw std::runtime_error("could not find a match for " + objectLabel);
 			}
 		}
+
+		template <class ... Ts>
+		TYPE SubStack<Ts...>::findTypeForSuffix(const std::string& suffix, const TYPE inType) const
+		{
+			auto doesTypeWork = [&suffix, &database = bits_](TYPE t) -> bool
+			{
+				auto castedName = mangleSuffix(suffix, {t});
+				auto castedImplOpt = database.findSuffix(castedName);
+
+				return castedImplOpt.has_value();
+			};
+
+			auto validCasts = getValidCasts(inType, doesTypeWork);
+
+			checkExactlyOneValidCast(validCasts, "suffix " + suffix);
+			return validCasts.back();
+		}
+
+		template <class ... Ts>
+		TYPE SubStack<Ts...>::findTypeForUnaryOperator(const std::string& opName, const TYPE inType) const
+		{
+			auto doesTypeWork = [&opName, &database = bits_](TYPE t) -> bool
+			{
+				auto castedName = mangleName(opName, {t});
+				auto castedImplOpt = database.findSuffix(castedName);
+
+				return castedImplOpt.has_value();
+			};
+
+			auto validCasts = getValidCasts(inType, doesTypeWork);
+
+			checkExactlyOneValidCast(validCasts, "unary operator " + opName);
+			return validCasts.back();
+		}
+
 	}
 }
