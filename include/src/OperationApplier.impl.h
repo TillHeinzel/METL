@@ -16,74 +16,67 @@ namespace metl
 		UntypedExpression<Ts...> OperationApplier<Ts...>::applySuffix(const std::string& suffix,
 		                                                              const Expression& argument) const
 		{
-			const auto inType = argument.type();
-			auto suffixImplOpt = dataBase_.findSuffix(mangleSuffix(suffix, {inType}));
-
-			if (!suffixImplOpt)
-			{
-				auto targetType = caster_.findTypeForSuffix(suffix, inType);
-				auto castedArguments = caster_.castTo2({argument}, {targetType});
-				return applySuffix(suffix, castedArguments.front());
-			}
-
-			return suffixImplOpt->apply({argument});
+			return apply(SuffixID{suffix}, argument);
 		}
 
 		template <class ... Ts>
 		UntypedExpression<Ts...> OperationApplier<Ts...>::applyUnary(const std::string& opName,
 		                                                             const Expression& argument) const
 		{
-			auto inType = argument.type();
-			auto operatorImplOpt = dataBase_.findOperator(mangleName(opName, {inType}));
+			return apply(UnaryID{opName}, argument);
+		}
 
-			if (!operatorImplOpt)
+		template <class ... Ts>
+		template <class ID>
+		UntypedExpression<Ts...> OperationApplier<Ts...>::apply(const ID& id, const Expression& argument) const
+		{
+			const auto inType = argument.type();
+			const auto implementationOpt = findImpl(id, inType);
+
+			if(!implementationOpt)
 			{
-				auto targetType = caster_.findTypeForUnaryOperator(opName, inType);
-				auto castedArgument = caster_.castTo2({argument}, {targetType});
-				return applyUnary(opName, castedArgument.front()); // call recursively
+				const auto targetType = uniqueTargetType(id, inType);
+				const auto castedArgument = caster_.castTo2({argument}, {targetType});
+				return apply(id, castedArgument.front()); // call recursively
 			}
 
-			return operatorImplOpt->apply({argument});
+			return implementationOpt->apply({argument});
 		}
+
 
 		template <class ... Ts>
 		UntypedExpression<Ts...> OperationApplier<Ts...>::applyBinary(const std::string& opName,
 		                                                              const std::vector<Expression>& arguments) const
 		{
-			auto inTypes = get_each(arguments, [](const auto& expr)
-			{
-				return expr.type();
-			});
-			auto operatorImplOpt = dataBase_.findOperator(mangleName(opName, inTypes));
-
-			if (!operatorImplOpt)
-			{
-				auto targetTypes = caster_.findTypesForBinaryOperator(opName, inTypes);
-				auto castedArguments = caster_.castTo2(arguments, targetTypes);
-				return applyBinary(opName, castedArguments); // call recursively
-			}
-
-			return operatorImplOpt->apply(arguments);
+			return apply(BinaryID{opName}, arguments);
 		}
 
 		template <class ... Ts>
 		UntypedExpression<Ts...> OperationApplier<Ts...>::applyFunction(const std::string& functionName,
 		                                                                const std::vector<Expression>& arguments) const
 		{
-			auto inTypes = get_each(arguments, [](const auto& expr)
+			return apply(FunctionID{functionName}, arguments);
+		}
+
+		template <class ... Ts>
+		template <class ID>
+		UntypedExpression<Ts...> OperationApplier<Ts...>::apply(const ID& id,
+			const std::vector<Expression>& arguments) const
+		{
+			const auto inTypes = get_each(arguments, [](const auto& expr)
 			{
 				return expr.type();
 			});
-			auto functionImplOpt = dataBase_.findFunction(mangleName(functionName, inTypes));
+			const auto implementationOpt = findImpl(id, inTypes);
 
-			if (!functionImplOpt)
+			if (!implementationOpt)
 			{
-				auto targetTypes = caster_.findTypesForFunction(functionName, inTypes);
-				auto castedArguments = caster_.castTo2(arguments, targetTypes);
-				return applyFunction(functionName, castedArguments); // call recursively
+				const auto targetTypes = uniqueTargetTypes(id, inTypes);
+				const auto castedArguments = caster_.castTo2(arguments, targetTypes);
+				return apply(id, castedArguments); // call recursively
 			}
 
-			return functionImplOpt->apply(arguments);
+			return implementationOpt->apply(arguments);
 		}
 	}
 }
