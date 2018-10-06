@@ -19,7 +19,7 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void ExpressionSubStack<Ts...>::push(const opCarrier& b)
+		void ExpressionSubStack<Ts...>::push(const BasicOperatorData& b)
 		{
 			if(b.associativity == ASSOCIATIVITY::LEFT)
 			{
@@ -32,10 +32,10 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void ExpressionSubStack<Ts...>::push(const suffixCarrier& suffix)
+		void ExpressionSubStack<Ts...>::push(const SuffixID& suffix)
 		{
 			assert(!subExpressions_.empty());
-			assert(subExpressions_.back().isConstexpr());
+			assert(subExpressions_.back().isConstexpr()); // can't explicitly check that it is a literal
 
 			const auto t = subExpressions_.back();
 			subExpressions_.pop_back();

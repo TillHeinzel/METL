@@ -20,8 +20,8 @@
 
 #include "src/TypeErasure/UntypedExpression.h"
 
-#include "opCarrier.h"
-#include "suffixCarrier.h"
+#include "BasicOperatorData.h"
+#include "SuffixID.h"
 #include "CompilerEntityDataBase.h"
 #include "SubStack.h"
 
@@ -42,9 +42,9 @@ namespace metl
 
 			void pushFunction(std::string functionName);
 
-			void push(const opCarrier& op);
+			void push(const BasicOperatorData& op);
 
-			void push(const suffixCarrier& suffix);
+			void push(const SuffixID& suffix);
 
 			void open();
 

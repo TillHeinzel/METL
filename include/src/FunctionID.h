@@ -15,12 +15,13 @@
 // limitations under the License.
 
 #pragma once
+#include <string>
 
 namespace metl
 {
 	namespace internal
 	{
-		struct suffixCarrier
+		struct FunctionID
 		{
 			std::string name;
 		};

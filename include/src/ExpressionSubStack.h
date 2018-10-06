@@ -15,8 +15,8 @@ namespace metl
 			explicit ExpressionSubStack(const CompilerEntityDataBase<Ts...>& dataBase);
 
 			void push(Expression l);
-			void push(const opCarrier& b);
-			void push(const suffixCarrier& suffix);
+			void push(const BasicOperatorData& b);
+			void push(const SuffixID& suffix);
 
 			Expression finish();
 
@@ -27,7 +27,7 @@ namespace metl
 			void reduceBinary();
 
 			std::vector<Expression> subExpressions_;
-			std::vector<opCarrier> operators_;
+			std::vector<BasicOperatorData> operators_;
 
 			const OperationApplier<Ts...> operationApplier_;
 		};

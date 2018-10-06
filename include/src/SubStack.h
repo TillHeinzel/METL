@@ -22,8 +22,8 @@
 
 #include "src/TypeErasure/UntypedExpression.h"
 
-#include "src/opCarrier.h"
-#include "src/suffixCarrier.h"
+#include "src/BasicOperatorData.h"
+#include "src/SuffixID.h"
 #include "src/CompilerEntityDataBase.h"
 
 #include "src/FunctionSubStack.h"
@@ -47,8 +47,8 @@ namespace metl
 			explicit SubStack(const CompilerEntityDataBase<Ts...>& bits, const std::string& FunctionName);
 
 			void push(Expression l);
-			void push(const opCarrier& b);
-			void push(const suffixCarrier& suffix);
+			void push(const BasicOperatorData& b);
+			void push(const SuffixID& suffix);
 
 			Expression finish();
 

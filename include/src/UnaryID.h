@@ -1,4 +1,4 @@
-// File: opCarrier.h
+// File: suffixCarrier.h
 // 
 // Copyright 2017-2018 Till Heinzel
 // 
@@ -15,22 +15,15 @@
 // limitations under the License.
 
 #pragma once
-
 #include <string>
-
-#include "Associativity.h"
 
 namespace metl
 {
 	namespace internal
 	{
-		struct opCarrier
+		struct UnaryID
 		{
 			std::string name;
-			unsigned int precedence;
-			ASSOCIATIVITY associativity;
-			bool isUnary;
 		};
-
 	}
 }

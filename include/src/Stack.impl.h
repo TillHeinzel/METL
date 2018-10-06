@@ -44,13 +44,13 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void Stack<Ts...>::push(const opCarrier& op)
+		void Stack<Ts...>::push(const BasicOperatorData& op)
 		{
 			subStacks_.back().push(op);
 		}
 
 		template <class ... Ts>
-		void Stack<Ts...>::push(const suffixCarrier& suffix)
+		void Stack<Ts...>::push(const SuffixID& suffix)
 		{
 			subStacks_.back().push(suffix);
 		}

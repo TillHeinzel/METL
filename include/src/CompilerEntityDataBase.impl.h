@@ -39,13 +39,13 @@ namespace metl
 
 			// if operator already exists, replace precedence. Else, insert new operator with new precedence
 
-			internal::insert_or_emplace(opCarriers_, op, opCarrier{ op, precedence, associativity, false });
+			internal::insert_or_emplace(opCarriers_, op, BasicOperatorData{ op, precedence, associativity, false });
 		}
 
 		template <class ... Ts>
 		void CompilerEntityDataBase<Ts...>::setUnaryOperatorPrecedence(const std::string& op, unsigned precedence)
 		{
-			internal::insert_or_emplace(unaryCarriers_, op, opCarrier{ op, precedence, ASSOCIATIVITY::RIGHT, true });
+			internal::insert_or_emplace(unaryCarriers_, op, BasicOperatorData{ op, precedence, ASSOCIATIVITY::RIGHT, true });
 		}
 
 		template <class ... Ts>
@@ -104,7 +104,7 @@ namespace metl
 		template <class ... Ts>
 		void CompilerEntityDataBase<Ts...>::setSuffix(const std::string& token, const TYPE from, const UntypedConversion<Expression>& conversion)
 		{
-			insert_or_emplace(suffixes_, token, suffixCarrier{ token });
+			insert_or_emplace(suffixes_, token, SuffixID{ token });
 			insert_or_emplace(suffixImplementations_, mangleSuffix(token, from), conversion);
 		}
 

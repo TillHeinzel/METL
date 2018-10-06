@@ -55,11 +55,11 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void SubStack<Ts...>::push(const opCarrier& b)
+		void SubStack<Ts...>::push(const BasicOperatorData& b)
 		{
 			struct Visitor
 			{
-				const opCarrier& b;
+				const BasicOperatorData& b;
 
 				void operator() (FunctionSubStack<Ts...>&)
 				{
@@ -76,11 +76,11 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void SubStack<Ts...>::push(const suffixCarrier& suffix)
+		void SubStack<Ts...>::push(const SuffixID& suffix)
 		{
 			struct Visitor
 			{
-				const suffixCarrier& s;
+				const SuffixID& s;
 
 				void operator() (FunctionSubStack<Ts...>&)
 				{

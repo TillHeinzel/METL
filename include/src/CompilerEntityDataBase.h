@@ -27,8 +27,8 @@
 #include "src/TypeErasure/UntypedConversion.h"
 #include "src/TypeErasure/UntypedValue.h"
 
-#include "src/suffixCarrier.h"
-#include "src/opCarrier.h"
+#include "src/SuffixID.h"
+#include "src/BasicOperatorData.h"
 
 #include "Associativity.h"
 #include "nameMangling.h"
@@ -204,12 +204,12 @@ namespace metl
 			}
 
 			std::map<std::string, UntypedConversion<Expression>> suffixImplementations_;
-			std::map<std::string, suffixCarrier> suffixes_;
+			std::map<std::string, SuffixID> suffixes_;
 
 			std::map<TYPE, std::vector<TYPE>> castDeclarations_{std::make_pair(type<Ts>(), std::vector<TYPE>{type<Ts>()})...};
 
-			std::map<std::string, opCarrier> opCarriers_; // maps unmangled operators to their precedence
-			std::map<std::string, opCarrier> unaryCarriers_; // maps unmangled operators to their precedence
+			std::map<std::string, BasicOperatorData> opCarriers_; // maps unmangled operators to their precedence
+			std::map<std::string, BasicOperatorData> unaryCarriers_; // maps unmangled operators to their precedence
 
 			std::map<std::string, UntypedFunction<Expression>> operators_; //maps mangled names to implementations for operators
 			std::map<std::string, UntypedFunction<Expression>> functions_; // maps mangled names to implementations for functions.
