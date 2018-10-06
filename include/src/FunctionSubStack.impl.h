@@ -1,6 +1,8 @@
 #pragma once
 #include "src/FunctionSubStack.h"
 
+#include "src/Utility/get_each.h"
+
 namespace metl
 {
 	namespace internal
@@ -14,7 +16,7 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void FunctionSubStack<Ts...>::push(Expression l)
+		void FunctionSubStack<Ts...>::addArgument(Expression l)
 		{
 			arguments_.push_back(std::move(l));
 		}
@@ -22,11 +24,7 @@ namespace metl
 		template <class ... Ts>
 		typename FunctionSubStack<Ts...>::Expression FunctionSubStack<Ts...>::finish()
 		{
-			evaluateFunction();
-
-			assert(arguments_.size() == 1);
-
-			const auto r = arguments_.back();
+			const auto r = applyFunction(functionName_, arguments_);
 			arguments_.clear();
 			return r;
 		}
@@ -38,22 +36,23 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void FunctionSubStack<Ts...>::evaluateFunction()
+		UntypedExpression<Ts...> FunctionSubStack<Ts...>::applyFunction(const std::string& functionName,
+			const std::vector<Expression>& arguments) const
 		{
-			auto inTypes = getTypes(arguments_);
-
-			auto functionOpt = dataBase_.findFunction(mangleName(functionName_, inTypes));
-			if (!functionOpt)
+			auto inTypes = get_each(arguments, [](const auto& expr)
 			{
-				auto targetTypes = caster_.findTypesForFunction(functionName_, inTypes);
-				caster_.castTo(arguments_, targetTypes);
-				evaluateFunction(); // call recursively
+				return expr.type();
+			});
+			auto functionImplOpt = dataBase_.findFunction(mangleName(functionName, inTypes));
+
+			if(!functionImplOpt)
+			{
+				auto targetTypes = caster_.findTypesForFunction(functionName, inTypes);
+				auto castedArguments = caster_.castTo2(arguments, targetTypes);
+				return applyFunction(functionName, castedArguments); // call recursively
 			}
 
-			auto resultExpression = functionOpt->apply(arguments_);
-
-			arguments_.clear();
-			arguments_.push_back(resultExpression);
+			return functionImplOpt->apply(arguments);
 		}
 	}
 }

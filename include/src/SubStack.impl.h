@@ -36,11 +36,22 @@ namespace metl
 		template <class ... Ts>
 		void SubStack<Ts...>::push(Expression l)
 		{
-			auto visitor = [&l](auto& subStack)
+			struct Visitor
 			{
-				subStack.push(l);
+				const Expression& l;
+
+				void operator() (FunctionSubStack<Ts...>& subStack)
+				{
+					subStack.addArgument(l);
+				}
+
+				void operator() (ExpressionSubStack<Ts...>& subStack)
+				{
+					subStack.push(l);
+				}
 			};
-			mpark::visit(visitor, specificSubStack_);
+
+			mpark::visit(Visitor{l}, specificSubStack_);
 		}
 
 		template <class ... Ts>

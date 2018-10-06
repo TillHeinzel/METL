@@ -23,7 +23,7 @@ namespace metl
 			std::vector<TYPE> findTypesForFunction(const std::string& functionName, const std::vector<TYPE>& inTypes) const;
 			std::vector<TYPE> findTypesForBinaryOperator(const std::string& opName, const std::vector<TYPE>& inTypes) const;
 
-			void castTo(std::vector<Expression>& expressions, const std::vector<TYPE>& targetTypes) const;
+			std::vector<Expression> castTo2(const std::vector<Expression>& expressions, const std::vector<TYPE>& targetTypes) const;
 
 		private:
 			template<class CheckExistence>

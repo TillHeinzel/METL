@@ -16,14 +16,14 @@ namespace metl
 		public:
 			FunctionSubStack(const CompilerEntityDataBase<Ts...>& database, std::string functionName);
 
-			void push(Expression l);
+			void addArgument(Expression l);
 
 			Expression finish();
 
 			bool empty() const;
 
 		private:
-			void evaluateFunction();
+			UntypedExpression<Ts...> applyFunction(const std::string& opName, const std::vector<Expression>& arguments) const;
 
 			const CompilerEntityDataBase<Ts...>& dataBase_;
 			const Caster<Ts...> caster_;
@@ -31,6 +31,5 @@ namespace metl
 			const std::string functionName_;
 			std::vector<Expression> arguments_;
 		};
-
 	}
 }

@@ -90,24 +90,33 @@ namespace metl
 			return validCasts.back();
 		}
 
-
-
 		template <class ... Ts>
-		void Caster<Ts...>::castTo(std::vector<Expression>& expressions, const std::vector<TYPE>& targetTypes) const
+		std::vector<typename Caster<Ts...>::Expression> Caster<Ts...>::castTo2(
+			const std::vector<Expression>& expressions, const std::vector<TYPE>& targetTypes) const
 		{
-			auto i_target = 0u;
-			// we cast only the last size(targetTypes) expressions. This then works for both functions and operators
-			for (auto i = expressions.size() - targetTypes.size(); i < expressions.size(); ++i)
+			assert(expressions.size() == targetTypes.size());
+
+			auto exprIt = expressions.cbegin();
+			auto targetTypesIt = targetTypes.cbegin();
+
+			std::vector<Expression> retval;
+			retval.reserve(expressions.size());
+
+			for(; exprIt != expressions.cend(); ++exprIt, ++targetTypesIt)
 			{
-				auto& expr = expressions.at(i);
+				const auto& expr = *exprIt;
 				const auto fromType = expr.type();
-				const auto toType = targetTypes.at(i_target);
-				if (fromType != toType)
-				{
-					expr = dataBase_.findCast(mangleCast(fromType, toType))->apply(expr);
-				}
-				++i_target;
+
+				const auto& toType = *targetTypesIt;
+
+				retval.push_back(fromType == toType ?
+								 expr :
+								 dataBase_.findCast(mangleCast(fromType, toType))->apply(expr)
+
+				);
 			}
+
+			return expressions;
 		}
 
 		template <class ... Ts>
