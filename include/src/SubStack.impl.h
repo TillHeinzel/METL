@@ -122,8 +122,11 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		std::vector<TYPE> SubStack<Ts...>::findTypesForFunction(const std::string& functionName, const std::vector<TYPE>& inTypes) const
+		template <class CheckExistence>
+		std::vector<std::vector<TYPE>> SubStack<Ts...>::getValidCasts(const std::vector<TYPE> inTypes,
+			const CheckExistence& doTypesWork) const
 		{
+
 			std::vector<std::vector<TYPE>> castCombis{{}};
 			for(auto t : inTypes)
 			{
@@ -133,29 +136,62 @@ namespace metl
 			std::vector<std::vector<TYPE>> validCasts;
 			for(auto c : castCombis)
 			{
-				auto mangledName = mangleName(functionName, c);
-				auto castedFunctionOpt = bits_.findFunction(mangledName);
-
-				if(castedFunctionOpt)
+				if(doTypesWork(c))
 				{
 					validCasts.push_back(c);
 				}
 			}
-			// if we found a single possible overload that can be achieved through casting, use it!
-			if(castCombis.size() == 1)
+
+			return validCasts;
+		}
+
+		template<class T>
+		void checkExactlyOneValidCast(const std::vector<T>& validCasts, const std::string& objectLabel)
+		{
+			if(validCasts.size() > 1)
 			{
-				return castCombis.back();
-			}
-			// if we found multiple possible overloads that we can get through casts, this is an error
-			if(castCombis.size() > 1)
-			{
-				throw std::runtime_error("To many possible overloads for function " + functionName);
+				throw std::runtime_error("To many possible overloads for " + objectLabel);
 			}
 
-			else
+			if(validCasts.size() == 0)
 			{
-				throw std::runtime_error("could not find a matching function for " + functionName);
+				throw std::runtime_error("could not find a match for " + objectLabel);
 			}
+		}
+
+		template <class ... Ts>
+		std::vector<TYPE> SubStack<Ts...>::findTypesForFunction(const std::string& functionName, const std::vector<TYPE>& inTypes) const
+		{
+			auto doTypesWork = [&functionName, &database = bits_](const std::vector<TYPE>& toTypes) -> bool
+			{
+				auto mangledName = mangleName(functionName, toTypes);
+				auto castedImplOpt = database.findFunction(mangledName);
+
+				return castedImplOpt.has_value();
+			};
+
+			auto validCasts = getValidCasts(inTypes, doTypesWork);
+
+			checkExactlyOneValidCast(validCasts, "function " + functionName);
+			return validCasts.back();
+			
+		}
+
+		template <class ... Ts>
+		std::vector<TYPE> SubStack<Ts...>::findTypesForBinaryOperator(const std::string& opName, const std::vector<TYPE>& inTypes) const
+		{
+			auto doTypesWork = [&opName, &database = bits_](const std::vector<TYPE>& toTypes) -> bool
+			{
+				auto castedName = mangleName(opName, toTypes);
+				auto castedImplOpt = database.findOperator(castedName);
+
+				return castedImplOpt.has_value();
+			};
+
+			auto validCasts = getValidCasts(inTypes, doTypesWork);
+
+			checkExactlyOneValidCast(validCasts, "operator " + opName);
+			return validCasts.back();
 		}
 
 
@@ -197,43 +233,6 @@ namespace metl
 
 
 			expressions_.push_back(resultExpression);
-		}
-
-		template <class ... Ts>
-		std::vector<TYPE> SubStack<Ts...>::findTypesForBinaryOperator(const std::string& opName, const std::vector<TYPE>& inTypes) const
-		{
-			std::vector<std::vector<TYPE>> castCombis{{}};
-			for(auto t : inTypes)
-			{
-				castCombis = tensorSum(castCombis, bits_.getAllTypesCastableFrom(t));
-			}
-
-			std::vector<std::vector<TYPE>> validCasts;
-			for(auto c : castCombis)
-			{
-				auto castedOperatorName = mangleName(opName, c);
-				auto castedOperatorImplOpt = bits_.findOperator(castedOperatorName);
-
-				if(castedOperatorImplOpt)
-				{
-					validCasts.push_back(c);
-				}
-			}
-			// if we found a single possible overload that can be achieved through casting, use it!
-			if(validCasts.size() == 1)
-			{
-				return validCasts.back();
-			}
-			// if we found multiple possible overloads that we can get through casts, this is an error
-			if(validCasts.size() > 1)
-			{
-				throw std::runtime_error("To many possible overloads for operator " + opName);
-			}
-
-			else
-			{
-				throw std::runtime_error("could not find a matching operator for " + opName);
-			}
 		}
 
 		template <class ... Ts>
@@ -284,19 +283,6 @@ namespace metl
 			return validCasts;
 		}
 
-		template<class T>
-		void checkExactlyOneValidCast(const std::vector<T>& validCasts, const std::string& objectLabel)
-		{
-			if(validCasts.size() > 1)
-			{
-				throw std::runtime_error("To many possible overloads for " + objectLabel);
-			}
-
-			if(validCasts.size() == 0)
-			{
-				throw std::runtime_error("could not find a match for " + objectLabel);
-			}
-		}
 
 		template <class ... Ts>
 		TYPE SubStack<Ts...>::findTypeForSuffix(const std::string& suffix, const TYPE inType) const
@@ -321,7 +307,7 @@ namespace metl
 			auto doesTypeWork = [&opName, &database = bits_](TYPE t) -> bool
 			{
 				auto castedName = mangleName(opName, {t});
-				auto castedImplOpt = database.findSuffix(castedName);
+				auto castedImplOpt = database.findOperator(castedName);
 
 				return castedImplOpt.has_value();
 			};

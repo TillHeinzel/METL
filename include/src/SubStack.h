@@ -166,6 +166,9 @@ namespace metl
 
 			void evaluateFunction(const std::string& functionName);
 
+			template<class CheckExistence>
+			std::vector<std::vector<TYPE>> getValidCasts(const std::vector<TYPE> inTypes, const CheckExistence& doTypesWork) const;
+
 
 			std::vector<TYPE> findTypesForFunction(const std::string& functionName, const std::vector<TYPE>& inTypes) const;
 
