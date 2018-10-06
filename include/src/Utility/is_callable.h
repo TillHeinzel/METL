@@ -98,8 +98,8 @@ namespace metl
 		template<class F, class Ret, class... Params>
 		constexpr bool is_callable2_v<F, Return<Ret>, Arguments<Params...>> = decltype(is_callable2(CallableType<F>(), Return<Ret>(), Type<Params>()...))::value;
 
-		//template<typename T1, typename T2>
-		//static constexpr bool is_callable_v = is_callable<T1, T2>::value;
+		template<typename T1, typename T2>
+		static constexpr bool is_callable_v = is_callable<T1, T2>::value;
 
 
 	}

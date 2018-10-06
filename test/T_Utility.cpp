@@ -35,7 +35,7 @@ class is_callable2_Fixture : public ::testing::Test
 public:
 };
 
-TEST_F(is_callable2_Fixture, simpleNoReturn)
+TEST_F(is_callable2_Fixture, singleArgNoReturn)
 {
 	using namespace metl::internal;
 	auto f1 = [](int i)
@@ -46,7 +46,7 @@ TEST_F(is_callable2_Fixture, simpleNoReturn)
 	static_assert(decltype(is_callable2(CallableType<decltype(f1)>(), Type<int>()))::value, "");
 }
 
-TEST_F(is_callable2_Fixture, simpleNoReturn_v)
+TEST_F(is_callable2_Fixture, singleArgNoReturn_v)
 {
 	using namespace metl::internal;
 	auto f1 = [](int i)
@@ -57,7 +57,18 @@ TEST_F(is_callable2_Fixture, simpleNoReturn_v)
 	static_assert(is_callable2_v<decltype(f1), Arguments<int>>, "");
 }
 
-TEST_F(is_callable2_Fixture, simpleWithReturn)
+TEST_F(is_callable2_Fixture, complexArgsNoReturn_v)
+{
+	using namespace metl::internal;
+	auto f1 = [](int i, double*, std::string&)
+	{
+		return i;
+	};
+
+	static_assert(is_callable2_v<decltype(f1), Arguments<int, double*, std::string&>>, "");
+}
+
+TEST_F(is_callable2_Fixture, singleArgWithReturn)
 {
 	using namespace metl::internal;
 
@@ -70,7 +81,7 @@ TEST_F(is_callable2_Fixture, simpleWithReturn)
 	static_assert(!decltype(is_callable2(CallableType<decltype(f1)>(), Return<std::string>(), Type<int>()))::value, "");
 }
 
-TEST_F(is_callable2_Fixture, simpleWithReturn_v)
+TEST_F(is_callable2_Fixture, singleArgWithReturn_v)
 {
 	using namespace metl::internal;
 
@@ -82,6 +93,17 @@ TEST_F(is_callable2_Fixture, simpleWithReturn_v)
 	static_assert(is_callable2_v<decltype(f1), Return<int>, Arguments<int>>, "");
 }
 
+
+TEST_F(is_callable2_Fixture, complexArgsWithReturn_v)
+{
+	using namespace metl::internal;
+	auto f1 = [](int i, double*, std::string&)
+	{
+		return i;
+	};
+
+	static_assert(is_callable2_v<decltype(f1), Return<int>, Arguments<int, double*, std::string&>>, "");
+}
 
 
 TEST_F(UtilityFixture, is_callable)
