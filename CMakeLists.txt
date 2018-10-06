@@ -79,6 +79,9 @@ set(METL_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 ##################### LIBRARY #####################
 ###################################################
 
+include_directories("${PEGTL_INCLUDE_DIR}")
+include_directories("${METL_ROOT_DIR}/dependencies/Hana")
+include_directories("${METL_ROOT_DIR}/include")
 add_subdirectory(include/src) #its a header-only template library, but this generates projects for IDEs
 
 ###########################################################
