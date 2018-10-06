@@ -66,7 +66,7 @@ namespace metl
 
 			if (!suffixImplOpt)
 			{
-				std::vector<TYPE> allowedCasts = bits_.getAllTypesThatCanBeConvertedTo(inType);
+				std::vector<TYPE> allowedCasts = bits_.getAllTypesCastableFrom(inType);
 
 
 				std::vector<TYPE> validCasts;
@@ -84,7 +84,7 @@ namespace metl
 				// if we found a single possible overload that can be achieved through casting, use it!
 				if (possibleFunctions.size() == 1)
 				{
-					castTo({ validCasts.back() });
+					bits_.castTo(expressions_, { validCasts.back() });
 					push(suffix); // call recursively
 					return;
 				}
@@ -142,7 +142,7 @@ namespace metl
 				std::vector<std::vector<TYPE>> castCombis{ {} };
 				for (auto t : inTypes)
 				{
-					castCombis = tensorSum(castCombis, bits_.getAllTypesThatCanBeConvertedTo(t));
+					castCombis = tensorSum(castCombis, bits_.getAllTypesCastableFrom(t));
 				}
 
 				std::vector<std::vector<TYPE>> validCasts;
@@ -167,7 +167,7 @@ namespace metl
 				// if we found a single possible overload that can be achieved through casting, use it!
 				if (possibleFunctions.size() == 1)
 				{
-					castTo(validCasts.back());
+					bits_.castTo(expressions_, validCasts.back());
 					evaluateFunction(functionName); // call recursively
 					return;
 				}
@@ -207,7 +207,7 @@ namespace metl
 				std::vector<std::vector<TYPE>> castCombis{ {} };
 				for (auto t : inTypes)
 				{
-					castCombis = tensorSum(castCombis, bits_.getAllTypesThatCanBeConvertedTo(t));
+					castCombis = tensorSum(castCombis, bits_.getAllTypesCastableFrom(t));
 				}
 
 				std::vector<std::vector<TYPE>> validCasts;
@@ -226,7 +226,7 @@ namespace metl
 				// if we found a single possible overload that can be achieved through casting, use it!
 				if (possibleFunctions.size() == 1)
 				{
-					castTo(validCasts.back());
+					bits_.castTo(expressions_, validCasts.back());
 					reduce(); // call recursively
 					return;
 				}
@@ -268,7 +268,7 @@ namespace metl
 			auto operatorImplOpt = bits_.findOperator(mangleName(opName, {inType}));
 			if (!operatorImplOpt)
 			{
-				std::vector<TYPE> allowedCasts = bits_.getAllTypesThatCanBeConvertedTo(inType);
+				std::vector<TYPE> allowedCasts = bits_.getAllTypesCastableFrom(inType);
 
 
 				std::vector<TYPE> validCasts;
@@ -292,7 +292,7 @@ namespace metl
 				// if we found a single possible overload that can be achieved through casting, use it!
 				if (possibleFunctions.size() == 1)
 				{
-					castTo({ validCasts.back() });
+					bits_.castTo(expressions_, {validCasts.back()});
 					reduce(); // call recursively
 					return;
 				}
@@ -311,24 +311,6 @@ namespace metl
 			auto resultExpression = operatorImplOpt->apply({ t });
 
 			expressions_.push_back(resultExpression);
-		}
-
-		template <class ... Ts>
-		void SubStack<Ts...>::castTo(const std::vector<TYPE>& targetTypes)
-		{
-			auto i_target = 0u;
-			// we cast only the last size(targetTypes) expressions. This then works for both functions and operators
-			for (auto i = expressions_.size() - targetTypes.size(); i < expressions_.size(); ++i)
-			{
-				auto& expr = expressions_.at(i);
-				const auto fromType = expr.type();
-				const auto toType = targetTypes.at(i_target);
-				if (fromType != toType)
-				{
-					expr = bits_.findCast(mangleCast(fromType, toType))->apply(expr);
-				}
-				++i_target;
-			}
 		}
 	}
 }

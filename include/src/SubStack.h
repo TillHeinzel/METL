@@ -86,7 +86,7 @@ namespace metl
 
 		//		if(!suffixImplOpt)
 		//		{
-		//			std::vector<TYPE> allowedCasts = dataBase_.getAllTypesThatCanBeConvertedTo(inType);
+		//			std::vector<TYPE> allowedCasts = dataBase_.getAllTypesCastableFrom(inType);
 
 
 		//			std::vector<TYPE> validCasts;
@@ -178,10 +178,6 @@ namespace metl
 			//mpark::variant<ExpressionSubStack<Ts...>, FunctionSubStack<Ts...>> specificSubStack_;
 
 			const CompilerEntityDataBase<Ts...>& bits_;
-
-			
-
-			void castTo(const std::vector<TYPE>& targetTypes);
 		};
 	}
 }
