@@ -12,8 +12,8 @@ public:
 
 TEST_F(UntypedValueFixture, construct)
 {
-	auto var = metl::UntypedValue<bool, int, double>{&i};
-	auto cst = metl::UntypedValue<bool, int, double>{i};
+	metl::UntypedValue<bool, int, double>{&i};
+	metl::UntypedValue<bool, int, double>{i};
 }
 
 class UntypedValueVariableFixture: public UntypedValueFixture
