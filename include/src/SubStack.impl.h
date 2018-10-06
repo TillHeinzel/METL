@@ -17,6 +17,7 @@
 #pragma once
 #include "SubStack.h"
 #include "StackHelpers.h"
+#include "Utility/MixedVisitor.h"
 
 namespace metl
 {
@@ -49,9 +50,9 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		void SubStack<Ts...>::pushFunction(std::string FunctionName)
+		void SubStack<Ts...>::pushFunction(std::string functionName)
 		{
-			function_ = FunctionName;
+			function_ = functionName;
 		}
 
 		template <class ... Ts>

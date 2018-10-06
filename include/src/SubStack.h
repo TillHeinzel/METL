@@ -32,48 +32,113 @@ namespace metl
 {
 	namespace internal
 	{
-		template<class... Ts>
-		class FunctionSubStack
-		{
-			using Expression = UntypedExpression<Ts...>;
-		public:
-			FunctionSubStack(const CompilerEntityDataBase<Ts...>& database, std::string functionName) :
-				functionName_(std::move(functionName)),
-				dataBase_(database)
-			{}
+		//template<class... Ts>
+		//class FunctionSubStack
+		//{
+		//	using Expression = UntypedExpression<Ts...>;
+		//public:
+		//	FunctionSubStack(const CompilerEntityDataBase<Ts...>& database, std::string functionName) :
+		//		functionName_(std::move(functionName)),
+		//		dataBase_(database)
+		//	{}
 
-			void addArgument(Expression l)
-			{
-				arguments_.push_back(std::move(l));
-			}
+		//	void push(Expression l)
+		//	{
+		//		arguments_.push_back(std::move(l));
+		//	}
 
-		private:
-			const CompilerEntityDataBase<Ts...>& dataBase_;
+		//private:
+		//	const CompilerEntityDataBase<Ts...>& dataBase_;
 
-			const std::string functionName_;
-			std::vector<Expression> arguments_;
-		};
+		//	const std::string functionName_;
+		//	std::vector<Expression> arguments_;
+		//};
 
-		template<class... Ts>
-		class ExpressionSubStack
-		{
-			using Expression = UntypedExpression<Ts...>;
-		public:
-			explicit ExpressionSubStack(const CompilerEntityDataBase<Ts...>& dataBase):dataBase_(dataBase){}
+		//template<class... Ts>
+		//class ExpressionSubStack
+		//{
+		//	using Expression = UntypedExpression<Ts...>;
+		//public:
+		//	explicit ExpressionSubStack(const CompilerEntityDataBase<Ts...>& dataBase):dataBase_(dataBase){}
 
-			void push(Expression l)
-			{
-				subExpressions_.push_back(std::move(l));
-			}
-			void push(const opCarrier& b);
-			void push(const suffixCarrier& suffix);
+		//	void push(Expression l)
+		//	{
+		//		subExpressions_.push_back(std::move(l));
+		//	}
+		//	void push(const opCarrier& b)
+		//	{
+		//		if(b.associativity == ASSOCIATIVITY::LEFT)
+		//		{
+		//			while(operators_.size() > 0 && operators_.back().precedence <= b.precedence)
+		//			{
+		//				reduce();
+		//			}
+		//		}
+		//	}
+		//	void push(const suffixCarrier& suffix)
+		//	{
 
-		private:
-			std::vector<Expression> subExpressions_;
-			std::vector<opCarrier> operators_;
+		//		assert(!subExpressions_.empty());
+		//		assert(subExpressions_.back().isConstexpr());
 
-			const CompilerEntityDataBase<Ts...>& dataBase_;
-		};
+		//		const auto inType = subExpressions_.back().type();
+		//		auto suffixImplOpt = dataBase_.findSuffix(mangleSuffix(suffix.name, {inType}));
+
+		//		if(!suffixImplOpt)
+		//		{
+		//			std::vector<TYPE> allowedCasts = dataBase_.getAllTypesThatCanBeConvertedTo(inType);
+
+
+		//			std::vector<TYPE> validCasts;
+		//			std::vector<std::string> possibleFunctions;
+		//			for(auto c : allowedCasts)
+		//			{
+		//				auto castedSuffixName = mangleSuffix(suffix.name, {c});
+		//				auto castedSuffixImplOpt = dataBase_.findSuffix(castedSuffixName);
+		//				if(castedSuffixImplOpt)
+		//				{
+		//					possibleFunctions.push_back(castedSuffixName);
+		//					validCasts.push_back(c);
+		//				}
+		//			}
+		//			// if we found a single possible overload that can be achieved through casting, use it!
+		//			if(possibleFunctions.size() == 1)
+		//			{
+		//				castTo({validCasts.back()});
+		//				push(suffix); // call recursively
+		//				return;
+		//			}
+		//			// if we found multiple possible overloads that we can get through casts, this is an error
+		//			if(possibleFunctions.size() > 1)
+		//			{
+		//				throw std::runtime_error("To many possible overloads for unary operator " + suffix.name);
+		//			}
+
+		//			else
+		//			{
+		//				throw std::runtime_error("could not find a matching unary operator for " + suffix.name);
+		//			}
+		//		}
+
+		//		const auto t = subExpressions_.back();
+		//		subExpressions_.pop_back();
+
+		//		auto resultExpression = suffixImplOpt->apply({t});
+
+		//		subExpressions_.push_back(resultExpression);
+		//	}
+
+		//private:
+		//	std::vector<Expression> subExpressions_;
+		//	std::vector<opCarrier> operators_;
+
+		//	const CompilerEntityDataBase<Ts...>& dataBase_;
+
+
+		//	void reduce();
+		//	void reduceBinary();
+		//	void reduceUnary();
+		//};
 
 		template<class... Ts>
 		class SubStack
@@ -110,7 +175,7 @@ namespace metl
 
 			tl::optional<std::string> function_;
 
-			//mpark::variant<mpark::monostate, FunctionSubStack<Ts...>, ExpressionSubStack<Ts...>> specificSubStack_;
+			//mpark::variant<ExpressionSubStack<Ts...>, FunctionSubStack<Ts...>> specificSubStack_;
 
 			const CompilerEntityDataBase<Ts...>& bits_;
 
