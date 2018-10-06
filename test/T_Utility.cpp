@@ -113,7 +113,7 @@ TEST_F(is_callable_Fixture, complexArgsWithReturn_v)
 
 auto makeGenericVisitor()
 {
-	return [](const auto&)
+	return [](const auto&) -> int
 	{
 		return 0;
 	};
@@ -124,6 +124,7 @@ class MixedVisitorFixture : public UtilityFixture
 public:
 	class FixedTypeVisitor
 	{
+	public:
 		int operator() (const int i) const
 		{
 			return i;
@@ -137,18 +138,22 @@ public:
 
 TEST_F(MixedVisitorFixture, monostate)
 {
-	auto monostate = mpark::variant<mpark::monostate, int, double>{};
+	static_assert(internal::is_callable_v<decltype(genericVisitor), internal::Arguments<mpark::monostate>>, "");
+	auto monostate = mpark::variant<mpark::monostate, int, std::string>{};
 	EXPECT_EQ(0, mpark::visit(visitor, monostate));
 }
 
-TEST_F(MixedVisitorFixture, doublestate)
+TEST_F(MixedVisitorFixture, stringstate)
 {
-	auto doublestate = mpark::variant<mpark::monostate, int, double>{2.0};
-	EXPECT_EQ(0, mpark::visit(visitor, doublestate));
+	static_assert(internal::is_callable_v<decltype(genericVisitor), internal::Arguments<std::string>>, "");
+	static_assert(!internal::is_callable_v<FixedTypeVisitor, internal::Arguments<std::string>>, "");
+	auto stringstate = mpark::variant<mpark::monostate, int, std::string>{"str"};
+	EXPECT_EQ(0, mpark::visit(visitor, stringstate));
 }
 
 TEST_F(MixedVisitorFixture, intstate)
 {
-	auto intstate = mpark::variant<mpark::monostate, int, double>{3};
+	static_assert(internal::is_callable_v<FixedTypeVisitor, internal::Arguments<int>>, "");
+	auto intstate = mpark::variant<mpark::monostate, int, std::string>{3};
 	EXPECT_EQ(3, mpark::visit(visitor, intstate));
 }

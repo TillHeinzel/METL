@@ -18,8 +18,18 @@ namespace metl
 			template<class... Ts>
 			decltype(auto) operator() (Ts&&... ts)
 			{
-				//return constexpr_ternary(is_callable_v<FixedTypeCase>)
-				return genericCase_(std::forward<Ts>(ts)...);
+				auto argTuple = std::tuple<decltype(ts)...>(std::forward<Ts>(ts)...);
+				return constexpr_ternary(
+					std17::bool_constant<is_callable_v<FixedTypeCase, Arguments<Ts...>>>(),
+					[&, &fixedTypeCase = fixedTypeCase_](auto _)
+				{
+					return std17::apply(_(fixedTypeCase), argTuple);
+				},
+					[&, &genericCase = genericCase_](auto _)
+				{
+					return std17::apply(_(genericCase), argTuple);
+				}
+				);
 			}
 
 		private:
@@ -28,7 +38,7 @@ namespace metl
 		};
 
 		template<class FixedTypeCase, class GenericCase>
-		MixedVisitor<FixedTypeCase, GenericCase> makeMixedVisitor(FixedTypeCase&& fixedTypeCase, GenericCase&& genericCase)
+		MixedVisitor<std17::remove_cvref_t<FixedTypeCase>, std17::remove_cvref_t<GenericCase>> makeMixedVisitor(FixedTypeCase&& fixedTypeCase, GenericCase&& genericCase)
 		{
 			return {std::forward<FixedTypeCase>(fixedTypeCase), std::forward<GenericCase>(genericCase)};
 		}
