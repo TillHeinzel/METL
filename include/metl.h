@@ -21,6 +21,8 @@
 
 #include "src/Stack.impl.h"
 #include "src/SubStack.impl.h"
+#include "src/FunctionSubStack.impl.h"
+#include "src/ExpressionSubStack.impl.h"
 #include "src/CompilerEntityDataBase.impl.h"
 #include "src/Caster.impl.h"
 

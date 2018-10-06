@@ -24,175 +24,85 @@ namespace metl
 	namespace internal
 	{
 		template <class ... Ts>
-		SubStack<Ts...>::SubStack(const CompilerEntityDataBase<Ts...>& bits
-		)
-			:bits_(bits),
-			caster_(bits)
+		SubStack<Ts...>::SubStack(const CompilerEntityDataBase<Ts...>& bits) :
+			specificSubStack_(ExpressionSubStack<Ts...>(bits))
 		{}
 
 		template <class ... Ts>
 		SubStack<Ts...>::SubStack(const CompilerEntityDataBase<Ts...>& bits, const std::string& FunctionName) :
-			function_(FunctionName),
-			bits_(bits),
-			caster_(bits)
+			specificSubStack_(FunctionSubStack<Ts...>(bits, FunctionName))
 		{}
 
 		template <class ... Ts>
 		void SubStack<Ts...>::push(Expression l)
 		{
-			expressions_.push_back(l);
+			auto visitor = [&l](auto& subStack)
+			{
+				subStack.push(l);
+			};
+			mpark::visit(visitor, specificSubStack_);
 		}
 
 		template <class ... Ts>
 		void SubStack<Ts...>::push(const opCarrier& b)
 		{
-			if(b.associativity == ASSOCIATIVITY::LEFT)
+			struct Visitor
 			{
-				while(operators_.size() > 0 && operators_.back().precedence <= b.precedence)
+				const opCarrier& b;
+
+				void operator() (FunctionSubStack<Ts...>&)
 				{
-					reduce();
+					assert(false);
 				}
-			}
-			operators_.push_back(b);
+
+				void operator() (ExpressionSubStack<Ts...>& subStack)
+				{
+					subStack.push(b);
+				}
+			};
+
+			mpark::visit(Visitor{b}, specificSubStack_);
 		}
 
 		template <class ... Ts>
 		void SubStack<Ts...>::push(const suffixCarrier& suffix)
 		{
-			assert(!expressions_.empty());
-			assert(expressions_.back().isConstexpr());
-
-			const auto inType = expressions_.back().type();
-			auto suffixImplOpt = bits_.findSuffix(mangleSuffix(suffix.name, {inType}));
-
-			if(!suffixImplOpt)
+			struct Visitor
 			{
-				auto targetType = caster_.findTypeForSuffix(suffix.name, inType);
-				caster_.castTo(expressions_, {targetType});
-				push(suffix);
-			}
+				const suffixCarrier& s;
 
-			const auto t = expressions_.back();
-			expressions_.pop_back();
+				void operator() (FunctionSubStack<Ts...>&)
+				{
+					assert(false);
+				}
 
-			auto resultExpression = suffixImplOpt->apply({t});
+				void operator() (ExpressionSubStack<Ts...>& subStack)
+				{
+					subStack.push(s);
+				}
+			};
 
-			expressions_.push_back(resultExpression);
+			mpark::visit(Visitor{suffix}, specificSubStack_);
 		}
 
 		template <class ... Ts>
 		typename SubStack<Ts...>::Expression SubStack<Ts...>::finish()
 		{
-			if(function_)
+			auto visitor = [](auto& subStack)
 			{
-				evaluateFunction(*function_);
-			}
-			else
-			{
-				while(!operators_.empty())
-				{
-					reduce();
-				}
-			}
-			assert(expressions_.size() == 1);
-
-			const auto r = expressions_.back();
-			expressions_.clear();
-			return r;
-		}
-
-
-		template <class ... Ts>
-		void SubStack<Ts...>::evaluateFunction(const std::string& functionName)
-		{
-			assert(operators_.empty());
-
-			auto inTypes = getTypes(expressions_);
-
-			auto functionOpt = bits_.findFunction(mangleName(functionName, inTypes));
-			if(!functionOpt)
-			{
-				auto targetTypes = caster_.findTypesForFunction(functionName, inTypes);
-				caster_.castTo(expressions_, targetTypes);
-				evaluateFunction(functionName); // call recursively
-			}
-
-			auto resultExpression = functionOpt->apply(expressions_);
-
-			expressions_.clear();
-			expressions_.push_back(resultExpression);
+				return subStack.finish();
+			};
+			return mpark::visit(visitor, specificSubStack_);
 		}
 
 		template <class ... Ts>
-		void SubStack<Ts...>::reduce()
+		bool SubStack<Ts...>::empty() const
 		{
-			assert(!operators_.empty());
-			if(operators_.back().isUnary) reduceUnary();
-			else reduceBinary();
-		}
-
-		template <class ... Ts>
-		void SubStack<Ts...>::reduceBinary()
-		{
-			assert(expressions_.size() > 1);
-
-			// get operator
-			const auto opName = operators_.back().name;
-
-			auto inTypes = std::vector<TYPE>{(expressions_.rbegin() + 1)->type(), expressions_.rbegin()->type()};
-			auto operatorImplOpt = bits_.findOperator(mangleName(opName, inTypes));
-
-			if(!operatorImplOpt)
+			auto visitor = [](auto& subStack)
 			{
-				auto targetTypes = caster_.findTypesForBinaryOperator(opName, inTypes);
-				caster_.castTo(expressions_, targetTypes);
-				reduce(); // call recursively
-			}
-
-			// get left and right expressions
-			const auto r = expressions_.back();
-			expressions_.pop_back();
-			const auto l = expressions_.back();
-			expressions_.pop_back();
-
-			operators_.pop_back();
-
-			auto resultExpression = operatorImplOpt->apply({l, r});
-
-
-			expressions_.push_back(resultExpression);
+				return subStack.empty();
+			};
+			return mpark::visit(visitor, specificSubStack_);
 		}
-
-		template <class ... Ts>
-		void SubStack<Ts...>::reduceUnary()
-		{
-			assert(expressions_.size() > 0u);
-
-			// get operator
-			const auto opName = operators_.back().name;
-
-			auto inType = expressions_.back().type();
-			auto operatorImplOpt = bits_.findOperator(mangleName(opName, {inType}));
-			if(!operatorImplOpt)
-			{
-				auto targetType = caster_.findTypeForUnaryOperator(opName, inType);
-
-				caster_.castTo(expressions_, {targetType});
-				reduceUnary(); // call recursively
-			}
-
-			// get left and right expressions
-			const auto t = expressions_.back();
-			expressions_.pop_back();
-
-			operators_.pop_back();
-
-			auto resultExpression = operatorImplOpt->apply({t});
-
-			expressions_.push_back(resultExpression);
-		}
-
-
-
 	}
 }
