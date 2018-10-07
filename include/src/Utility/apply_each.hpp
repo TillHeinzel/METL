@@ -16,7 +16,9 @@
 
 #pragma once
 
+#include <cstddef>
 #include <tuple>
+#include <utility>
 
 namespace metl
 {
@@ -24,19 +26,24 @@ namespace metl
 	{
 		namespace detail
 		{
-			template<class F, class Tuple, std::size_t... I>
-			decltype(auto) apply_each_impl(F&& f, Tuple&& tuple, std::index_sequence<I...>)
+			template <typename Tuple, typename F, std::size_t ...Indices>
+			constexpr void apply_each_impl(F&& f, Tuple&& tuple, std::index_sequence<Indices...>)
 			{
-				return std::make_tuple(std::forward<F>(f)(std::get<I>(std::forward<Tuple>(tuple)))...);
+				using swallow = int[];
+				(void)swallow
+				{
+					1,
+						(f(std::get<Indices>(std::forward<Tuple>(tuple))), void(), int{})...
+				};
 			}
-
 		}
 
-		template<class F, class Tuple>
-		decltype(auto) apply_each(F&& f, Tuple&& tuple)
+		template <typename Tuple, typename F>
+		constexpr void apply_each(F&& f, Tuple&& tuple)
 		{
-			return detail::apply_each_impl(std::forward<F>(f), std::forward<Tuple>(tuple),
-				std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>::value>{});
+			constexpr std::size_t N = std::tuple_size<std::remove_reference_t<Tuple>>::value;
+			detail::apply_each_impl(std::forward<F>(f), std::forward<Tuple>(tuple),
+						  std::make_index_sequence<N>{});
 		}
 	}
 }

@@ -22,8 +22,8 @@ namespace metl
 			explicit Caster(const CompilerEntityDataBase<Ts...>& dataBase) : dataBase_(dataBase)
 			{}
 
-			template<class ID>
-			std::vector<TYPE> findNonAmbiguousConversionTarget(const ID& id, const std::vector<TYPE>& inTypes) const;
+			template<class IDLabel>
+			std::vector<TYPE> findNonAmbiguousConversionTarget(const OperationID<IDLabel>& id, const std::vector<TYPE>& inTypes) const;
 
 			std::vector<Expression> castTo(const std::vector<Expression>& expressions, const std::vector<TYPE>& targetTypes) const;
 
@@ -47,6 +47,8 @@ namespace metl
 			{
 				return "binary operator " + id.name;
 			}
+
+			UntypedExpression<Ts...> castIfNecessary(const UntypedExpression<Ts...>& expr, TYPE toType) const;
 
 			const CompilerEntityDataBase<Ts...>& dataBase_;;
 		};

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "src/Caster.hpp"
+#include "src/Utility/applyOnEachElement.hpp"
 
 namespace metl
 {
@@ -21,8 +22,8 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		template <class ID>
-		std::vector<TYPE> Caster<Ts...>::findNonAmbiguousConversionTarget(const ID& id, const std::vector<TYPE>& inTypes) const
+		template <class IDLabel>
+		std::vector<TYPE> Caster<Ts...>::findNonAmbiguousConversionTarget(const OperationID<IDLabel>& id, const std::vector<TYPE>& inTypes) const
 		{
 			auto doTypesWork = [&id, &dataBase = dataBase_](const std::vector<TYPE>& toTypes) -> bool
 			{
@@ -42,27 +43,12 @@ namespace metl
 		{
 			assert(expressions.size() == targetTypes.size());
 
-			auto exprIt = expressions.cbegin();
-			auto targetTypesIt = targetTypes.cbegin();
-
-			std::vector<Expression> retval;
-			retval.reserve(expressions.size());
-
-			for(; exprIt != expressions.cend(); ++exprIt, ++targetTypesIt)
+			auto getCastedExpression = [this](const auto& expr, const auto& targetType)
 			{
-				const auto& expr = *exprIt;
-				const auto fromType = expr.type();
+				return castIfNecessary(expr, targetType);
+			};
 
-				const auto& toType = *targetTypesIt;
-
-				retval.push_back(fromType == toType ?
-								 expr :
-								 dataBase_.findCast(mangleCast(fromType, toType))->apply(expr)
-
-				);
-			}
-
-			return expressions;
+			return applyOnEachElement(getCastedExpression, expressions, targetTypes);
 		}
 
 		template <class ... Ts>
@@ -89,6 +75,12 @@ namespace metl
 			return validCasts;
 		}
 
+		template <class ... Ts>
+		UntypedExpression<Ts...> Caster<Ts...>::castIfNecessary(const UntypedExpression<Ts...>& expr, TYPE toType) const
+		{
+			auto fromType = expr.type();
+			return fromType == toType ? expr : dataBase_.findCast(mangleCast(fromType, toType))->apply(expr);
+		}
 	}
 
 

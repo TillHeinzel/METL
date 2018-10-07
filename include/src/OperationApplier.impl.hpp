@@ -26,26 +26,31 @@ namespace metl
 			return implementation.apply(arguments);
 		}
 
+		template<class... Ts>
+		std::vector<TYPE> getTypes(const std::vector<UntypedExpression<Ts...>>& expressions )
+		{
+			return get_each(expressions, [](const auto& expr)
+			{
+				return expr.type();
+			});
+		}
+
 		template <class ... Ts>
 		template <class IDLabel>
 		UntypedExpression<Ts...> OperationApplier<Ts...>::apply(const OperationID<IDLabel>& id,
 																const std::vector<Expression>& arguments) const
 		{
-			const auto inTypes = get_each(arguments, [](const auto& expr)
-			{
-				return expr.type();
-			});
+			const auto inTypes = getTypes(arguments);
 			const auto implementationOpt = dataBase_.find(makeSignature(id, inTypes));
 
 			if(!implementationOpt)
 			{
 				const auto targetTypes = caster_.findNonAmbiguousConversionTarget(id, inTypes);
 				const auto castedArguments = caster_.castTo(arguments, targetTypes);
-				return apply(id, castedArguments); // call recursively
+				return apply(id, castedArguments); 
 			}
 
 			return applyTo(*implementationOpt, arguments);
 		}
-
 	}
 }
