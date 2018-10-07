@@ -15,19 +15,12 @@ namespace metl
 {
 	namespace internal
 	{
-		template<>
-		struct OperationSignature<SuffixID>
-		{
-			std::string name;
-			TYPE argument;
-		};
-
 		using SuffixSignature = OperationSignature<SuffixID>;
 
 		inline SuffixSignature makeSignature(const SuffixID& id, const std::vector<TYPE>& arguments)
 		{
 			assert(arguments.size() == 1);
-			return {id.name, arguments.front()};
+			return {id.name, arguments};
 		}
 	}
 }

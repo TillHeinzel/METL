@@ -14,13 +14,6 @@ namespace metl
 {
 	namespace internal
 	{
-		template<>
-		struct OperationSignature<FunctionID>
-		{
-			std::string name;
-			std::vector<TYPE> arguments;
-		};
-
 		using FunctionSignature = OperationSignature<FunctionID>;
 
 		inline FunctionSignature makeSignature(const FunctionID& id, const std::vector<TYPE>& arguments)
