@@ -22,52 +22,61 @@ namespace metl
 			OperationApplier(const CompilerEntityDataBase<Ts...>& dataBase);
 
 			template<class ID>
-			UntypedExpression<Ts...> apply(const ID& id, const Expression& argument) const;
-
-			template<class ID>
 			UntypedExpression<Ts...> apply(const ID& id, const std::vector<Expression>& arguments) const;
-			
+
 		private:
-			auto findImpl(const SuffixID& id, TYPE inType) const
+			UntypedExpression<Ts...> applyTo(const UntypedConversion<Expression>& implementation, const std::vector<Expression>& arguments) const
 			{
-				return dataBase_.findSuffix(mangleSuffix(id.name, {inType}));
+				assert(arguments.size() == 1);
+				return implementation.apply(arguments.front());
 			}
 
-
-			TYPE uniqueTargetType(const SuffixID& id, TYPE inType) const
+			UntypedExpression<Ts...> applyTo(const UntypedFunction<Expression>& implementation, const std::vector<Expression>& arguments) const
 			{
-				return caster_.findTypeForSuffix(id.name, inType);
-			}
-			
-			auto findImpl(const UnaryID& id, TYPE inType) const
-			{
-				return dataBase_.findOperator(mangleName(id.name, {inType}));
-			}
-			TYPE uniqueTargetType(const UnaryID& id, TYPE inType) const
-			{
-				return caster_.findTypeForUnaryOperator(id.name, inType);
+				return implementation.apply(arguments);
 			}
 
-
+			auto findImpl(const SuffixID& id, const std::vector<TYPE>& inTypes) const
+			{
+				assert(inTypes.size() == 1);
+				return dataBase_.findSuffix(mangleSuffix(id.name, inTypes.front()));
+			}
+			auto findImpl(const UnaryID& id, const std::vector<TYPE>& inTypes) const
+			{
+				assert(inTypes.size() == 1);
+				return dataBase_.findOperator(mangleName(id.name, inTypes));
+			}
 			auto findImpl(const BinaryID& id, const std::vector<TYPE>& inTypes) const
 			{
 				return dataBase_.findOperator(mangleName(id.name, inTypes));
+			}
+			auto findImpl(const FunctionID& id, const std::vector<TYPE>& inTypes) const
+			{
+				return dataBase_.findFunction(mangleName(id.name, inTypes));
+			}
+
+			std::vector<TYPE> uniqueTargetTypes(const SuffixID& id, const std::vector<TYPE>& inTypes) const
+			{
+				assert(inTypes.size() == 1);
+				return {caster_.findTypeForSuffix(id.name, inTypes.front())};
+			}
+
+			std::vector<TYPE> uniqueTargetTypes(const UnaryID& id, const std::vector<TYPE>& inTypes) const
+			{
+				assert(inTypes.size() == 1);
+				return {caster_.findTypeForUnaryOperator(id.name, inTypes.front())};
 			}
 
 			std::vector<TYPE> uniqueTargetTypes(const BinaryID& id, std::vector<TYPE> inTypes) const
 			{
 				return caster_.findTypesForBinaryOperator(id.name, inTypes);
 			}
-			
-			auto findImpl(const FunctionID& id, const std::vector<TYPE>& inTypes) const
-			{
-				return dataBase_.findFunction(mangleName(id.name, inTypes));
-			}
 
 			std::vector<TYPE> uniqueTargetTypes(const FunctionID& id, std::vector<TYPE> inTypes) const
 			{
 				return caster_.findTypesForFunction(id.name, inTypes);
 			}
+
 
 
 			const CompilerEntityDataBase<Ts...>& dataBase_;

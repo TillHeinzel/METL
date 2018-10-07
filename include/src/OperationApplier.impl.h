@@ -14,23 +14,6 @@ namespace metl
 
 		template <class ... Ts>
 		template <class ID>
-		UntypedExpression<Ts...> OperationApplier<Ts...>::apply(const ID& id, const Expression& argument) const
-		{
-			const auto inType = argument.type();
-			const auto implementationOpt = findImpl(id, inType);
-
-			if(!implementationOpt)
-			{
-				const auto targetType = uniqueTargetType(id, inType);
-				const auto castedArgument = caster_.castTo2({argument}, {targetType});
-				return apply(id, castedArgument.front()); // call recursively
-			}
-
-			return implementationOpt->apply({argument});
-		}
-
-		template <class ... Ts>
-		template <class ID>
 		UntypedExpression<Ts...> OperationApplier<Ts...>::apply(const ID& id,
 			const std::vector<Expression>& arguments) const
 		{
@@ -47,7 +30,7 @@ namespace metl
 				return apply(id, castedArguments); // call recursively
 			}
 
-			return implementationOpt->apply(arguments);
+			return applyTo(*implementationOpt, arguments);
 		}
 	}
 }

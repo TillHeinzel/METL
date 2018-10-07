@@ -42,7 +42,7 @@ namespace metl
 		{
 			auto doesTypeWork = [&suffix, &database = dataBase_](TYPE t) -> bool
 			{
-				auto castedName = mangleSuffix(suffix, {t});
+				auto castedName = mangleSuffix(suffix, t);
 				auto castedImplOpt = database.findSuffix(castedName);
 
 				return castedImplOpt.has_value();
