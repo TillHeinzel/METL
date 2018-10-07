@@ -1,11 +1,11 @@
 
 #include <gtest/gtest.h>
 
-#include "metl.h"
+#include "metl.hpp"
 
 #include "boost/hana.hpp"
 
-#include "src/Utility/AUTO_MEMBER.h"
+#include "src/Utility/AUTO_MEMBER.hpp"
 
 using namespace metl;
 namespace hana = boost::hana;

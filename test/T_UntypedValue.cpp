@@ -1,5 +1,5 @@
 ﻿#include <gtest/gtest.h>
-#include <metl.h>
+#include <metl.hpp>
 
 using namespace metl;
 

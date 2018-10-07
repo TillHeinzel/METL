@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <chrono>
 
-#include "WriteTime.h"
+#include "WriteTime.hpp"
 
 int main(int argc, char **argv) {
 

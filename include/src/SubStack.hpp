@@ -20,14 +20,14 @@
 
 #include "ThirdParty/Variant/variant.hpp"
 
-#include "src/TypeErasure/UntypedExpression.h"
+#include "src/TypeErasure/UntypedExpression.hpp"
 
-#include "src/BasicOperatorData.h"
-#include "src/SuffixID.h"
-#include "src/CompilerEntityDataBase.h"
+#include "src/BasicOperatorData.hpp"
+#include "src/SuffixID.hpp"
+#include "src/CompilerEntityDataBase.hpp"
 
-#include "src/FunctionSubStack.h"
-#include "src/ExpressionSubStack.h"
+#include "src/FunctionSubStack.hpp"
+#include "src/ExpressionSubStack.hpp"
 
 namespace metl
 {

@@ -18,7 +18,7 @@
 
 #include "tao/pegtl.hpp"
 
-#include "src/Utility/ConstexprBranching.h"
+#include "src/Utility/ConstexprBranching.hpp"
 
 namespace metl
 {

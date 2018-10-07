@@ -15,13 +15,13 @@
 // limitations under the License.
 
 #pragma once
-#include "grammar.h"
+#include "grammar.hpp"
 
-#include "src/std17/bool_constant.h"
+#include "src/std17/bool_constant.hpp"
 
-#include "src/Utility/ConstexprBranching.h"
+#include "src/Utility/ConstexprBranching.hpp"
 
-#include "src/Exceptions.h"
+#include "src/Exceptions.hpp"
 
 namespace metl
 {

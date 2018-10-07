@@ -22,16 +22,16 @@
 
 #include "ThirdParty/Optional/optional.hpp"
 
-#include "src/TypeErasure/UntypedExpression.h"
-#include "src/TypeErasure/UntypedFunction.h"
-#include "src/TypeErasure/UntypedConversion.h"
-#include "src/TypeErasure/UntypedValue.h"
+#include "src/TypeErasure/UntypedExpression.hpp"
+#include "src/TypeErasure/UntypedFunction.hpp"
+#include "src/TypeErasure/UntypedConversion.hpp"
+#include "src/TypeErasure/UntypedValue.hpp"
 
-#include "src/SuffixID.h"
-#include "src/BasicOperatorData.h"
+#include "src/SuffixID.hpp"
+#include "src/BasicOperatorData.hpp"
 
-#include "Associativity.h"
-#include "nameMangling.h"
+#include "Associativity.hpp"
+#include "nameMangling.hpp"
 
 namespace metl
 {

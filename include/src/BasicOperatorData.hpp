@@ -18,7 +18,7 @@
 
 #include <string>
 
-#include "Associativity.h"
+#include "Associativity.hpp"
 
 namespace metl
 {

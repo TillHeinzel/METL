@@ -15,11 +15,11 @@
 // limitations under the License.
 
 #pragma once
-#include "CompilerApi.h"
+#include "CompilerApi.hpp"
 
-#include "src/Compiler.impl.h"
+#include "src/Compiler.impl.hpp"
 
-#include "src/VariableExpression.h"
+#include "src/VariableExpression.hpp"
 
 namespace metl
 {

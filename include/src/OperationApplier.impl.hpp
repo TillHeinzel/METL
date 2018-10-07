@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/OperationApplier.h"
+#include "src/OperationApplier.hpp"
 
 namespace metl
 {

@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <complex>
 
-#include "metl.h"
+#include "metl.hpp"
 
 class MetlFixture : public ::testing::Test
 {

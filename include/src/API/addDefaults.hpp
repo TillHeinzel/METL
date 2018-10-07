@@ -17,7 +17,7 @@
 #pragma once
 #include <cmath>
 
-#include "CompilerApi.h"
+#include "CompilerApi.hpp"
 
 namespace metl
 {

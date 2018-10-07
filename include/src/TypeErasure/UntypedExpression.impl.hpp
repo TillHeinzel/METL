@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/TypeErasure/UntypedExpression.h"
+#include "src/TypeErasure/UntypedExpression.hpp"
 
 namespace metl
 {

@@ -1,12 +1,12 @@
 
 #include <gtest/gtest.h>
 
-#include "metl.h"
+#include "metl.hpp"
 
-#include "src/Utility/is_specialization_of.h"
-#include "src/Utility/is_callable.h"
-#include "src/Utility/MixedVisitor.h"
-#include "src/Utility/AUTO_MEMBER.h"
+#include "src/Utility/is_specialization_of.hpp"
+#include "src/Utility/is_callable.hpp"
+#include "src/Utility/MixedVisitor.hpp"
+#include "src/Utility/AUTO_MEMBER.hpp"
 
 using namespace metl;
 

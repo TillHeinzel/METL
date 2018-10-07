@@ -1,9 +1,9 @@
 #pragma once
 
-#include "src/TypeErasure/UntypedExpression.h"
+#include "src/TypeErasure/UntypedExpression.hpp"
 
-#include "src/CompilerEntityDataBase.h"
-#include "src/OperationApplier.h"
+#include "src/CompilerEntityDataBase.hpp"
+#include "src/OperationApplier.hpp"
 
 namespace metl
 {

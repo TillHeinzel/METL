@@ -18,7 +18,7 @@
 
 #include <vector>
 
-#include "src/TypeErasure/UntypedOperation.h"
+#include "src/TypeErasure/UntypedOperation.hpp"
 
 namespace metl
 {

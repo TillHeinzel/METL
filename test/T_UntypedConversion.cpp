@@ -2,10 +2,10 @@
 #include <gtest/gtest.h>
 #include <complex>
 
-#include "metl.h"
-#include "src/std17/remove_cvref.h"
+#include "metl.hpp"
+#include "src/std17/remove_cvref.hpp"
 
-#include "DynamicOperationFixture.h"
+#include "DynamicOperationFixture.hpp"
 
 using namespace metl;
 

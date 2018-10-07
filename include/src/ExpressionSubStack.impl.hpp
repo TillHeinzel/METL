@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/ExpressionSubStack.h"
+#include "src/ExpressionSubStack.hpp"
 
 namespace metl
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/Caster.h"
+#include "src/Caster.hpp"
 
 namespace metl
 {

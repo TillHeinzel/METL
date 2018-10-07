@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include "CompilerApi.impl.h"
-#include "src/Utility/callWithOrderedAndDefaultedSettings.h"
-#include "src/API/LiteralConverters.h"
+#include "CompilerApi.impl.hpp"
+#include "src/Utility/callWithOrderedAndDefaultedSettings.hpp"
+#include "src/API/LiteralConverters.hpp"
 
 namespace metl
 {

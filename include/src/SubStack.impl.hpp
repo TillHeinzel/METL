@@ -15,9 +15,9 @@
 // limitations under the License.
 
 #pragma once
-#include "SubStack.h"
-#include "StackHelpers.h"
-#include "Utility/MixedVisitor.h"
+#include "SubStack.hpp"
+#include "StackHelpers.hpp"
+#include "Utility/MixedVisitor.hpp"
 
 namespace metl
 {

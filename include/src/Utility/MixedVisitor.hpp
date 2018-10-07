@@ -1,8 +1,8 @@
 #pragma once
 
-#include "src/Utility/ConstexprBranching.h"
-#include "src/std17/remove_cvref.h"
-#include "src/Utility/is_callable.h"
+#include "src/Utility/ConstexprBranching.hpp"
+#include "src/std17/remove_cvref.hpp"
+#include "src/Utility/is_callable.hpp"
 
 namespace metl
 {

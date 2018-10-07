@@ -19,11 +19,11 @@
 #include <map>
 #include <string>
 
-#include "src/TypeErasure/UntypedExpression.h"
-#include "src/TypeErasure/TypedExpression.h"
-#include "src/TypeErasure/TypeEnum.h"
+#include "src/TypeErasure/UntypedExpression.hpp"
+#include "src/TypeErasure/TypedExpression.hpp"
+#include "src/TypeErasure/TypeEnum.hpp"
 
-#include "src/CompilerEntityDataBase.h"
+#include "src/CompilerEntityDataBase.hpp"
 
 namespace metl
 {

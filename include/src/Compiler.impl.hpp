@@ -15,17 +15,17 @@
 // limitations under the License.
 
 #pragma once
-#include "src/Compiler.h"
+#include "src/Compiler.hpp"
 
 #include <tao/pegtl.hpp>
 
-#include "grammar.h"
-#include "actions.h"
+#include "grammar.hpp"
+#include "actions.hpp"
 
-#include "nameMangling.h"
-#include "Stack.impl.h"
+#include "nameMangling.hpp"
+#include "Stack.impl.hpp"
 
-#include "src/VariableExpression.h"
+#include "src/VariableExpression.hpp"
 
 namespace metl
 {

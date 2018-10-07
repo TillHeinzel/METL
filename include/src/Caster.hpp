@@ -1,13 +1,13 @@
 #pragma once
 
-#include "src/CompilerEntityDataBase.h"
+#include "src/CompilerEntityDataBase.hpp"
 
-#include "src/StackHelpers.h"
+#include "src/StackHelpers.hpp"
 
-#include "src/UnaryID.h"
-#include "src/BinaryID.h"
-#include "src/FunctionID.h"
-#include "src/SuffixID.h"
+#include "src/UnaryID.hpp"
+#include "src/BinaryID.hpp"
+#include "src/FunctionID.hpp"
+#include "src/SuffixID.hpp"
 
 namespace metl
 {

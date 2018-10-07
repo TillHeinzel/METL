@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include "src/TypeErasure/UntypedVariable.h"
+#include "src/TypeErasure/UntypedVariable.hpp"
 
-#include "src/TypeErasure/UntypedExpression.h"
-#include "src/TypeErasure/UntypedConstant.h"
+#include "src/TypeErasure/UntypedExpression.hpp"
+#include "src/TypeErasure/UntypedConstant.hpp"
 
-#include "src/std17/remove_cvref.h"
+#include "src/std17/remove_cvref.hpp"
 
 template<class T>
 using removeAnyPointers = std17::remove_cvref_t<std::remove_pointer_t<std17::remove_cvref_t<T>>>;

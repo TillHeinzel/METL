@@ -19,7 +19,7 @@
 #include <functional>
 #include <string>
 
-#include "src/TypeErasure/TypeEnum.h"
+#include "src/TypeErasure/TypeEnum.hpp"
 
 namespace metl
 {

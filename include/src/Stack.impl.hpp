@@ -15,7 +15,7 @@
 // limitations under the License.
 
 #pragma once
-#include "Stack.h"
+#include "Stack.hpp"
 
 #include <cassert>
 

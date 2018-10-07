@@ -1,14 +1,14 @@
 #pragma once
 
-#include "src/Utility/get_each.h"
+#include "src/Utility/get_each.hpp"
 
-#include "src/CompilerEntityDataBase.h"
-#include "src/Caster.h"
+#include "src/CompilerEntityDataBase.hpp"
+#include "src/Caster.hpp"
 
-#include "src/UnaryID.h"
-#include "src/BinaryID.h"
-#include "src/FunctionID.h"
-#include "src/SuffixID.h"
+#include "src/UnaryID.hpp"
+#include "src/BinaryID.hpp"
+#include "src/FunctionID.hpp"
+#include "src/SuffixID.hpp"
 
 namespace metl
 {

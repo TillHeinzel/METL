@@ -18,10 +18,10 @@
 
 #include <map>
 
-#include "src/TypeErasure/UntypedExpression.h"
+#include "src/TypeErasure/UntypedExpression.hpp"
 
-#include "Stack.h"
-#include "CompilerEntityDataBase.h"
+#include "Stack.hpp"
+#include "CompilerEntityDataBase.hpp"
 
 namespace metl
 {

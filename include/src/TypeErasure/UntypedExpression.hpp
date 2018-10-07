@@ -18,12 +18,12 @@
 
 #include "ThirdParty/Variant/variant.hpp"
 
-#include "src/Utility/TypeList.h"
+#include "src/Utility/TypeList.hpp"
 
-#include "src/TypeErasure/TypeEnum.h"
-#include "src/TypeErasure/TypedExpression.h"
+#include "src/TypeErasure/TypeEnum.hpp"
+#include "src/TypeErasure/TypedExpression.hpp"
 
-#include "src/TypeErasure/UntypedValue.fwd.h"
+#include "src/TypeErasure/UntypedValue.fwd.hpp"
 
 namespace metl
 {

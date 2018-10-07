@@ -1,6 +1,6 @@
 
 #include <iostream>
-#include <metl.h>
+#include <metl.hpp>
 /*
  * This is a simple tutorial-example to showcase basic functionality. It is not complete
  */

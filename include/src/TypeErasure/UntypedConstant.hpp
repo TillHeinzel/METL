@@ -18,8 +18,8 @@
 
 #include "ThirdParty/Variant/variant.hpp"
 
-#include "src/TypeErasure/TypeEnum.h"
-#include "src/TypeErasure/UntypedExpression.fwd.h"
+#include "src/TypeErasure/TypeEnum.hpp"
+#include "src/TypeErasure/UntypedExpression.fwd.hpp"
 
 namespace metl
 {

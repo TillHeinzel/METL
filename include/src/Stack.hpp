@@ -18,12 +18,12 @@
 #include <string>
 #include <vector>
 
-#include "src/TypeErasure/UntypedExpression.h"
+#include "src/TypeErasure/UntypedExpression.hpp"
 
-#include "BasicOperatorData.h"
-#include "SuffixID.h"
-#include "CompilerEntityDataBase.h"
-#include "SubStack.h"
+#include "BasicOperatorData.hpp"
+#include "SuffixID.hpp"
+#include "CompilerEntityDataBase.hpp"
+#include "SubStack.hpp"
 
 
 namespace metl

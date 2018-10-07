@@ -15,17 +15,17 @@
 // limitations under the License.
 
 #pragma once
-#include "CompilerEntityDataBase.h"
+#include "CompilerEntityDataBase.hpp"
 
 #include <tao/pegtl.hpp>
 
-#include "src/Utility/insert_or_emplace.h"
+#include "src/Utility/insert_or_emplace.hpp"
 
-#include "grammar.h"
-#include "actions.h"
+#include "grammar.hpp"
+#include "actions.hpp"
 
-#include "nameMangling.h"
-#include "Stack.impl.h"
+#include "nameMangling.hpp"
+#include "Stack.impl.hpp"
 
 
 namespace metl

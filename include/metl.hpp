@@ -16,19 +16,19 @@
 
 #pragma once
 
-#include "src/API/MakeCompiler.h"
-#include "src/API/addDefaults.h"
+#include "src/API/MakeCompiler.hpp"
+#include "src/API/addDefaults.hpp"
 
-#include "src/Stack.impl.h"
-#include "src/SubStack.impl.h"
-#include "src/FunctionSubStack.impl.h"
-#include "src/ExpressionSubStack.impl.h"
-#include "src/CompilerEntityDataBase.impl.h"
-#include "src/Caster.impl.h"
-#include "src/OperationApplier.impl.h"
+#include "src/Stack.impl.hpp"
+#include "src/SubStack.impl.hpp"
+#include "src/FunctionSubStack.impl.hpp"
+#include "src/ExpressionSubStack.impl.hpp"
+#include "src/CompilerEntityDataBase.impl.hpp"
+#include "src/Caster.impl.hpp"
+#include "src/OperationApplier.impl.hpp"
 
-#include "src/TypeErasure/UntypedOperation.impl.h"
-#include "src/TypeErasure/UntypedConstant.impl.h"
-#include "src/TypeErasure/UntypedVariable.impl.h"
-#include "src/TypeErasure/UntypedValue.impl.h"
-#include "src/TypeErasure/UntypedExpression.impl.h"
+#include "src/TypeErasure/UntypedOperation.impl.hpp"
+#include "src/TypeErasure/UntypedConstant.impl.hpp"
+#include "src/TypeErasure/UntypedVariable.impl.hpp"
+#include "src/TypeErasure/UntypedValue.impl.hpp"
+#include "src/TypeErasure/UntypedExpression.impl.hpp"

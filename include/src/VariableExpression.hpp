@@ -17,8 +17,8 @@
 #pragma once
 
 
-#include "src/TypeErasure/UntypedExpression.h"
-#include "src/TypeErasure/TypedExpression.h"
+#include "src/TypeErasure/UntypedExpression.hpp"
+#include "src/TypeErasure/TypedExpression.hpp"
 
 namespace metl
 {

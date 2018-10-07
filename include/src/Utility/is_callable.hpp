@@ -4,9 +4,9 @@
 
 #include "boost/hana.hpp"
 
-#include "src/Utility/LabelledType.h"
-#include "src/std17/is_same_v.h"
-#include "src/Utility/failingStaticAssert.h"
+#include "src/Utility/LabelledType.hpp"
+#include "src/std17/is_same_v.hpp"
+#include "src/Utility/failingStaticAssert.hpp"
 
 namespace metl
 {

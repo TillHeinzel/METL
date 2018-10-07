@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "src/TypeErasure/UntypedValue.h"
+#include "src/TypeErasure/UntypedValue.hpp"
 
-#include "src/TypeErasure/UntypedExpression.h"
+#include "src/TypeErasure/UntypedExpression.hpp"
 
 namespace metl
 {
