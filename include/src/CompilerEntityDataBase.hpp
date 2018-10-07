@@ -27,16 +27,16 @@
 #include "src/TypeErasure/UntypedConversion.hpp"
 #include "src/TypeErasure/UntypedValue.hpp"
 
-#include "src/SuffixID.hpp"
+#include "src/OperationIdentification/SuffixID.hpp"
 #include "src/BasicOperatorData.hpp"
 
 #include "Associativity.hpp"
 #include "nameMangling.hpp"
 
-#include "src/FunctionSignature.hpp"
-#include "src/UnarySignature.hpp"
-#include "src/BinarySignature.hpp"
-#include "src/SuffixSignature.hpp"
+#include "src/OperationIdentification/FunctionSignature.hpp"
+#include "src/OperationIdentification/UnarySignature.hpp"
+#include "src/OperationIdentification/BinarySignature.hpp"
+#include "src/OperationIdentification/SuffixSignature.hpp"
 
 namespace metl
 {

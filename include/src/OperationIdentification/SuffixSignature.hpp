@@ -6,19 +6,23 @@
 #include <vector>
 #include <cassert>
 
-#include "TypeErasure/TypeEnum.hpp"
+#include "src/TypeErasure/TypeEnum.hpp"
 
-#include "src/SuffixID.hpp"
+#include "src/OperationIdentification/SuffixID.hpp"
+#include "src/OperationIdentification/OperationSignature.hpp"
 
 namespace metl
 {
 	namespace internal
 	{
-		struct SuffixSignature
+		template<>
+		struct OperationSignature<SuffixID>
 		{
 			std::string name;
 			TYPE argument;
 		};
+
+		using SuffixSignature = OperationSignature<SuffixID>;
 
 		inline SuffixSignature makeSignature(const SuffixID& id, const std::vector<TYPE>& arguments)
 		{

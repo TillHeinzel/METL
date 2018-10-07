@@ -20,10 +20,11 @@
 
 #include "src/TypeErasure/UntypedExpression.hpp"
 
-#include "BasicOperatorData.hpp"
-#include "SuffixID.hpp"
-#include "CompilerEntityDataBase.hpp"
-#include "SubStack.hpp"
+#include "src/OperationIdentification/SuffixID.hpp"
+
+#include "src/BasicOperatorData.hpp"
+#include "src/CompilerEntityDataBase.hpp"
+#include "src/SubStack.hpp"
 
 
 namespace metl

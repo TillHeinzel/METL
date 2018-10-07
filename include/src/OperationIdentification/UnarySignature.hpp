@@ -1,4 +1,5 @@
 
+
 #pragma once
 
 
@@ -6,19 +7,23 @@
 #include <vector>
 #include <cassert>
 
-#include "TypeErasure/TypeEnum.hpp"
+#include "src/TypeErasure/TypeEnum.hpp"
 
-#include "src/UnaryID.hpp"
+#include "src/OperationIdentification/UnaryID.hpp"
+#include "src/OperationIdentification/OperationSignature.hpp"
 
 namespace metl
 {
 	namespace internal
 	{
-		struct UnarySignature
+		template<>
+		struct OperationSignature<UnaryID>
 		{
 			std::string name;
 			TYPE argument;
 		};
+
+		using UnarySignature = OperationSignature<UnaryID>;
 
 		inline UnarySignature makeSignature(const UnaryID& id, const std::vector<TYPE>& arguments)
 		{

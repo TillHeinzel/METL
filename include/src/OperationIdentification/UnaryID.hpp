@@ -17,20 +17,20 @@
 #pragma once
 #include <string>
 
-#include "src/OperationID.hpp"
+#include "src/OperationIdentification/OperationID.hpp"
 
 namespace metl
 {
 	namespace internal
 	{
-		struct BinaryLabel;
+		struct UnaryLabel;
 
 		template<>
-		struct OperationID<BinaryLabel>
+		struct OperationID<UnaryLabel>
 		{
 			std::string name;
 		};
 
-		using BinaryID = OperationID<BinaryLabel>;
+		using UnaryID = OperationID<UnaryLabel>;
 	}
 }

@@ -50,7 +50,7 @@ namespace metl
 		std::vector<std::vector<TYPE>> Caster<Ts...>::getValidCasts(const OperationID<IDLabel>& id,
 			const std::vector<TYPE>& inTypes) const
 		{
-			auto conceivableCasts = getConceivableCasts(id, inTypes);
+			auto conceivableCasts = getConceivableCasts(inTypes);
 
 			std::vector<std::vector<TYPE>> validCasts;
 			for(auto targetTypes : conceivableCasts)
@@ -65,9 +65,7 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		template <class IDLabel>
-		std::vector<std::vector<TYPE>> Caster<Ts...>::getConceivableCasts(const OperationID<IDLabel>& id,
-			const std::vector<TYPE>& inTypes) const
+		std::vector<std::vector<TYPE>> Caster<Ts...>::getConceivableCasts(const std::vector<TYPE>& inTypes) const
 		{
 			std::vector<std::vector<TYPE>> castCombis{{}};
 			for(auto t : inTypes)

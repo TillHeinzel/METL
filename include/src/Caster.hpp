@@ -4,10 +4,10 @@
 
 #include "src/StackHelpers.hpp"
 
-#include "src/UnaryID.hpp"
-#include "src/BinaryID.hpp"
-#include "src/FunctionID.hpp"
-#include "src/SuffixID.hpp"
+#include "src/OperationIdentification/UnaryID.hpp"
+#include "src/OperationIdentification/BinaryID.hpp"
+#include "src/OperationIdentification/FunctionID.hpp"
+#include "src/OperationIdentification/SuffixID.hpp"
 
 namespace metl
 {
@@ -31,8 +31,7 @@ namespace metl
 			template<class IDLabel>
 			std::vector<std::vector<TYPE>> getValidCasts(const OperationID<IDLabel>& id, const std::vector<TYPE>& inTypes) const;
 
-			template<class IDLabel>
-			std::vector<std::vector<TYPE>> getConceivableCasts(const OperationID<IDLabel>& id, const std::vector<TYPE>& inTypes) const;
+			std::vector<std::vector<TYPE>> getConceivableCasts( const std::vector<TYPE>& inTypes) const;
 
 
 			template<class IDLabel>
@@ -59,6 +58,5 @@ namespace metl
 
 			const CompilerEntityDataBase<Ts...>& dataBase_;;
 		};
-
 	}
 }

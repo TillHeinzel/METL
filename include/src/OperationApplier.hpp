@@ -5,10 +5,10 @@
 #include "src/CompilerEntityDataBase.hpp"
 #include "src/Caster.hpp"
 
-#include "src/UnaryID.hpp"
-#include "src/BinaryID.hpp"
-#include "src/FunctionID.hpp"
-#include "src/SuffixID.hpp"
+#include "src/OperationIdentification/UnaryID.hpp"
+#include "src/OperationIdentification/BinaryID.hpp"
+#include "src/OperationIdentification/FunctionID.hpp"
+#include "src/OperationIdentification/SuffixID.hpp"
 
 namespace metl
 {

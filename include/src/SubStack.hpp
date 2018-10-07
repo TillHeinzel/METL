@@ -23,7 +23,7 @@
 #include "src/TypeErasure/UntypedExpression.hpp"
 
 #include "src/BasicOperatorData.hpp"
-#include "src/SuffixID.hpp"
+#include "src/OperationIdentification/SuffixID.hpp"
 #include "src/CompilerEntityDataBase.hpp"
 
 #include "src/FunctionSubStack.hpp"
