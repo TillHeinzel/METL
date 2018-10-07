@@ -17,13 +17,20 @@
 #pragma once
 #include <string>
 
+#include "src/OperationID.hpp"
+
 namespace metl
 {
 	namespace internal
 	{
-		struct FunctionID
+		struct FunctionLabel;
+
+		template<>
+		struct OperationID<FunctionLabel>
 		{
 			std::string name;
 		};
+
+		using FunctionID = OperationID<FunctionLabel>;
 	}
 }

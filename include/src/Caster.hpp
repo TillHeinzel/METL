@@ -30,31 +30,7 @@ namespace metl
 		private:
 			template<class CheckExistence>
 			std::vector<std::vector<TYPE>> getValidCasts(const std::vector<TYPE> inTypes, const CheckExistence& doTypesWork) const;
-
-			auto findImpl(const SuffixID& id, const std::vector<TYPE>& types) const
-			{
-				assert(types.size() == 1);
-				auto castedName = mangleSuffix(id.name, types.front());
-				return dataBase_.findSuffix(castedName);
-			}
-
-			auto findImpl(const UnaryID& id, const std::vector<TYPE>& types) const
-			{
-				assert(types.size() == 1);
-				auto castedName = mangleName(id.name, types);
-				return dataBase_.findOperator(castedName);
-			}
-			auto findImpl(const FunctionID& id, const std::vector<TYPE>& types) const
-			{
-				auto castedName = mangleName(id.name, types);
-				return dataBase_.findFunction(castedName);
-			}
-			auto findImpl(const BinaryID& id, const std::vector<TYPE>& types) const
-			{
-				auto castedName = mangleName(id.name, types);
-				return dataBase_.findOperator(castedName);
-			}
-
+			
 			static std::string toString(const SuffixID& id) 
 			{
 				return "suffix " + id.name;

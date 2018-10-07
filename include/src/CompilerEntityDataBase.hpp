@@ -33,6 +33,11 @@
 #include "Associativity.hpp"
 #include "nameMangling.hpp"
 
+#include "src/FunctionSignature.hpp"
+#include "src/UnarySignature.hpp"
+#include "src/BinarySignature.hpp"
+#include "src/SuffixSignature.hpp"
+
 namespace metl
 {
 	namespace internal
@@ -127,6 +132,27 @@ namespace metl
 			auto matchFunctionName(Input& in)
 			{
 				return match(in, functionNames_);
+			}
+
+			tl::optional<UntypedFunction<Expression>> find(const FunctionSignature& function) const
+			{
+				const auto castedName = mangleName(function.name, function.arguments);
+				return findFunction(castedName);
+			}
+			tl::optional<UntypedFunction<Expression>> find(const BinarySignature& binaryOperator) const
+			{
+				const auto castedName = mangleName(binaryOperator.name, {binaryOperator.leftArgument, binaryOperator.rightArgument});
+				return findOperator(castedName);
+			}
+			tl::optional<UntypedConversion<Expression>> find(const SuffixSignature& suffix) const
+			{
+				const auto castedName = mangleSuffix(suffix.name, suffix.argument);
+				return findSuffix(castedName);
+			}
+			tl::optional<UntypedFunction<Expression>> find(const UnarySignature& unaryOperator) const
+			{
+				const auto castedName = mangleName(unaryOperator.name, {unaryOperator.argument});
+				return findOperator(castedName);
 			}
 
 			tl::optional<UntypedFunction<Expression>> findFunction(const std::string& mangledName) const

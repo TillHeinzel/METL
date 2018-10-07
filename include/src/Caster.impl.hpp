@@ -24,9 +24,9 @@ namespace metl
 		template <class ID>
 		std::vector<TYPE> Caster<Ts...>::findNonAmbiguousConversionTarget(const ID& id, const std::vector<TYPE>& inTypes) const
 		{
-			auto doTypesWork = [&id, this](const std::vector<TYPE>& toTypes) -> bool
+			auto doTypesWork = [&id, &dataBase = dataBase_](const std::vector<TYPE>& toTypes) -> bool
 			{
-				auto castedImplOpt = this->findImpl(id, toTypes);
+				auto castedImplOpt = dataBase.find(makeSignature(id, toTypes));
 				return castedImplOpt.has_value();
 			};
 

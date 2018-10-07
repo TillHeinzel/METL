@@ -15,14 +15,22 @@
 // limitations under the License.
 
 #pragma once
+#include <string>
+
+#include "src/OperationID.hpp"
 
 namespace metl
 {
 	namespace internal
 	{
-		struct SuffixID
+		struct SuffixLabel;
+
+		template<>
+		struct OperationID<SuffixLabel>
 		{
 			std::string name;
 		};
+
+		using SuffixID = OperationID<SuffixLabel>;
 	}
 }
