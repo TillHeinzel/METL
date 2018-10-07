@@ -19,11 +19,11 @@
 
 #include <tao/pegtl.hpp>
 
-#include "grammar.hpp"
-#include "actions.hpp"
+#include "src/grammar.hpp"
+#include "src/actions.hpp"
 
-#include "nameMangling.hpp"
-#include "Stack.impl.hpp"
+#include "src/nameMangling.hpp"
+#include "src/Stack.impl.hpp"
 
 #include "src/VariableExpression.hpp"
 

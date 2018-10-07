@@ -23,7 +23,7 @@
 #include "src/SubStack.impl.hpp"
 #include "src/FunctionSubStack.impl.hpp"
 #include "src/ExpressionSubStack.impl.hpp"
-#include "src/CompilerEntityDataBase.impl.hpp"
+#include "src/DataBase/CompilerEntityDataBase.impl.hpp"
 #include "src/Caster.impl.hpp"
 #include "src/OperationApplier.impl.hpp"
 

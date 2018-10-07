@@ -3,14 +3,14 @@
 
 #include <cassert>
 
-#include "src/OperationIdentification/BinaryID.hpp"
-#include "src/OperationIdentification/OperationSignature.hpp"
+#include "src/DataBase/BinaryID.hpp"
+#include "src/DataBase/OperationSignature.hpp"
 
 namespace metl
 {
 	namespace internal
 	{
-		using BinarySignature = OperationSignature<BinaryID>;
+		using BinarySignature = OperationSignature<BinaryLabel>;
 
 		inline BinarySignature makeSignature(const BinaryID& id, const std::vector<TYPE>& arguments)
 		{

@@ -2,7 +2,7 @@
 
 #include "src/TypeErasure/UntypedExpression.hpp"
 
-#include "src/CompilerEntityDataBase.hpp"
+#include "src/DataBase/CompilerEntityDataBase.hpp"
 #include "src/OperationApplier.hpp"
 
 namespace metl

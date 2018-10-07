@@ -15,7 +15,7 @@
 // limitations under the License.
 
 #pragma once
-#include "grammar.hpp"
+#include "src/grammar.hpp"
 
 #include "src/std17/bool_constant.hpp"
 

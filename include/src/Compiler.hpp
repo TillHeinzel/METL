@@ -20,8 +20,9 @@
 
 #include "src/TypeErasure/UntypedExpression.hpp"
 
+#include "src/DataBase/CompilerEntityDataBase.hpp"
+
 #include "Stack.hpp"
-#include "CompilerEntityDataBase.hpp"
 
 namespace metl
 {

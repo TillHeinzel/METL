@@ -8,14 +8,14 @@
 
 #include "src/TypeErasure/TypeEnum.hpp"
 
-#include "src/OperationIdentification/SuffixID.hpp"
-#include "src/OperationIdentification/OperationSignature.hpp"
+#include "src/DataBase/SuffixID.hpp"
+#include "src/DataBase/OperationSignature.hpp"
 
 namespace metl
 {
 	namespace internal
 	{
-		using SuffixSignature = OperationSignature<SuffixID>;
+		using SuffixSignature = OperationSignature<SuffixLabel>;
 
 		inline SuffixSignature makeSignature(const SuffixID& id, const std::vector<TYPE>& arguments)
 		{

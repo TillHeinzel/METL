@@ -23,12 +23,12 @@ namespace metl
 
 		template <class ... Ts>
 		template <class IDLabel>
-		std::vector<TYPE> Caster<Ts...>::findNonAmbiguousConversionTarget(const OperationID<IDLabel>& id, const std::vector<TYPE>& inTypes) const
+		OperationSignature<IDLabel> Caster<Ts...>::findNonAmbiguousConvertedSignature(const OperationID<IDLabel>& id, const std::vector<TYPE>& inTypes) const
 		{
 			auto validCasts = getValidCasts(id, inTypes);
 
 			throwIfNotExactlyOneValidCast(validCasts, toString(id));
-			return validCasts.front();
+			return makeSignature(id,validCasts.front());
 		}
 
 		template <class ... Ts>

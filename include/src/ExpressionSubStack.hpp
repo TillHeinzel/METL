@@ -1,7 +1,7 @@
 #pragma once
 
 #include "src/TypeErasure/UntypedExpression.hpp"
-#include "src/CompilerEntityDataBase.hpp"
+#include "src/DataBase/CompilerEntityDataBase.hpp"
 
 namespace metl
 {

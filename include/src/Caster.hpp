@@ -1,13 +1,17 @@
 #pragma once
 
-#include "src/CompilerEntityDataBase.hpp"
+#include <vector>
+
+#include "src/DataBase/CompilerEntityDataBase.hpp"
 
 #include "src/StackHelpers.hpp"
 
-#include "src/OperationIdentification/UnaryID.hpp"
-#include "src/OperationIdentification/BinaryID.hpp"
-#include "src/OperationIdentification/FunctionID.hpp"
-#include "src/OperationIdentification/SuffixID.hpp"
+#include "src/DataBase/UnaryID.hpp"
+#include "src/DataBase/BinaryID.hpp"
+#include "src/DataBase/FunctionID.hpp"
+#include "src/DataBase/SuffixID.hpp"
+
+#include "src/DataBase/OperationSignature.hpp"
 
 namespace metl
 {
@@ -23,7 +27,7 @@ namespace metl
 			{}
 
 			template<class IDLabel>
-			std::vector<TYPE> findNonAmbiguousConversionTarget(const OperationID<IDLabel>& id, const std::vector<TYPE>& inTypes) const;
+			OperationSignature<IDLabel> findNonAmbiguousConvertedSignature(const OperationID<IDLabel>& id, const std::vector<TYPE>& inTypes) const;
 
 			std::vector<Expression> castTo(const std::vector<Expression>& expressions, const std::vector<TYPE>& targetTypes) const;
 

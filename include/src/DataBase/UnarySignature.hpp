@@ -9,14 +9,14 @@
 
 #include "src/TypeErasure/TypeEnum.hpp"
 
-#include "src/OperationIdentification/UnaryID.hpp"
-#include "src/OperationIdentification/OperationSignature.hpp"
+#include "src/DataBase/UnaryID.hpp"
+#include "src/DataBase/OperationSignature.hpp"
 
 namespace metl
 {
 	namespace internal
 	{
-		using UnarySignature = OperationSignature<UnaryID>;
+		using UnarySignature = OperationSignature<UnaryLabel>;
 
 		inline UnarySignature makeSignature(const UnaryID& id, const std::vector<TYPE>& arguments)
 		{

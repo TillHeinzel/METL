@@ -13,7 +13,7 @@ target_include_directories(metl INTERFACE "${METL_ROOT_DIR}/dependencies/Hana")
 target_include_directories(metl INTERFACE "${METL_ROOT_DIR}/include")
 
 # target for showing headers in IDE
-add_custom_target(metl_impl SOURCES ${SOURCES} ../metl.h)
+add_custom_target(metl_impl SOURCES ${SOURCES} ../metl.hpp)
 
 if(MSVC)
 	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})

@@ -23,7 +23,7 @@
 #include "src/TypeErasure/TypedExpression.hpp"
 #include "src/TypeErasure/TypeEnum.hpp"
 
-#include "src/CompilerEntityDataBase.hpp"
+#include "src/DataBase/CompilerEntityDataBase.hpp"
 
 namespace metl
 {

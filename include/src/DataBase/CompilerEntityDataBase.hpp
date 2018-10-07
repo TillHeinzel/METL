@@ -27,16 +27,16 @@
 #include "src/TypeErasure/UntypedConversion.hpp"
 #include "src/TypeErasure/UntypedValue.hpp"
 
-#include "src/OperationIdentification/SuffixID.hpp"
+#include "src/DataBase/SuffixID.hpp"
 #include "src/BasicOperatorData.hpp"
 
 #include "Associativity.hpp"
-#include "nameMangling.hpp"
+#include "src/nameMangling.hpp"
 
-#include "src/OperationIdentification/FunctionSignature.hpp"
-#include "src/OperationIdentification/UnarySignature.hpp"
-#include "src/OperationIdentification/BinarySignature.hpp"
-#include "src/OperationIdentification/SuffixSignature.hpp"
+#include "src/DataBase/FunctionSignature.hpp"
+#include "src/DataBase/UnarySignature.hpp"
+#include "src/DataBase/BinarySignature.hpp"
+#include "src/DataBase/SuffixSignature.hpp"
 
 namespace metl
 {
@@ -136,22 +136,22 @@ namespace metl
 
 			tl::optional<UntypedFunction<Expression>> find(const FunctionSignature& function) const
 			{
-				const auto castedName = mangleName(function.name, function.arguments);
+				const auto castedName = mangleName(function.name, function.argumentTypes);
 				return findFunction(castedName);
 			}
 			tl::optional<UntypedFunction<Expression>> find(const BinarySignature& binaryOperator) const
 			{
-				const auto castedName = mangleName(binaryOperator.name, {binaryOperator.leftArgument, binaryOperator.rightArgument});
+				const auto castedName = mangleName(binaryOperator.name, binaryOperator.argumentTypes);
 				return findOperator(castedName);
 			}
 			tl::optional<UntypedConversion<Expression>> find(const SuffixSignature& suffix) const
 			{
-				const auto castedName = mangleSuffix(suffix.name, suffix.argument);
+				const auto castedName = mangleSuffix(suffix.name, suffix.argumentTypes.front());
 				return findSuffix(castedName);
 			}
 			tl::optional<UntypedFunction<Expression>> find(const UnarySignature& unaryOperator) const
 			{
-				const auto castedName = mangleName(unaryOperator.name, {unaryOperator.argument});
+				const auto castedName = mangleName(unaryOperator.name, unaryOperator.argumentTypes);
 				return findOperator(castedName);
 			}
 

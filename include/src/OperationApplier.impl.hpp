@@ -27,7 +27,7 @@ namespace metl
 		}
 
 		template<class... Ts>
-		std::vector<TYPE> getTypes(const std::vector<UntypedExpression<Ts...>>& expressions )
+		std::vector<TYPE> getTypes(const std::vector<UntypedExpression<Ts...>>& expressions)
 		{
 			return get_each(expressions, [](const auto& expr)
 			{
@@ -41,16 +41,40 @@ namespace metl
 																const std::vector<Expression>& arguments) const
 		{
 			const auto inTypes = getTypes(arguments);
-			const auto implementationOpt = dataBase_.find(makeSignature(id, inTypes));
+			auto sig = findValidSignature(id, inTypes);
+			auto castedArguments = castIfNecessary(arguments, sig.argumentTypes);
 
-			if(!implementationOpt)
+			auto implementation = findImpl(sig);
+			return applyTo(implementation, castedArguments);
+
+		}
+
+		template <class ... Ts>
+		template <class IDLabel>
+		OperationSignature<IDLabel> OperationApplier<Ts...>::findValidSignature(const OperationID<IDLabel>& id,
+																				const std::vector<TYPE>& argTypes) const
+		{
+			auto sig = makeSignature(id, argTypes);
+
+			const auto implementationOpt = dataBase_.find(sig);
+
+			if(implementationOpt)
 			{
-				const auto targetTypes = caster_.findNonAmbiguousConversionTarget(id, inTypes);
-				const auto castedArguments = caster_.castTo(arguments, targetTypes);
-				return apply(id, castedArguments); 
+				return sig;
 			}
 
-			return applyTo(*implementationOpt, arguments);
+			return caster_.findNonAmbiguousConvertedSignature(id, argTypes);
+		}
+
+		template <class ... Ts>
+		std::vector<typename OperationApplier<Ts...>::Expression> OperationApplier<Ts...>::castIfNecessary(
+			const std::vector<Expression>& expressions, const std::vector<TYPE> types) const
+		{
+			if(getTypes(expressions) == types)
+			{
+				return expressions;
+			}
+			return caster_.castTo(expressions, types);
 		}
 	}
 }
