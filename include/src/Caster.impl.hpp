@@ -8,7 +8,7 @@ namespace metl
 	namespace internal
 	{
 		template<class T>
-		void checkExactlyOneValidCast(const std::vector<T>& validCasts, const std::string& objectLabel)
+		void throwIfNotExactlyOneValidCast(const std::vector<T>& validCasts, const std::string& objectLabel)
 		{
 			if(validCasts.size() > 1)
 			{
@@ -25,15 +25,9 @@ namespace metl
 		template <class IDLabel>
 		std::vector<TYPE> Caster<Ts...>::findNonAmbiguousConversionTarget(const OperationID<IDLabel>& id, const std::vector<TYPE>& inTypes) const
 		{
-			auto doTypesWork = [&id, &dataBase = dataBase_](const std::vector<TYPE>& toTypes) -> bool
-			{
-				auto castedImplOpt = dataBase.find(makeSignature(id, toTypes));
-				return castedImplOpt.has_value();
-			};
+			auto validCasts = getValidCasts(id, inTypes);
 
-			auto validCasts = getValidCasts(inTypes, doTypesWork);
-
-			checkExactlyOneValidCast(validCasts, toString(id));
+			throwIfNotExactlyOneValidCast(validCasts, toString(id));
 			return validCasts.front();
 		}
 
@@ -52,27 +46,43 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		template <class CheckExistence>
-		std::vector<std::vector<TYPE>> Caster<Ts...>::getValidCasts(const std::vector<TYPE> inTypes, const CheckExistence& doTypesWork) const
+		template <class IDLabel>
+		std::vector<std::vector<TYPE>> Caster<Ts...>::getValidCasts(const OperationID<IDLabel>& id,
+			const std::vector<TYPE>& inTypes) const
 		{
-			static_assert(is_callable_v<CheckExistence, Return<bool>, Arguments<const std::vector<TYPE>&>>, "");
+			auto conceivableCasts = getConceivableCasts(id, inTypes);
 
+			std::vector<std::vector<TYPE>> validCasts;
+			for(auto targetTypes : conceivableCasts)
+			{
+				if(doesImplementationExist(id, targetTypes))
+				{
+					validCasts.push_back(targetTypes);
+				}
+			}
+
+			return validCasts;
+		}
+
+		template <class ... Ts>
+		template <class IDLabel>
+		std::vector<std::vector<TYPE>> Caster<Ts...>::getConceivableCasts(const OperationID<IDLabel>& id,
+			const std::vector<TYPE>& inTypes) const
+		{
 			std::vector<std::vector<TYPE>> castCombis{{}};
 			for(auto t : inTypes)
 			{
 				castCombis = tensorSum(castCombis, dataBase_.getAllTypesCastableFrom(t));
 			}
+			return castCombis;
+		}
 
-			std::vector<std::vector<TYPE>> validCasts;
-			for(auto c : castCombis)
-			{
-				if(doTypesWork(c))
-				{
-					validCasts.push_back(c);
-				}
-			}
-
-			return validCasts;
+		template <class ... Ts>
+		template<class IDLabel>
+		bool Caster<Ts...>::doesImplementationExist(const OperationID<IDLabel>& id, const std::vector<TYPE>& types) const
+		{
+			auto castedImplOpt = dataBase_.find(makeSignature(id, types));
+			return castedImplOpt.has_value();
 		}
 
 		template <class ... Ts>

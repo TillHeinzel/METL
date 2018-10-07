@@ -28,9 +28,16 @@ namespace metl
 			std::vector<Expression> castTo(const std::vector<Expression>& expressions, const std::vector<TYPE>& targetTypes) const;
 
 		private:
-			template<class CheckExistence>
-			std::vector<std::vector<TYPE>> getValidCasts(const std::vector<TYPE> inTypes, const CheckExistence& doTypesWork) const;
-			
+			template<class IDLabel>
+			std::vector<std::vector<TYPE>> getValidCasts(const OperationID<IDLabel>& id, const std::vector<TYPE>& inTypes) const;
+
+			template<class IDLabel>
+			std::vector<std::vector<TYPE>> getConceivableCasts(const OperationID<IDLabel>& id, const std::vector<TYPE>& inTypes) const;
+
+
+			template<class IDLabel>
+			bool doesImplementationExist(const OperationID<IDLabel>& id, const std::vector<TYPE>& types) const;
+
 			static std::string toString(const SuffixID& id) 
 			{
 				return "suffix " + id.name;
