@@ -25,7 +25,7 @@ namespace metl
 
 			if (!implementationOpt)
 			{
-				const auto targetTypes = uniqueTargetTypes(id, inTypes);
+				const auto targetTypes = caster_.findNonAmbiguousConversionTarget(id, inTypes);
 				const auto castedArguments = caster_.castTo2(arguments, targetTypes);
 				return apply(id, castedArguments); // call recursively
 			}

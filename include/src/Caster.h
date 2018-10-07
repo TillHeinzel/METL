@@ -4,6 +4,11 @@
 
 #include "src/StackHelpers.h"
 
+#include "src/UnaryID.h"
+#include "src/BinaryID.h"
+#include "src/FunctionID.h"
+#include "src/SuffixID.h"
+
 namespace metl
 {
 	namespace internal
@@ -17,11 +22,10 @@ namespace metl
 			explicit Caster(const CompilerEntityDataBase<Ts...>& dataBase) : dataBase_(dataBase)
 			{}
 
-			TYPE findTypeForUnaryOperator(const std::string& opName, TYPE inType) const;
-			TYPE findTypeForSuffix(const std::string& suffix, TYPE inType) const;
-
-			std::vector<TYPE> findTypesForFunction(const std::string& functionName, const std::vector<TYPE>& inTypes) const;
-			std::vector<TYPE> findTypesForBinaryOperator(const std::string& opName, const std::vector<TYPE>& inTypes) const;
+			std::vector<TYPE> findNonAmbiguousConversionTarget(const UnaryID& id, const std::vector<TYPE>& inTypes) const;
+			std::vector<TYPE> findNonAmbiguousConversionTarget(const SuffixID& id, const std::vector<TYPE>& inTypes) const;
+			std::vector<TYPE> findNonAmbiguousConversionTarget(const FunctionID& id, const std::vector<TYPE>& inTypes) const;
+			std::vector<TYPE> findNonAmbiguousConversionTarget(const BinaryID& id, const std::vector<TYPE>& inTypes) const;
 
 			std::vector<Expression> castTo2(const std::vector<Expression>& expressions, const std::vector<TYPE>& targetTypes) const;
 

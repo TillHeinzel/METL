@@ -55,30 +55,6 @@ namespace metl
 				return dataBase_.findFunction(mangleName(id.name, inTypes));
 			}
 
-			std::vector<TYPE> uniqueTargetTypes(const SuffixID& id, const std::vector<TYPE>& inTypes) const
-			{
-				assert(inTypes.size() == 1);
-				return {caster_.findTypeForSuffix(id.name, inTypes.front())};
-			}
-
-			std::vector<TYPE> uniqueTargetTypes(const UnaryID& id, const std::vector<TYPE>& inTypes) const
-			{
-				assert(inTypes.size() == 1);
-				return {caster_.findTypeForUnaryOperator(id.name, inTypes.front())};
-			}
-
-			std::vector<TYPE> uniqueTargetTypes(const BinaryID& id, std::vector<TYPE> inTypes) const
-			{
-				return caster_.findTypesForBinaryOperator(id.name, inTypes);
-			}
-
-			std::vector<TYPE> uniqueTargetTypes(const FunctionID& id, std::vector<TYPE> inTypes) const
-			{
-				return caster_.findTypesForFunction(id.name, inTypes);
-			}
-
-
-
 			const CompilerEntityDataBase<Ts...>& dataBase_;
 			const Caster<Ts...> caster_;
 		};

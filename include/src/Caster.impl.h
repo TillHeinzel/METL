@@ -21,8 +21,12 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		TYPE Caster<Ts...>::findTypeForUnaryOperator(const std::string& opName, const TYPE inType) const
+		std::vector<TYPE> Caster<Ts...>::findNonAmbiguousConversionTarget(const UnaryID& id, const std::vector<TYPE>& inTypes) const
 		{
+			assert(inTypes.size() == 1);
+			auto inType = inTypes.front();
+			auto opName = id.name;
+
 			auto doesTypeWork = [&opName, &database = dataBase_](TYPE t) -> bool
 			{
 				auto castedName = mangleName(opName, {t});
@@ -34,12 +38,16 @@ namespace metl
 			auto validCasts = getValidCasts(inType, doesTypeWork);
 
 			checkExactlyOneValidCast(validCasts, "unary operator " + opName);
-			return validCasts.back();
+			return validCasts;
 		}
 
 		template <class ... Ts>
-		TYPE Caster<Ts...>::findTypeForSuffix(const std::string& suffix, const TYPE inType) const
+		std::vector<TYPE> Caster<Ts...>::findNonAmbiguousConversionTarget(const SuffixID& id, const std::vector<TYPE>& inTypes) const
 		{
+			assert(inTypes.size() == 1);
+			auto inType = inTypes.front();
+			auto suffix = id.name;
+
 			auto doesTypeWork = [&suffix, &database = dataBase_](TYPE t) -> bool
 			{
 				auto castedName = mangleSuffix(suffix, t);
@@ -51,13 +59,14 @@ namespace metl
 			auto validCasts = getValidCasts(inType, doesTypeWork);
 
 			checkExactlyOneValidCast(validCasts, "suffix " + suffix);
-			return validCasts.back();
+			return validCasts;
 		}
 
-
 		template <class ... Ts>
-		std::vector<TYPE> Caster<Ts...>::findTypesForFunction(const std::string& functionName, const std::vector<TYPE>& inTypes) const
+		std::vector<TYPE> Caster<Ts...>::findNonAmbiguousConversionTarget(const FunctionID& id, const std::vector<TYPE>& inTypes) const
 		{
+			auto functionName = id.name;
+
 			auto doTypesWork = [&functionName, &database = dataBase_](const std::vector<TYPE>& toTypes) -> bool
 			{
 				auto mangledName = mangleName(functionName, toTypes);
@@ -74,8 +83,10 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		std::vector<TYPE> Caster<Ts...>::findTypesForBinaryOperator(const std::string& opName, const std::vector<TYPE>& inTypes) const
+		std::vector<TYPE> Caster<Ts...>::findNonAmbiguousConversionTarget(const BinaryID& id, const std::vector<TYPE>& inTypes) const
 		{
+			auto opName = id.name;
+
 			auto doTypesWork = [&opName, &database = dataBase_](const std::vector<TYPE>& toTypes) -> bool
 			{
 				auto castedName = mangleName(opName, toTypes);
