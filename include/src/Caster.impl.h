@@ -21,88 +21,23 @@ namespace metl
 		}
 
 		template <class ... Ts>
-		std::vector<TYPE> Caster<Ts...>::findNonAmbiguousConversionTarget(const UnaryID& id, const std::vector<TYPE>& inTypes) const
+		template <class ID>
+		std::vector<TYPE> Caster<Ts...>::findNonAmbiguousConversionTarget(const ID& id, const std::vector<TYPE>& inTypes) const
 		{
-			assert(inTypes.size() == 1);
-			auto inType = inTypes.front();
-			auto opName = id.name;
-
-			auto doesTypeWork = [&opName, &database = dataBase_](TYPE t) -> bool
+			auto doTypesWork = [&id, this](const std::vector<TYPE>& toTypes) -> bool
 			{
-				auto castedName = mangleName(opName, {t});
-				auto castedImplOpt = database.findOperator(castedName);
-
-				return castedImplOpt.has_value();
-			};
-
-			auto validCasts = getValidCasts(inType, doesTypeWork);
-
-			checkExactlyOneValidCast(validCasts, "unary operator " + opName);
-			return validCasts;
-		}
-
-		template <class ... Ts>
-		std::vector<TYPE> Caster<Ts...>::findNonAmbiguousConversionTarget(const SuffixID& id, const std::vector<TYPE>& inTypes) const
-		{
-			assert(inTypes.size() == 1);
-			auto inType = inTypes.front();
-			auto suffix = id.name;
-
-			auto doesTypeWork = [&suffix, &database = dataBase_](TYPE t) -> bool
-			{
-				auto castedName = mangleSuffix(suffix, t);
-				auto castedImplOpt = database.findSuffix(castedName);
-
-				return castedImplOpt.has_value();
-			};
-
-			auto validCasts = getValidCasts(inType, doesTypeWork);
-
-			checkExactlyOneValidCast(validCasts, "suffix " + suffix);
-			return validCasts;
-		}
-
-		template <class ... Ts>
-		std::vector<TYPE> Caster<Ts...>::findNonAmbiguousConversionTarget(const FunctionID& id, const std::vector<TYPE>& inTypes) const
-		{
-			auto functionName = id.name;
-
-			auto doTypesWork = [&functionName, &database = dataBase_](const std::vector<TYPE>& toTypes) -> bool
-			{
-				auto mangledName = mangleName(functionName, toTypes);
-				auto castedImplOpt = database.findFunction(mangledName);
-
+				auto castedImplOpt = this->findImpl(id, toTypes);
 				return castedImplOpt.has_value();
 			};
 
 			auto validCasts = getValidCasts(inTypes, doTypesWork);
 
-			checkExactlyOneValidCast(validCasts, "function " + functionName);
-			return validCasts.back();
-
+			checkExactlyOneValidCast(validCasts, toString(id));
+			return validCasts.front();
 		}
 
 		template <class ... Ts>
-		std::vector<TYPE> Caster<Ts...>::findNonAmbiguousConversionTarget(const BinaryID& id, const std::vector<TYPE>& inTypes) const
-		{
-			auto opName = id.name;
-
-			auto doTypesWork = [&opName, &database = dataBase_](const std::vector<TYPE>& toTypes) -> bool
-			{
-				auto castedName = mangleName(opName, toTypes);
-				auto castedImplOpt = database.findOperator(castedName);
-
-				return castedImplOpt.has_value();
-			};
-
-			auto validCasts = getValidCasts(inTypes, doTypesWork);
-
-			checkExactlyOneValidCast(validCasts, "operator " + opName);
-			return validCasts.back();
-		}
-
-		template <class ... Ts>
-		std::vector<typename Caster<Ts...>::Expression> Caster<Ts...>::castTo2(
+		std::vector<typename Caster<Ts...>::Expression> Caster<Ts...>::castTo(
 			const std::vector<Expression>& expressions, const std::vector<TYPE>& targetTypes) const
 		{
 			assert(expressions.size() == targetTypes.size());
@@ -132,26 +67,10 @@ namespace metl
 
 		template <class ... Ts>
 		template <class CheckExistence>
-		std::vector<TYPE> Caster<Ts...>::getValidCasts(const TYPE inType, const CheckExistence& doesTypeWork) const
-		{
-			std::vector<TYPE> allowedCasts = dataBase_.getAllTypesCastableFrom(inType);
-
-			std::vector<TYPE> validCasts;
-			for(auto c : allowedCasts)
-			{
-				if(doesTypeWork(c))
-				{
-					validCasts.push_back(c);
-				}
-			}
-
-			return validCasts;
-		}
-
-		template <class ... Ts>
-		template <class CheckExistence>
 		std::vector<std::vector<TYPE>> Caster<Ts...>::getValidCasts(const std::vector<TYPE> inTypes, const CheckExistence& doTypesWork) const
 		{
+			static_assert(is_callable_v<CheckExistence, Return<bool>, Arguments<const std::vector<TYPE>&>>, "");
+
 			std::vector<std::vector<TYPE>> castCombis{{}};
 			for(auto t : inTypes)
 			{
