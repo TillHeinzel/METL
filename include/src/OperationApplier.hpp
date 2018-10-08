@@ -34,12 +34,7 @@ namespace metl
 			std::vector<Expression> castIfNecessary(const std::vector<Expression>& expressions, const std::vector<TYPE> types) const;
 
 			template<class IDLabel>
-			auto findImpl(const OperationSignature<IDLabel>& sig) const
-			{
-				const auto implementationOpt = dataBase_.find(sig);
-				assert(implementationOpt);
-				return *implementationOpt;
-			}
+			OperationImpl<IDLabel, Ts...> findImpl(const OperationSignature<IDLabel>& sig) const;
 
 			const CompilerEntityDataBase<Ts...>& dataBase_;
 			const Caster<Ts...> caster_;

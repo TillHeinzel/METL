@@ -30,13 +30,18 @@
 #include "src/DataBase/SuffixID.hpp"
 #include "src/BasicOperatorData.hpp"
 
-#include "Associativity.hpp"
+#include "src/Associativity.hpp"
 #include "src/nameMangling.hpp"
 
 #include "src/DataBase/FunctionSignature.hpp"
 #include "src/DataBase/UnarySignature.hpp"
 #include "src/DataBase/BinarySignature.hpp"
 #include "src/DataBase/SuffixSignature.hpp"
+
+#include "src/DataBase/FunctionImpl.hpp"
+#include "src/DataBase/BinaryImpl.hpp"
+#include "src/DataBase/UnaryImpl.hpp"
+#include "src/DataBase/SuffixImpl.hpp"
 
 namespace metl
 {
@@ -134,40 +139,37 @@ namespace metl
 				return match(in, functionNames_);
 			}
 
-			tl::optional<UntypedFunction<Expression>> find(const FunctionSignature& function) const
+			tl::optional<FunctionImpl<Ts...>> find(const FunctionSignature& function) const
 			{
 				const auto castedName = mangleName(function.name, function.argumentTypes);
-				return findFunction(castedName);
+				return findFunction(castedName).map([](const auto& s)
+				{
+					return FunctionImpl<Ts...>{s};
+				});
 			}
-			tl::optional<UntypedFunction<Expression>> find(const BinarySignature& binaryOperator) const
+			tl::optional<BinaryImpl<Ts...>> find(const BinarySignature& binaryOperator) const
 			{
 				const auto castedName = mangleName(binaryOperator.name, binaryOperator.argumentTypes);
-				return findOperator(castedName);
+				return findOperator(castedName).map([](const auto& s)
+				{
+					return BinaryImpl<Ts...>{s};
+				});
 			}
-			tl::optional<UntypedConversion<Expression>> find(const SuffixSignature& suffix) const
+			tl::optional<SuffixImpl<Ts...>> find(const SuffixSignature& suffix) const
 			{
 				const auto castedName = mangleSuffix(suffix.name, suffix.argumentTypes.front());
-				return findSuffix(castedName);
+				return findSuffix(castedName).map([](const auto& s)
+				{
+					return SuffixImpl<Ts...>{s};
+				});
 			}
-			tl::optional<UntypedFunction<Expression>> find(const UnarySignature& unaryOperator) const
+			tl::optional<UnaryImpl<Ts...>> find(const UnarySignature& unaryOperator) const
 			{
 				const auto castedName = mangleName(unaryOperator.name, unaryOperator.argumentTypes);
-				return findOperator(castedName);
-			}
-
-			tl::optional<UntypedFunction<Expression>> findFunction(const std::string& mangledName) const
-			{
-				return find(functions_, mangledName);
-			}
-			
-			tl::optional<UntypedFunction<Expression>> findOperator(const std::string& mangledName) const
-			{
-				return find(operators_, mangledName);
-			}
-			
-			tl::optional<UntypedConversion<Expression>> findSuffix(const std::string& mangledName) const
-			{
-				return find(suffixImplementations_, mangledName);
+				return findOperator(castedName).map([](const auto& s)
+				{
+					return UnaryImpl<Ts...>{s};
+				});
 			}
 
 			tl::optional<UntypedValue<Ts...>> findValue(const std::string& name) const
@@ -205,6 +207,21 @@ namespace metl
 
 
 		private:
+			tl::optional<UntypedFunction<Expression>> findFunction(const std::string& mangledName) const
+			{
+				return find(functions_, mangledName);
+			}
+			
+			tl::optional<UntypedFunction<Expression>> findOperator(const std::string& mangledName) const
+			{
+				return find(operators_, mangledName);
+			}
+			
+			tl::optional<UntypedConversion<Expression>> findSuffix(const std::string& mangledName) const
+			{
+				return find(suffixImplementations_, mangledName);
+			}
+
 			std::map<std::string, UntypedConversion<Expression>> castImplementations_;
 			std::map<std::string, UntypedValue<Ts...>> constantsAndVariables_;
 

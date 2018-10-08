@@ -45,7 +45,7 @@ namespace metl
 			auto castedArguments = castIfNecessary(arguments, sig.argumentTypes);
 
 			auto implementation = findImpl(sig);
-			return applyTo(implementation, castedArguments);
+			return applyTo(implementation.impl, castedArguments);
 
 		}
 
@@ -75,6 +75,15 @@ namespace metl
 				return expressions;
 			}
 			return caster_.castTo(expressions, types);
+		}
+
+		template <class ... Ts>
+		template <class IDLabel>
+		OperationImpl<IDLabel, Ts...> OperationApplier<Ts...>::findImpl(const OperationSignature<IDLabel>& sig) const
+		{
+			const auto implementationOpt = dataBase_.find(sig);
+			assert(implementationOpt);
+			return *implementationOpt;
 		}
 	}
 }
