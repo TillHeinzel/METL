@@ -33,13 +33,13 @@ namespace metl
 
 		private:
 			template<class IDLabel>
-			std::vector<std::vector<TYPE>> excludeNonExistingSignatures(const OperationID<IDLabel>& id, const std::vector<std::vector<TYPE>>& conceivableCasts) const;
+			std::vector<OperationSignature<IDLabel>> excludeNonExistingSignatures(const std::vector<OperationSignature<IDLabel>>& conceivableSignatures) const;
 
 			template<class IDLabel>
-			std::vector<std::vector<TYPE>> generateCandidateSignatures(const OperationSignature<IDLabel>& signature) const;
+			std::vector<OperationSignature<IDLabel>> generateConceivableSignatures(const OperationSignature<IDLabel>& signature) const;
 
 			template<class IDLabel>
-			bool doesImplementationExist(const OperationID<IDLabel>& id, const std::vector<TYPE>& types) const;
+			bool doesImplementationExist(const OperationSignature<IDLabel>& signature) const;
 
 			UntypedExpression<Ts...> castIfNecessary(const UntypedExpression<Ts...>& expr, TYPE toType) const;
 

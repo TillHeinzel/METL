@@ -1,6 +1,7 @@
 #pragma once
 
 #include "src/Caster.hpp"
+
 #include "src/Utility/applyOnEachElement.hpp"
 
 namespace metl
@@ -27,11 +28,11 @@ namespace metl
 		{
 			auto inSignature = makeSignature(id, inTypes);
 
-			auto candidateSignatures = generateCandidateSignatures(inSignature);
-			auto validSignatures = excludeNonExistingSignatures(id, candidateSignatures);
+			auto candidateSignatures = generateConceivableSignatures(inSignature);
+			auto validSignatures = excludeNonExistingSignatures(candidateSignatures);
 
 			throwIfNotExactlyOneValidCast(validSignatures, labelString<IDLabel>() + " " + id.name);
-			return makeSignature(id,validSignatures.front());
+			return validSignatures.front();
 		}
 
 		template <class ... Ts>
@@ -50,24 +51,22 @@ namespace metl
 
 		template <class ... Ts>
 		template <class IDLabel>
-		std::vector<std::vector<TYPE>> Caster<Ts...>::excludeNonExistingSignatures(const OperationID<IDLabel>& id,	const std::vector<std::vector<TYPE>>& conceivableCasts) const
+		std::vector<OperationSignature<IDLabel>> Caster<Ts...>::excludeNonExistingSignatures(const std::vector<OperationSignature<IDLabel>>& conceivableSignatures) const
 		{
-
-			std::vector<std::vector<TYPE>> validCasts;
-			for(auto targetTypes : conceivableCasts)
+			std::vector<OperationSignature<IDLabel>> validCasts;
+			for(auto signature : conceivableSignatures)
 			{
-				if(doesImplementationExist(id, targetTypes))
+				if(doesImplementationExist(signature))
 				{
-					validCasts.push_back(targetTypes);
+					validCasts.push_back(signature);
 				}
 			}
-
 			return validCasts;
 		}
 
 		template <class... Ts>
 		template<class IDLabel>
-		std::vector<std::vector<TYPE>> Caster<Ts...>::generateCandidateSignatures(const OperationSignature<IDLabel>& signature) const
+		std::vector<OperationSignature<IDLabel>> Caster<Ts...>::generateConceivableSignatures(const OperationSignature<IDLabel>& signature) const
 		{
 			auto inTypes = signature.argumentTypes;
 
@@ -76,14 +75,19 @@ namespace metl
 			{
 				castCombis = tensorSum(castCombis, dataBase_.getAllTypesCastableFrom(t));
 			}
-			return castCombis;
+
+			auto makeSig = [&name = signature.name](const auto& castCombi)
+			{
+				return makeSignature(OperationID<IDLabel>{name}, castCombi);
+			};
+			return applyOnEachElement(makeSig, castCombis);
 		}
 
 		template <class ... Ts>
 		template<class IDLabel>
-		bool Caster<Ts...>::doesImplementationExist(const OperationID<IDLabel>& id, const std::vector<TYPE>& types) const
+		bool Caster<Ts...>::doesImplementationExist(const OperationSignature<IDLabel>& signature) const
 		{
-			auto castedImplOpt = dataBase_.find(makeSignature(id, types));
+			auto castedImplOpt = dataBase_.find(signature);
 			return castedImplOpt.has_value();
 		}
 

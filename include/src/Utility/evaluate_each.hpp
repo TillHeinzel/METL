@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <tuple>
+
 namespace metl
 {
 	namespace internal
