@@ -7,5 +7,8 @@ namespace metl
 	{
 		template<class Label>
 		struct OperationID;
+
+		template<class Label>
+		std::string labelString();
 	}
 }

@@ -32,5 +32,11 @@ namespace metl
 		};
 
 		using SuffixID = OperationID<SuffixLabel>;
+
+		template<>
+		inline std::string labelString<SuffixLabel>()
+		{
+			return "Suffix";
+		}
 	}
 }

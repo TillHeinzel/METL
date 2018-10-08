@@ -32,5 +32,11 @@ namespace metl
 		};
 
 		using UnaryID = OperationID<UnaryLabel>;
+
+		template<>
+		inline std::string labelString<UnaryLabel>()
+		{
+			return "Unary Operator";
+		}
 	}
 }

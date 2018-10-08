@@ -32,5 +32,11 @@ namespace metl
 		};
 
 		using BinaryID = OperationID<BinaryLabel>;
+
+		template<>
+		inline std::string labelString<BinaryLabel>()
+		{
+			return "Binary Operator";
+		}
 	}
 }

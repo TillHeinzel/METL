@@ -33,30 +33,13 @@ namespace metl
 
 		private:
 			template<class IDLabel>
-			std::vector<std::vector<TYPE>> getValidCasts(const OperationID<IDLabel>& id, const std::vector<TYPE>& inTypes) const;
+			std::vector<std::vector<TYPE>> excludeNonExistingSignatures(const OperationID<IDLabel>& id, const std::vector<std::vector<TYPE>>& conceivableCasts) const;
 
-			std::vector<std::vector<TYPE>> getConceivableCasts( const std::vector<TYPE>& inTypes) const;
-
+			template<class IDLabel>
+			std::vector<std::vector<TYPE>> generateCandidateSignatures(const OperationSignature<IDLabel>& signature) const;
 
 			template<class IDLabel>
 			bool doesImplementationExist(const OperationID<IDLabel>& id, const std::vector<TYPE>& types) const;
-
-			static std::string toString(const SuffixID& id) 
-			{
-				return "suffix " + id.name;
-			}
-			static std::string toString(const UnaryID& id)
-			{
-				return "unary operator " + id.name;
-			}
-			static std::string toString(const FunctionID& id)
-			{
-				return "function " + id.name;
-			}
-			static std::string toString(const BinaryID& id)
-			{
-				return "binary operator " + id.name;
-			}
 
 			UntypedExpression<Ts...> castIfNecessary(const UntypedExpression<Ts...>& expr, TYPE toType) const;
 

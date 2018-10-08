@@ -25,10 +25,13 @@ namespace metl
 		template <class IDLabel>
 		OperationSignature<IDLabel> Caster<Ts...>::findNonAmbiguousConvertedSignature(const OperationID<IDLabel>& id, const std::vector<TYPE>& inTypes) const
 		{
-			auto validCasts = getValidCasts(id, inTypes);
+			auto inSignature = makeSignature(id, inTypes);
 
-			throwIfNotExactlyOneValidCast(validCasts, toString(id));
-			return makeSignature(id,validCasts.front());
+			auto candidateSignatures = generateCandidateSignatures(inSignature);
+			auto validSignatures = excludeNonExistingSignatures(id, candidateSignatures);
+
+			throwIfNotExactlyOneValidCast(validSignatures, labelString<IDLabel>() + " " + id.name);
+			return makeSignature(id,validSignatures.front());
 		}
 
 		template <class ... Ts>
@@ -47,10 +50,8 @@ namespace metl
 
 		template <class ... Ts>
 		template <class IDLabel>
-		std::vector<std::vector<TYPE>> Caster<Ts...>::getValidCasts(const OperationID<IDLabel>& id,
-			const std::vector<TYPE>& inTypes) const
+		std::vector<std::vector<TYPE>> Caster<Ts...>::excludeNonExistingSignatures(const OperationID<IDLabel>& id,	const std::vector<std::vector<TYPE>>& conceivableCasts) const
 		{
-			auto conceivableCasts = getConceivableCasts(inTypes);
 
 			std::vector<std::vector<TYPE>> validCasts;
 			for(auto targetTypes : conceivableCasts)
@@ -64,9 +65,12 @@ namespace metl
 			return validCasts;
 		}
 
-		template <class ... Ts>
-		std::vector<std::vector<TYPE>> Caster<Ts...>::getConceivableCasts(const std::vector<TYPE>& inTypes) const
+		template <class... Ts>
+		template<class IDLabel>
+		std::vector<std::vector<TYPE>> Caster<Ts...>::generateCandidateSignatures(const OperationSignature<IDLabel>& signature) const
 		{
+			auto inTypes = signature.argumentTypes;
+
 			std::vector<std::vector<TYPE>> castCombis{{}};
 			for(auto t : inTypes)
 			{

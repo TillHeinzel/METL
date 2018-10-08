@@ -32,5 +32,11 @@ namespace metl
 		};
 
 		using FunctionID = OperationID<FunctionLabel>;
+
+		template<>
+		inline std::string labelString<FunctionLabel>()
+		{
+			return "Function";
+		}
 	}
 }
